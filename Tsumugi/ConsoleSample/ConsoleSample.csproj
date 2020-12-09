@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0933CA6F-315E-44AA-BE42-FE5E85DEC82F}</ProjectGuid>
+    <ProjectGuid>{C4D0C73C-56E9-4389-96D8-CC1029B450FA}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>ConsoleSample</RootNamespace>
     <AssemblyName>ConsoleSample</AssemblyName>
@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tsumugi\Tsumugi.csproj">
-      <Project>{a787c696-699d-47eb-8473-7b2c366b4395}</Project>
+      <Project>{86214d25-7179-4a38-9887-92fb92f76555}</Project>
       <Name>Tsumugi</Name>
     </ProjectReference>
   </ItemGroup>
