@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Tsumugi
+namespace Tsumugi.Commands
 {
-    class Listener
+    class CommandBase
     {
     }
 }
