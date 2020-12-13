@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Tsumugi.Commands
 {
-    public class CommandBase
+    public class NewLineCommand : CommandBase
     {
     }
 }
