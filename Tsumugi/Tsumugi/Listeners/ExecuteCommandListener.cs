@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Tsumugi.Listeners
 {
-    interface ExecuteCommandListener
+    public interface IExecuteCommandListener
     {
     }
 }
