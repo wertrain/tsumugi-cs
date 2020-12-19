@@ -18,6 +18,11 @@ namespace Tsumugi.Commands
 
         public CommandBase Dequeue()
         {
+            if (_queue.Count == 0)
+            {
+                return null;
+            }
+
             return _queue.Dequeue();
         }
 

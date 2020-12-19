@@ -9,5 +9,6 @@ namespace Tsumugi.Listeners
     /// </summary>
     public class TsumugiExecuteCommandListener : IExecuteCommandListener
     {
+
     }
 }

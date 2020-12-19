@@ -26,7 +26,52 @@ namespace Tsumugi.Executor
         /// <returns></returns>
         public int Execute(Commands.CommandQueue queue)
         {
+            Commands.CommandBase command = null;
+
+            while((command = queue.Dequeue()) != null)
+            {
+                switch (command)
+                {
+                    case Commands.PrintTextCommand cmd:
+                        PrintText(cmd.Text);
+                        break;
+
+                    case Commands.NewLineCommand cmd:
+                        StartNewLine();
+                        break;
+
+                    case Commands.WaitKeyCommand cmd:
+                        WaitAnyKey();
+                        break;
+
+                    case Commands.NewPageCommand cmd:
+                        StartNewPage();
+                        break;
+                }
+            }
+            
             return 0;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
+        public virtual void PrintText(string text) { }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual void StartNewLine() { }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual void WaitAnyKey() { }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual void StartNewPage() { }
     }
 }

@@ -20,54 +20,76 @@ namespace Tsumugi
 
             using (var reader = new StringReader(script))
             {
-                char c = (char)reader.Peek();
-
-                switch (c)
+                int c = -1;
+                while((c = reader.Read()) >= 0)
                 {
-                    case '[':
-                        parseTag(reader, progressingText);
-                        break;
+                    switch (c)
+                    {
+                        case '[':
+                            processTag(reader, progressingText);
+                            break;
 
-                    default:
-                        progressingText.Append(c);
-                        break;
+                        default:
+                            progressingText.Append((char)c);
+                            break;
+                    }
                 }
             }
         }
 
-        private bool parseTag(StringReader reader, StringBuilder progressingText)
+        private string parseTag(StringReader reader)
         {
             var tag = new StringBuilder();
 
             int c = -1;
-            while ((c = reader.Peek()) >= 0)
+            while ((c = reader.Read()) >= 0)
             {
                 switch (c)
                 {
                     case ']':
-                        break;
+                        return tag.ToString();
 
                     default:
-                        tag.Append(c);
+                        tag.Append((char)c);
                         break;
                 }
             }
 
-            switch(tag.ToString())
+            return string.Empty;
+        }
+
+        private bool processTag(StringReader reader, StringBuilder progressingText)
+        {
+            var tag = parseTag(reader);
+
+            switch (tag)
             {
                 case "l":
-                    CommandQueue.Enqueue(new Commands.PrintTextCommand() { Text = progressingText.ToString() });
+                    addPrintTextCommand(progressingText.ToString());
                     progressingText.Clear();
+                    CommandQueue.Enqueue(new Commands.WaitKeyCommand());
                     break;
 
                 case "r":
-                    CommandQueue.Enqueue(new Commands.PrintTextCommand() { Text = progressingText.ToString() });
+                    addPrintTextCommand(progressingText.ToString());
                     progressingText.Clear();
                     CommandQueue.Enqueue(new Commands.NewLineCommand());
+                    break;
+
+                case "cm":
+                    CommandQueue.Enqueue(new Commands.NewPageCommand());
                     break;
             }
 
             return true;
+        }
+
+        private void addPrintTextCommand(string text)
+        {
+            if (text.Length > 0)
+            {
+                CommandQueue.Enqueue(new Commands.PrintTextCommand() { Text = text });
+            }
         }
     }
 }
