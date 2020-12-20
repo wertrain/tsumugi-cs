@@ -47,6 +47,10 @@ namespace Tsumugi.Executor
                     case Commands.NewPageCommand cmd:
                         StartNewPage();
                         break;
+
+                    case Commands.WaitTimeCommand cmd:
+                        WaitTime(cmd.Time);
+                        break;
                 }
             }
             
@@ -73,5 +77,10 @@ namespace Tsumugi.Executor
         /// 
         /// </summary>
         public virtual void StartNewPage() { }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual void WaitTime(int millisec) { }
     }
 }
