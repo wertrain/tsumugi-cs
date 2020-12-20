@@ -4,33 +4,42 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Tsumugi
+namespace Tsumugi.Parser
 {
-    public class Parser
+    /// <summary>
+    /// Tsumugi 標準のパーサー
+    /// </summary>
+    public class TsumugiParser : IParser
     {
         public Commands.CommandQueue CommandQueue { get; }
 
-        public Parser()
+        public TsumugiParser()
         {
             CommandQueue = new Commands.CommandQueue();
             TemporaryVariables = new Dictionary<string, string>();
+            Labels = new Dictionary<string, Label>();
+            _enableIndent = false;
         }
 
         /// <summary>
         /// パース
         /// </summary>
         /// <param name="script"></param>
-        public void Parse(string script)
+        public int Parse(string script)
         {
             var progressingText = new StringBuilder();
 
-            using (var reader = new StringReader(script))
+            using (var reader = new TsumugiStringReader(script))
             {
                 int c = -1;
                 while((c = reader.Read()) >= 0)
                 {
                     switch (c)
                     {
+                        case ':':
+                            processLabel(reader, progressingText);
+                            break;
+
                         case '[':
                             processTag(reader, progressingText);
                             break;
@@ -41,6 +50,73 @@ namespace Tsumugi
                     }
                 }
             }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="progressingText"></param>
+        private void processLabel(TsumugiStringReader reader, StringBuilder progressingText)
+        {
+            var label = new StringBuilder();
+
+            int c = -1;
+            while ((c = reader.Read()) >= 0)
+            {
+                if (checkNameTerminated(c))
+                {
+                    Labels.Add(label.ToString(), new Label()
+                    {
+                        Name = label.ToString(),
+                        Headline = string.Empty
+                    });
+                    return;
+                }
+
+                switch (c)
+                {
+                    case '|':
+                        Labels.Add(label.ToString(), new Label()
+                        {
+                            Name = label.ToString(),
+                            Headline = parseLabelHeadline(reader)
+                        });
+                        return;
+
+                    default:
+                        label.Append((char)c);
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        private string parseLabelHeadline(TsumugiStringReader reader)
+        {
+            var headline = new StringBuilder();
+
+            int c = -1;
+            while ((c = reader.Peek()) >= 0)
+            {
+                if (checkNameTerminated(c))
+                {
+                    break;
+                }
+                else
+                {
+                    headline.Append((char)c);
+                    reader.Read();
+                }
+            }
+
+            return headline.ToString();
         }
 
         /// <summary>
@@ -51,7 +127,7 @@ namespace Tsumugi
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private Tag parseTag(StringReader reader)
+        private Tag parseTag(TsumugiStringReader reader)
         {
             var tag = new StringBuilder();
 
@@ -71,7 +147,7 @@ namespace Tsumugi
                         return new Tag()
                         {
                             Name = tag.ToString(),
-                            Attributes = parseAttributes(reader)
+                            Attributes = parseTagAttributes(reader)
                         };
 
                     default:
@@ -88,7 +164,7 @@ namespace Tsumugi
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private List<Tag.Attribute> parseAttributes(StringReader reader)
+        private List<Tag.Attribute> parseTagAttributes(TsumugiStringReader reader)
         {
             var name = new StringBuilder();
             var attributes = new List<Tag.Attribute>();
@@ -133,7 +209,7 @@ namespace Tsumugi
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private string parseAttributeValue(StringReader reader)
+        private string parseAttributeValue(TsumugiStringReader reader)
         {
             var value = new StringBuilder();
 
@@ -165,20 +241,20 @@ namespace Tsumugi
         /// <param name="reader"></param>
         /// <param name="progressingText"></param>
         /// <returns></returns>
-        private bool processTag(StringReader reader, StringBuilder progressingText)
+        private bool processTag(TsumugiStringReader reader, StringBuilder progressingText)
         {
             var tag = parseTag(reader);
 
             switch (tag.Name)
             {
                 case "l":
-                    addPrintTextCommand(progressingText.ToString());
+                    addPrintTextCommand(progressingText.ToString(), false);
                     progressingText.Clear();
                     CommandQueue.Enqueue(new Commands.WaitKeyCommand());
                     break;
 
                 case "r":
-                    addPrintTextCommand(progressingText.ToString());
+                    addPrintTextCommand(progressingText.ToString(), false);
                     progressingText.Clear();
                     CommandQueue.Enqueue(new Commands.NewLineCommand());
                     break;
@@ -200,7 +276,7 @@ namespace Tsumugi
                                 int.TryParse(value, out time);
                             }
                         }
-                        addPrintTextCommand(progressingText.ToString());
+                        addPrintTextCommand(progressingText.ToString(), true);
                         progressingText.Clear();
                         CommandQueue.Enqueue(new Commands.WaitTimeCommand(time));
                     }
@@ -220,6 +296,18 @@ namespace Tsumugi
                     }
                     break;
 
+                case "indent":
+                    addPrintTextCommand(progressingText.ToString(), true);
+                    progressingText.Clear();
+                    _enableIndent = true;
+                    break;
+
+                case "endindent":
+                    addPrintTextCommand(progressingText.ToString(), true);
+                    progressingText.Clear();
+                    _enableIndent = false;
+                    break;
+
                 default:
                     return false;
             }
@@ -228,52 +316,55 @@ namespace Tsumugi
         }
 
         /// <summary>
-        /// 文字列が空でない場合に、文字表示コマンドを追加
+        /// PrintTextCommand 設定ユーティリティ
         /// </summary>
-        /// <param name="text"></param>
-        private void addPrintTextCommand(string text)
+        /// <param name="text">設定するテキスト</param>
+        /// <param name="fromCommand">コマンドによる文字出力かどうか</param>
+        private void addPrintTextCommand(string text, bool fromCommand)
         {
             if (text.Length > 0)
             {
+                if (fromCommand && _enableIndent)
+                {
+                    CommandQueue.Enqueue(new Commands.InsertIndentCommand() {});
+                }
+
                 CommandQueue.Enqueue(new Commands.PrintTextCommand() { Text = text });
             }
         }
 
         /// <summary>
-        /// タグ
+        /// ラベル名などの終端を判定
         /// </summary>
-        public class Tag
+        /// <param name="c"></param>
+        /// <returns></returns>
+        private bool checkNameTerminated(int c)
         {
-            /// <summary>
-            /// 属性
-            /// </summary>
-            public class Attribute
+            switch (c)
             {
-                /// <summary>
-                /// 属性名
-                /// </summary>
-                public string Name { get; set; }
-
-                /// <summary>
-                /// 属性の値
-                /// </summary>
-                public string Value { get; set; }
+                case ' ':
+                case '[':
+                case '\n':
+                case '\r':
+                case '\t':
+                    return true;
             }
-
-            /// <summary>
-            /// タグの名前
-            /// </summary>
-            public string Name;
-            
-            /// <summary>
-            /// 
-            /// </summary>
-            public List<Tag.Attribute> Attributes;
+            return false;
         }
 
         /// <summary>
-        /// 一時変数の配列
+        /// 一時変数の辞書
         /// </summary>
         private Dictionary<string, string> TemporaryVariables;
+
+        /// <summary>
+        /// ラベルの辞書
+        /// </summary>
+        private Dictionary<string, Label> Labels;
+
+        /// <summary>
+        /// インデントの有効
+        /// </summary>
+        private bool _enableIndent;
     }
 }

@@ -9,15 +9,15 @@ namespace Tsumugi.Executor
     /// </summary>
     public class TsumugiCommandExecutor : ICommandExecutor
     {
+        public TsumugiCommandExecutor()
+        {
+            Environment = Environment.Default();
+        }
+
         /// <summary>
         /// 
         /// </summary>
-        public List<Listeners.TsumugiExecuteCommandListener> Listeners { get; private set; }
-
-        public TsumugiCommandExecutor()
-        {
-            Listeners = new List<Listeners.TsumugiExecuteCommandListener>();
-        }
+        public Environment Environment { get; set; }
 
         /// <summary>
         /// コマンドの実行
@@ -51,6 +51,11 @@ namespace Tsumugi.Executor
                     case Commands.WaitTimeCommand cmd:
                         WaitTime(cmd.Time);
                         break;
+
+                    case Commands.InsertIndentCommand cmd:
+                        Indent(Environment.Indentation);
+                        break;
+
                 }
             }
             
@@ -82,5 +87,11 @@ namespace Tsumugi.Executor
         /// 
         /// </summary>
         public virtual void WaitTime(int millisec) { }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="size"></param>
+        public virtual void Indent(int count) { }
     }
 }

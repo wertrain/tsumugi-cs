@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Tsumugi.Listeners
+namespace Tsumugi.Commands
 {
-    public interface IExecuteCommandListener
+    public class InsertIndentCommand : CommandBase
     {
+
     }
 }

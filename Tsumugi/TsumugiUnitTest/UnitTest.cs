@@ -9,7 +9,7 @@ namespace TsumugiUnitTest
         [TestMethod]
         public void TestMethodParserBasic()
         {
-            var parser = new Tsumugi.Parser();
+            var parser = new Tsumugi.Parser.TsumugiParser();
             parser.Parse("Hello, Tsumugi!");
 
             Assert.AreNotEqual(parser.CommandQueue.Dequeue(), null);
