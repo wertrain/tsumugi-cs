@@ -15,7 +15,7 @@ namespace Tsumugi.Executor
         }
 
         /// <summary>
-        /// 
+        /// 環境設定
         /// </summary>
         public Environment Environment { get; set; }
 
@@ -63,33 +63,33 @@ namespace Tsumugi.Executor
         }
 
         /// <summary>
-        /// 
+        /// 文字列の表示
         /// </summary>
         /// <param name="text"></param>
         public virtual void PrintText(string text) { }
 
         /// <summary>
-        /// 
+        /// 改行
         /// </summary>
         public virtual void StartNewLine() { }
 
         /// <summary>
-        /// 
+        /// キー入力待ち
         /// </summary>
         public virtual void WaitAnyKey() { }
 
         /// <summary>
-        /// 
+        /// 改ページ
         /// </summary>
         public virtual void StartNewPage() { }
 
         /// <summary>
-        /// 
+        /// 指定時間の待ち
         /// </summary>
         public virtual void WaitTime(int millisec) { }
 
         /// <summary>
-        /// 
+        /// インデント
         /// </summary>
         /// <param name="size"></param>
         public virtual void Indent(int count) { }

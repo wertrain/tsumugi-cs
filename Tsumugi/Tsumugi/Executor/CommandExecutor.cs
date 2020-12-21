@@ -7,7 +7,7 @@ namespace Tsumugi.Executor
     public interface ICommandExecutor
     {
         /// <summary>
-        /// 
+        /// 環境設定
         /// </summary>
         Environment Environment { get; }
 

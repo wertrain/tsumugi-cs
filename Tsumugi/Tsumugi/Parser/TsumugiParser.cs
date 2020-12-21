@@ -55,7 +55,7 @@ namespace Tsumugi.Parser
         }
 
         /// <summary>
-        /// 
+        /// ラベルの処理
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="progressingText"></param>
@@ -94,7 +94,7 @@ namespace Tsumugi.Parser
         }
 
         /// <summary>
-        /// 
+        /// ラベル見出しのパース
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>

@@ -12,7 +12,7 @@ namespace Tsumugi.Parser
     class TsumugiStringReader : TextReader
     {
         /// <summary>
-        /// 
+        /// シーク位置
         /// </summary>
         public int Position { get; private set; }
 

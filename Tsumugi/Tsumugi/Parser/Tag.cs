@@ -31,7 +31,7 @@ namespace Tsumugi.Parser
         public string Name;
 
         /// <summary>
-        /// 
+        /// タグの属性
         /// </summary>
         public List<Tag.Attribute> Attributes;
     }
