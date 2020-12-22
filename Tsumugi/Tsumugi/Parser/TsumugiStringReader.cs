@@ -56,7 +56,7 @@ namespace Tsumugi.Parser
             switch(origin)
             {
                 case SeekOrigin.Begin:
-                    if (_string.Length <= offset)
+                    if (0 > _string.Length + offset || _string.Length <= offset)
                     {
                         return Position;
                     }
@@ -64,7 +64,7 @@ namespace Tsumugi.Parser
                     break;
 
                 case SeekOrigin.Current:
-                    if (_string.Length <= Position + offset)
+                    if (0 > _string.Length + offset || _string.Length <= Position + offset)
                     {
                         return Position;
                     }
@@ -72,7 +72,7 @@ namespace Tsumugi.Parser
                     break;
 
                 case SeekOrigin.End:
-                    if (0 > _string.Length + offset && _string.Length <= _string.Length + offset)
+                    if (0 > _string.Length + offset || _string.Length <= _string.Length + offset)
                     {
                         return Position;
                     }

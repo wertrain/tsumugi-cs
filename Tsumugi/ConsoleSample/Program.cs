@@ -57,7 +57,7 @@ namespace ConsoleSample
                 "[var wtime=1000]" +
                 "こんにちは[r]" +
                 "これは Tsumugi のテスト[wait time=wtime]です。[l][cm]" +
-                "ページをクリアしました。[l][r][cm]" +
+                "ページをクリアしました。[l][r][cm][jump target=start]" +
                 "あなた[indent]「それがどうしたの？」[endindent][r]" +
                 "私[indent]「だからそれがね」[endindent][r]" +
                 "[l]";

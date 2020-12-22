@@ -93,5 +93,7 @@ namespace Tsumugi.Executor
         /// </summary>
         /// <param name="size"></param>
         public virtual void Indent(int count) { }
+
+
     }
 }

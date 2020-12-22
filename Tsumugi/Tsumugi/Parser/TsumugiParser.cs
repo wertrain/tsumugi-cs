@@ -27,6 +27,8 @@ namespace Tsumugi.Parser
         /// <param name="script"></param>
         public int Parse(string script)
         {
+            preprocess(script);
+
             var progressingText = new StringBuilder();
 
             using (var reader = new TsumugiStringReader(script))
@@ -36,10 +38,6 @@ namespace Tsumugi.Parser
                 {
                     switch (c)
                     {
-                        case ':':
-                            processLabel(reader, progressingText);
-                            break;
-
                         case '[':
                             processTag(reader, progressingText);
                             break;
@@ -54,6 +52,29 @@ namespace Tsumugi.Parser
             return 0;
         }
 
+        private void preprocess(string script)
+        {
+            var progressingText = new StringBuilder();
+
+            using (var reader = new TsumugiStringReader(script))
+            {
+                int c = -1;
+                while ((c = reader.Read()) >= 0)
+                {
+                    switch (c)
+                    {
+                        case ':':
+                            processLabel(reader, progressingText);
+                            break;
+
+                        default:
+                            progressingText.Append((char)c);
+                            break;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// ラベルの処理
         /// </summary>
@@ -62,6 +83,7 @@ namespace Tsumugi.Parser
         private void processLabel(TsumugiStringReader reader, StringBuilder progressingText)
         {
             var label = new StringBuilder();
+            var position = reader.Position - 1;
 
             int c = -1;
             while ((c = reader.Read()) >= 0)
@@ -71,7 +93,8 @@ namespace Tsumugi.Parser
                     Labels.Add(label.ToString(), new Label()
                     {
                         Name = label.ToString(),
-                        Headline = string.Empty
+                        Headline = string.Empty,
+                        Position = position
                     });
                     return;
                 }
@@ -82,7 +105,8 @@ namespace Tsumugi.Parser
                         Labels.Add(label.ToString(), new Label()
                         {
                             Name = label.ToString(),
-                            Headline = parseLabelHeadline(reader)
+                            Headline = parseLabelHeadline(reader),
+                            Position = position
                         });
                         return;
 
@@ -306,6 +330,19 @@ namespace Tsumugi.Parser
                     addPrintTextCommand(progressingText.ToString(), true);
                     progressingText.Clear();
                     _enableIndent = false;
+                    break;
+
+                case "jump":
+                    {
+                        addPrintTextCommand(progressingText.ToString(), true);
+                        progressingText.Clear();
+                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "target");
+
+                        if (Labels.ContainsKey(attr?.Value))
+                        {
+                            reader.Seek(Labels[attr?.Value].Position);
+                        }
+                    }
                     break;
 
                 default:
