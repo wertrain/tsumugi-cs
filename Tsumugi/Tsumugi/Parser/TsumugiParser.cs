@@ -340,7 +340,7 @@ namespace Tsumugi.Parser
 
                         if (Labels.ContainsKey(attr?.Value))
                         {
-                            reader.Seek(Labels[attr?.Value].Position);
+                            CommandQueue.Enqueue(new Commands.JumpCommand(Labels[attr?.Value].Name));
                         }
                     }
                     break;
