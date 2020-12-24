@@ -83,7 +83,6 @@ namespace Tsumugi.Parser
         private void processLabel(TsumugiStringReader reader, StringBuilder progressingText)
         {
             var label = new StringBuilder();
-            var position = reader.Position - 1;
 
             int c = -1;
             while ((c = reader.Read()) >= 0)
@@ -93,9 +92,9 @@ namespace Tsumugi.Parser
                     Labels.Add(label.ToString(), new Label()
                     {
                         Name = label.ToString(),
-                        Headline = string.Empty,
-                        Position = position
+                        Headline = string.Empty
                     });
+                    CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString()));
                     return;
                 }
 
@@ -105,9 +104,9 @@ namespace Tsumugi.Parser
                         Labels.Add(label.ToString(), new Label()
                         {
                             Name = label.ToString(),
-                            Headline = parseLabelHeadline(reader),
-                            Position = position
+                            Headline = parseLabelHeadline(reader)
                         });
+                        CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString()));
                         return;
 
                     default:

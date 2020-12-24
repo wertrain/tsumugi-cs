@@ -15,10 +15,5 @@ namespace Tsumugi.Parser
         /// 見出し名
         /// </summary>
         public string Headline { get; set; }
-
-        /// <summary>
-        /// バッファ位置
-        /// </summary>
-        public int Position { get; set; }
     }
 }
