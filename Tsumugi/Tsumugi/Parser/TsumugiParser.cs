@@ -27,18 +27,20 @@ namespace Tsumugi.Parser
         /// <param name="script"></param>
         public int Parse(string script)
         {
-            preprocess(script);
-
             var progressingText = new StringBuilder();
 
-            using (var reader = new TsumugiStringReader(script))
+            using (var reader = new StringReader(script))
             {
                 int c = -1;
                 while((c = reader.Read()) >= 0)
                 {
                     switch (c)
                     {
-                        case '[':
+                        case TsumugiKeyword.LabelPrefix:
+                            processLabel(reader, progressingText);
+                            break;
+
+                        case TsumugiKeyword.TagStart:
                             processTag(reader, progressingText);
                             break;
 
@@ -52,35 +54,12 @@ namespace Tsumugi.Parser
             return 0;
         }
 
-        private void preprocess(string script)
-        {
-            var progressingText = new StringBuilder();
-
-            using (var reader = new TsumugiStringReader(script))
-            {
-                int c = -1;
-                while ((c = reader.Read()) >= 0)
-                {
-                    switch (c)
-                    {
-                        case ':':
-                            processLabel(reader, progressingText);
-                            break;
-
-                        default:
-                            progressingText.Append((char)c);
-                            break;
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// ラベルの処理
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="progressingText"></param>
-        private void processLabel(TsumugiStringReader reader, StringBuilder progressingText)
+        private void processLabel(StringReader reader, StringBuilder progressingText)
         {
             var label = new StringBuilder();
 
@@ -95,18 +74,20 @@ namespace Tsumugi.Parser
                         Headline = string.Empty
                     });
                     CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString()));
+                    progressingText.Clear();
                     return;
                 }
 
                 switch (c)
                 {
-                    case '|':
+                    case TsumugiKeyword.HeadlineSeparator:
                         Labels.Add(label.ToString(), new Label()
                         {
                             Name = label.ToString(),
                             Headline = parseLabelHeadline(reader)
                         });
                         CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString()));
+                        progressingText.Clear();
                         return;
 
                     default:
@@ -121,7 +102,7 @@ namespace Tsumugi.Parser
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private string parseLabelHeadline(TsumugiStringReader reader)
+        private string parseLabelHeadline(StringReader reader)
         {
             var headline = new StringBuilder();
 
@@ -150,7 +131,7 @@ namespace Tsumugi.Parser
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private Tag parseTag(TsumugiStringReader reader)
+        private Tag parseTag(StringReader reader)
         {
             var tag = new StringBuilder();
 
@@ -159,14 +140,14 @@ namespace Tsumugi.Parser
             {
                 switch (c)
                 {
-                    case ']':
+                    case TsumugiKeyword.TagEnd:
                         return new Tag()
                         {
                             Name = tag.ToString(),
                             Attributes = new List<Tag.Attribute>()
                         };
 
-                    case ' ':
+                    case TsumugiKeyword.TagAttributeSeparator:
                         return new Tag()
                         {
                             Name = tag.ToString(),
@@ -187,7 +168,7 @@ namespace Tsumugi.Parser
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private List<Tag.Attribute> parseTagAttributes(TsumugiStringReader reader)
+        private List<Tag.Attribute> parseTagAttributes(StringReader reader)
         {
             var name = new StringBuilder();
             var attributes = new List<Tag.Attribute>();
@@ -197,7 +178,7 @@ namespace Tsumugi.Parser
             {
                 switch (c)
                 {
-                    case ']':
+                    case TsumugiKeyword.TagEnd:
                         if (name.Length > 0)
                         {
                             attributes.Add(new Tag.Attribute()
@@ -208,7 +189,7 @@ namespace Tsumugi.Parser
                         }
                         return attributes;
 
-                    case '=':
+                    case TsumugiKeyword.Assignment:
                         attributes.Add(new Tag.Attribute()
                         {
                             Name = name.ToString(),
@@ -232,7 +213,7 @@ namespace Tsumugi.Parser
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private string parseAttributeValue(TsumugiStringReader reader)
+        private string parseAttributeValue(StringReader reader)
         {
             var value = new StringBuilder();
 
@@ -241,10 +222,10 @@ namespace Tsumugi.Parser
             {
                 switch (c)
                 {
-                    case ']':
+                    case TsumugiKeyword.TagEnd:
                         return value.ToString();
 
-                    case ' ':
+                    case TsumugiKeyword.TagAttributeSeparator:
                         reader.Read();
                         return value.ToString();
 
@@ -264,29 +245,29 @@ namespace Tsumugi.Parser
         /// <param name="reader"></param>
         /// <param name="progressingText"></param>
         /// <returns></returns>
-        private bool processTag(TsumugiStringReader reader, StringBuilder progressingText)
+        private bool processTag(StringReader reader, StringBuilder progressingText)
         {
             var tag = parseTag(reader);
 
             switch (tag.Name)
             {
-                case "l":
+                case TsumugiTag.WaitKey:
                     addPrintTextCommand(progressingText.ToString(), false);
                     progressingText.Clear();
                     CommandQueue.Enqueue(new Commands.WaitKeyCommand());
                     break;
 
-                case "r":
+                case TsumugiTag.NewLine:
                     addPrintTextCommand(progressingText.ToString(), false);
                     progressingText.Clear();
                     CommandQueue.Enqueue(new Commands.NewLineCommand());
                     break;
 
-                case "cm":
+                case TsumugiTag.NewPage:
                     CommandQueue.Enqueue(new Commands.NewPageCommand());
                     break;
 
-                case "wait":
+                case TsumugiTag.WaitTime:
                     {
                         var attr = tag.Attributes.FirstOrDefault(s => s.Name == "time");
                         int time = 0;
@@ -305,7 +286,7 @@ namespace Tsumugi.Parser
                     }
                     break;
 
-                case "var":
+                case TsumugiTag.DefineVariable:
                     foreach (var attr in tag.Attributes)
                     {
                         if (TemporaryVariables.ContainsKey(attr.Name))
@@ -319,19 +300,19 @@ namespace Tsumugi.Parser
                     }
                     break;
 
-                case "indent":
+                case TsumugiTag.IndentStart:
                     addPrintTextCommand(progressingText.ToString(), true);
                     progressingText.Clear();
                     _enableIndent = true;
                     break;
 
-                case "endindent":
+                case TsumugiTag.IndentEnd:
                     addPrintTextCommand(progressingText.ToString(), true);
                     progressingText.Clear();
                     _enableIndent = false;
                     break;
 
-                case "jump":
+                case TsumugiTag.Jump:
                     {
                         addPrintTextCommand(progressingText.ToString(), true);
                         progressingText.Clear();

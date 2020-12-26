@@ -16,6 +16,7 @@ namespace Tsumugi.Commands
         public CommandQueue()
         {
             _queue = new Queue<CommandBase>();
+            _queueIndex = 0;
         }
 
         /// <summary>
@@ -31,7 +32,7 @@ namespace Tsumugi.Commands
         /// デキュー
         /// </summary>
         /// <returns></returns>
-        public CommandBase Dequeue()
+        public CommandBase dequeue()
         {
             if (_queue.Count == 0)
             {
@@ -39,6 +40,20 @@ namespace Tsumugi.Commands
             }
 
             return _queue.Dequeue();
+        }
+
+        /// <summary>
+        /// 非破壊的デキュー
+        /// </summary>
+        /// <returns></returns>
+        public CommandBase Dequeue()
+        {
+            if (_queue.Count <= _queueIndex)
+            {
+                return null;
+            }
+
+            return _queue.ElementAtOrDefault(_queueIndex++);
         }
 
         /// <summary>
@@ -57,5 +72,10 @@ namespace Tsumugi.Commands
         /// コマンドキュー
         /// </summary>
         private Queue<CommandBase> _queue;
+
+        /// <summary>
+        /// キューのインデックス
+        /// </summary>
+        private int _queueIndex;
     }
 }
