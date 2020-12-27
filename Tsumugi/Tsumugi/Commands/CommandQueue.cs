@@ -69,6 +69,41 @@ namespace Tsumugi.Commands
         }
 
         /// <summary>
+        /// コマンドを取得
+        /// </summary>
+        /// <returns></returns>
+        public List<T> FindCommands<T>() where T : CommandBase
+        {
+            var commands = new List<T>();
+            foreach (var command in _queue)
+            {
+                if (command.GetType()== typeof(T))
+                {
+                    commands.Add((T)command);
+                }
+            }
+            return commands;
+        }
+
+        /// <summary>
+        /// 指定されたコマンドの位置に移動する
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public bool Seek(CommandBase target)
+        {
+            foreach (var (command, index) in new List<CommandBase>(_queue.ToArray()).Select((item, index) => (item, index)))
+            {
+                if (command == target)
+                {
+                    _queueIndex = index;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// コマンドキュー
         /// </summary>
         private Queue<CommandBase> _queue;

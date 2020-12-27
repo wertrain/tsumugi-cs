@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Tsumugi.Localize;
 
 namespace Tsumugi.Parser
 {
@@ -13,9 +14,12 @@ namespace Tsumugi.Parser
     {
         public Commands.CommandQueue CommandQueue { get; }
 
+        public Logger Logger { private get; set; }
+
         public TsumugiParser()
         {
             CommandQueue = new Commands.CommandQueue();
+            Logger = new Logger();
             TemporaryVariables = new Dictionary<string, string>();
             Labels = new Dictionary<string, Label>();
             _enableIndent = false;
@@ -68,12 +72,19 @@ namespace Tsumugi.Parser
             {
                 if (checkNameTerminated(c))
                 {
-                    Labels.Add(label.ToString(), new Label()
+                    if (Labels.ContainsKey(label.ToString()))
                     {
-                        Name = label.ToString(),
-                        Headline = string.Empty
-                    });
-                    CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString()));
+                        Logger.Log(Logger.Categories.Error, string.Format("{0} has already been used as the label name.".Localize(), label.ToString()));
+                    }
+                    else
+                    {
+                        Labels.Add(label.ToString(), new Label()
+                        {
+                            Name = label.ToString(),
+                            Headline = string.Empty
+                        });
+                        CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString()));
+                    }
                     progressingText.Clear();
                     return;
                 }
@@ -81,12 +92,19 @@ namespace Tsumugi.Parser
                 switch (c)
                 {
                     case TsumugiKeyword.HeadlineSeparator:
-                        Labels.Add(label.ToString(), new Label()
+                        if (Labels.ContainsKey(label.ToString()))
                         {
-                            Name = label.ToString(),
-                            Headline = parseLabelHeadline(reader)
-                        });
-                        CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString()));
+                            Logger.Log(Logger.Categories.Error, string.Format("{0} has already been used as the label name.".Localize(), label.ToString()));
+                        }
+                        else
+                        {
+                            Labels.Add(label.ToString(), new Label()
+                            {
+                                Name = label.ToString(),
+                                Headline = parseLabelHeadline(reader)
+                            });
+                            CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString()));
+                        }
                         progressingText.Clear();
                         return;
 
@@ -321,6 +339,10 @@ namespace Tsumugi.Parser
                         if (Labels.ContainsKey(attr?.Value))
                         {
                             CommandQueue.Enqueue(new Commands.JumpCommand(Labels[attr?.Value].Name));
+                        }
+                        else
+                        {
+                            Logger.Log(Logger.Categories.Error, string.Format("Cannot find label {0} to jump to.".Localize(), attr?.Value));
                         }
                     }
                     break;

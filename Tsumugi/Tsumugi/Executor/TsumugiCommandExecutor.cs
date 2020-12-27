@@ -56,6 +56,12 @@ namespace Tsumugi.Executor
                         Indent(Environment.Indentation);
                         break;
 
+                    case Commands.JumpCommand cmd:
+                        var labels = queue.FindCommands<Commands.LabelCommand>();
+                        var label = labels.Find(c => c.Name == cmd.Target);
+                        queue.Seek(label);
+                        break;
+
                 }
             }
             
