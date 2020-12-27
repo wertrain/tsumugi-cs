@@ -25,6 +25,11 @@ namespace Tsumugi.Parser
         public const char TagEnd = ']';
 
         /// <summary>
+        /// タグ行の開始
+        /// </summary>
+        public const char TagLineStart = '@';
+
+        /// <summary>
         /// ラベルと見出しの分けるセパレータ
         /// </summary>
         public const char HeadlineSeparator = '|';

@@ -48,6 +48,10 @@ namespace Tsumugi.Parser
                             processTag(reader, progressingText);
                             break;
 
+                        case TsumugiKeyword.TagLineStart:
+                            processTag(reader, progressingText);
+                            break;
+
                         default:
                             progressingText.Append((char)c);
                             break;
@@ -296,6 +300,10 @@ namespace Tsumugi.Parser
                             {
                                 var value = TemporaryVariables[attr?.Value];
                                 int.TryParse(value, out time);
+                            }
+                            else
+                            {
+                                Logger.Log(Logger.Categories.Error, string.Format("{0} is not defined.".Localize(), attr?.Value));
                             }
                         }
                         addPrintTextCommand(progressingText.ToString(), true);
