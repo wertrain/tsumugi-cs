@@ -344,7 +344,11 @@ namespace Tsumugi.Parser
                         progressingText.Clear();
                         var attr = tag.Attributes.FirstOrDefault(s => s.Name == "target");
 
-                        if (Labels.ContainsKey(attr?.Value))
+                        if (attr == null)
+                        {
+                            Logger.Log(Logger.Categories.Error, string.Format("Cannot find attribute {0} which is required for tag {1}. ".Localize(), "target", TsumugiTag.Jump));
+                        }
+                        else if (Labels.ContainsKey(attr?.Value))
                         {
                             CommandQueue.Enqueue(new Commands.JumpCommand(Labels[attr?.Value].Name));
                         }
