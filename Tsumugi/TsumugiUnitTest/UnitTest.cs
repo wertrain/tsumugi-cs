@@ -14,5 +14,22 @@ namespace TsumugiUnitTest
 
             Assert.AreNotEqual(parser.CommandQueue.Dequeue(), null);
         }
+
+        [TestMethod]
+        public void TestMethodParserError()
+        {
+            var parser = new Tsumugi.Parser.TsumugiParser();
+
+            var script = "" +
+                ":start|開始位置" +
+                "[var wtime=1000][jump target=notfound]" +
+                "こんにちは[r]" +
+                "これは Tsumugi のテスト[wait time=notdefine]です。[l][cm]" +
+                "ページをクリアしました。[l][r][cm][jump target=start]" +
+                "[l]";
+            parser.Parse(script);
+
+            Assert.IsTrue(parser.Logger.Count(Tsumugi.Parser.Logger.Categories.Error) == 2);
+        }
     }
 }

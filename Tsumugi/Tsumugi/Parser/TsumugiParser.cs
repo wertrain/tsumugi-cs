@@ -14,7 +14,7 @@ namespace Tsumugi.Parser
     {
         public Commands.CommandQueue CommandQueue { get; }
 
-        public Logger Logger { private get; set; }
+        public Logger Logger { get; set; }
 
         public TsumugiParser()
         {
@@ -57,6 +57,12 @@ namespace Tsumugi.Parser
                             break;
                     }
                 }
+
+                if (progressingText.Length > 0)
+                {
+                    addPrintTextCommand(progressingText.ToString(), false);
+                    progressingText.Clear();
+                }
             }
 
             return 0;
@@ -78,7 +84,7 @@ namespace Tsumugi.Parser
                 {
                     if (Labels.ContainsKey(label.ToString()))
                     {
-                        Logger.Log(Logger.Categories.Error, string.Format("{0} has already been used as the label name.".Localize(), label.ToString()));
+                        Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.AlreadyUsedLabelName.Localize(), label.ToString()));
                     }
                     else
                     {
@@ -98,7 +104,7 @@ namespace Tsumugi.Parser
                     case TsumugiKeyword.HeadlineSeparator:
                         if (Labels.ContainsKey(label.ToString()))
                         {
-                            Logger.Log(Logger.Categories.Error, string.Format("{0} has already been used as the label name.".Localize(), label.ToString()));
+                            Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.AlreadyUsedLabelName.Localize(), label.ToString()));
                         }
                         else
                         {
@@ -303,7 +309,7 @@ namespace Tsumugi.Parser
                             }
                             else
                             {
-                                Logger.Log(Logger.Categories.Error, string.Format("{0} is not defined.".Localize(), attr?.Value));
+                                Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.NotDefined.Localize(), attr?.Value));
                             }
                         }
                         addPrintTextCommand(progressingText.ToString(), true);
@@ -346,7 +352,7 @@ namespace Tsumugi.Parser
 
                         if (attr == null)
                         {
-                            Logger.Log(Logger.Categories.Error, string.Format("Cannot find attribute {0} which is required for tag {1}. ".Localize(), "target", TsumugiTag.Jump));
+                            Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.CannotFindJumpTarget.Localize(), "target", TsumugiTag.Jump));
                         }
                         else if (Labels.ContainsKey(attr?.Value))
                         {
@@ -354,7 +360,7 @@ namespace Tsumugi.Parser
                         }
                         else
                         {
-                            Logger.Log(Logger.Categories.Error, string.Format("Cannot find label {0} to jump to.".Localize(), attr?.Value));
+                            Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.CannotFindJumpTarget.Localize(), attr?.Value));
                         }
                     }
                     break;
