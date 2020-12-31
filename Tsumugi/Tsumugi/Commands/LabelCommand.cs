@@ -8,9 +8,12 @@ namespace Tsumugi.Commands
     {
         public string Name { get; }
 
-        public LabelCommand(string name)
+        public string Headline { get; }
+
+        public LabelCommand(string name, string headline)
         {
             Name = name;
+            Headline = headline;
         }
     }
 }

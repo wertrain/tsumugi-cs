@@ -352,7 +352,7 @@ namespace Tsumugi.Parser
 
                         if (attr == null)
                         {
-                            Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.CannotFindJumpTarget.Localize(), "target", TsumugiTag.Jump));
+                            Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "target", TsumugiTag.Jump));
                         }
                         else if (Labels.ContainsKey(attr?.Value))
                         {
