@@ -88,12 +88,13 @@ namespace Tsumugi.Parser
                     }
                     else
                     {
+                        var headline = string.Empty;
                         Labels.Add(label.ToString(), new Label()
                         {
                             Name = label.ToString(),
-                            Headline = string.Empty
+                            Headline = headline
                         });
-                        CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString()));
+                        CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString(), headline));
                     }
                     progressingText.Clear();
                     return;
@@ -108,12 +109,13 @@ namespace Tsumugi.Parser
                         }
                         else
                         {
+                            var headline = parseLabelHeadline(reader);
                             Labels.Add(label.ToString(), new Label()
                             {
                                 Name = label.ToString(),
-                                Headline = parseLabelHeadline(reader)
+                                Headline = headline
                             });
-                            CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString()));
+                            CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString(), headline));
                         }
                         progressingText.Clear();
                         return;
