@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace TsumugiUnitTest
 {
     [TestClass]
-    public class UnitTest
+    public class ParserUnitTest
     {
         [TestMethod]
         public void TestMethodParserBasic()
