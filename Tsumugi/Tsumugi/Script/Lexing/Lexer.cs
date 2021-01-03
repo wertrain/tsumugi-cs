@@ -7,54 +7,148 @@ namespace Tsumugi.Script.Lexing
 {
     public class Lexer
     {
-        private StringReader Reader { get; set; }
+        private TsumugiStringReader Reader { get; set; }
 
         public Lexer(string script)
         {
-            Reader = new StringReader(script);
+            Reader = new TsumugiStringReader(script);
         }
 
         public Token NextToken()
         {
-            int next = -1;
-            while ((next = Reader.Read()) >= 0)
+            SkipWhiteSpace();
+
+            Token token = null;
+
+            int next = Reader.Peek();
+
+            if (next < 0)
+            {
+                token = new Token(TokenType.EOF, string.Empty);
+            }
+            else
             {
                 char c = (char)next;
+
                 switch (c)
                 {
                     case '=':
-                        return new Token(TokenType.Assign, c.ToString());
+                        token = new Token(TokenType.Assign, c.ToString());
+                        break;
 
                     case '+':
-                        return new Token(TokenType.Plus, c.ToString());
+                        token = new Token(TokenType.Plus, c.ToString());
+                        break;
 
                     case ',':
-                        return new Token(TokenType.Comma, c.ToString());
+                        token = new Token(TokenType.Comma, c.ToString());
+                        break;
 
                     case ';':
-                        return new Token(TokenType.Semicolon, c.ToString());
+                        token = new Token(TokenType.Semicolon, c.ToString());
+                        break;
 
                     case '(':
-                        return new Token(TokenType.LeftParenthesis, c.ToString());
+                        token = new Token(TokenType.LeftParenthesis, c.ToString());
+                        break;
 
                     case ')':
-                        return new Token(TokenType.RightParenthesis, c.ToString());
+                        token = new Token(TokenType.RightParenthesis, c.ToString());
+                        break;
 
                     case '{':
-                        return new Token(TokenType.LeftBraces, c.ToString());
-   
+                        token = new Token(TokenType.LeftBraces, c.ToString());
+                        break;
+
                     case '}':
-                        return new Token(TokenType.RightBraces, c.ToString());
+                        token = new Token(TokenType.RightBraces, c.ToString());
+                        break;
 
                     case '[':
-                        return new Token(TokenType.LeftBrackets, c.ToString());
+                        token = new Token(TokenType.LeftBrackets, c.ToString());
+                        break;
 
                     case ']':
-                        return new Token(TokenType.RightBrackets, c.ToString());
+                        token = new Token(TokenType.RightBrackets, c.ToString());
+                        break;
+
+                    default:
+                        if (IsLetter(c))
+                        {
+                            var identifier = ReadIdentifier();
+                            var type = Token.LookupIdentifier(identifier);
+                            token = new Token(type, identifier);
+                        }
+                        else if (IsDigit(c))
+                        {
+                            var number = ReadNumber();
+                            token = new Token(TokenType.Integer32, number);
+                        }
+                        else
+                        {
+                            token = new Token(TokenType.Illegal, c.ToString());
+                        }
+                        break;
                 }
             }
 
-            return new Token(TokenType.EOF, "");
+            Reader.Read();
+
+            return token;
+        }
+
+        private string ReadNumber()
+        {
+            var number = Reader.ReadChar().ToString();
+
+            while (IsDigit(Reader.PeekChar()))
+            {
+                number += Reader.ReadChar();
+            }
+
+            Reader.Seek(-1, SeekOrigin.Current);
+
+            return number;
+        }
+
+        private string ReadIdentifier()
+        {
+            var identifier = Reader.ReadChar().ToString();
+
+            while (IsLetter(Reader.PeekChar()))
+            {
+                identifier += Reader.ReadChar();
+            }
+
+            Reader.Seek(-1, SeekOrigin.Current);
+
+            return identifier;
+        }
+
+        private bool IsDigit(char c)
+        {
+            return '0' <= c && c <= '9';
+        }
+
+        private bool IsLetter(char c)
+        {
+            return ('a' <= c && c <= 'z')
+                || ('A' <= c && c <= 'Z')
+                || c == '_';
+        }
+
+        private void SkipWhiteSpace()
+        {
+            var next = Reader.PeekChar();
+
+            while (next == ' '
+                || next == '\t'
+                || next == '\r'
+                || next == '\n')
+            {
+                Reader.ReadChar();
+                next = Reader.PeekChar();
+            }
         }
     }
 }

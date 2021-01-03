@@ -9,13 +9,48 @@ namespace Tsumugi.Script.Lexing
     /// </summary>
     public class Token
     {
+        /// <summary>
+        /// トークン種別
+        /// </summary>
+        public TokenType Type { get; set; }
+
+        /// <summary>
+        /// リテラル
+        /// </summary>
+        public string Literal { get; set; }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="literal"></param>
         public Token(TokenType type, string literal)
         {
             this.Type = type;
             this.Literal = literal;
         }
-        public TokenType Type { get; set; }
-        public string Literal { get; set; }
+
+        /// <summary>
+        /// 識別子かどうか判定する
+        /// </summary>
+        /// <param name="identifier"></param>
+        /// <returns></returns>
+        public static TokenType LookupIdentifier(string identifier)
+        {
+            if (Keywords.ContainsKey(identifier))
+            {
+                return Keywords[identifier];
+            }
+            return TokenType.Identifier;
+        }
+
+        /// <summary>
+        /// 予約後の辞書
+        /// </summary>
+        public static Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>() {
+            { "let", TokenType.Let },
+            { "function", TokenType.Function },
+        };
     }
 
     /// <summary>
@@ -41,6 +76,11 @@ namespace Tsumugi.Script.Lexing
         /// 識別子
         /// </summary>
         Identifier,
+
+        /// <summary>
+        /// 32 bit 整数
+        /// </summary>
+        Integer32,
 
         /// <summary>
         /// 変数リテラル
