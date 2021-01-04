@@ -22,6 +22,7 @@ namespace TsumugiUnitTest
             var lexer = new Lexer(script);
             var parser = new Parser(lexer);
             var root = parser.ParseProgram();
+            checkParserErrors(parser);
 
             Assert.AreEqual(
                 root.Statements.Count, 3,
@@ -81,10 +82,15 @@ namespace TsumugiUnitTest
         [TestMethod]
         public void TestMethodParserReturnStatement()
         {
-            var lexer = new Lexer(input);
+            var script = "" +
+                        "return 5;" +
+                        "return 10;" +
+                        "return = 993322;" +
+                        "";
+            var lexer = new Lexer(script);
             var parser = new Parser(lexer);
             var root = parser.ParseProgram();
-            this._CheckParserErrors(parser);
+            checkParserErrors(parser);
 
             Assert.AreEqual(
                 root.Statements.Count, 3,
@@ -104,6 +110,12 @@ namespace TsumugiUnitTest
                     $"return のリテラルが間違っています。"
                 );
             }
+        }
+
+        private void checkParserErrors(Parser parser)
+        {
+            if (parser.Logger.Count(Logger.Categories.Error) == 0) return;
+            Assert.Fail(parser.Logger.GetHistory(Logger.Categories.Error));
         }
     }
 }

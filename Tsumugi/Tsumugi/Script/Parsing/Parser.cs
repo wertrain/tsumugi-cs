@@ -77,6 +77,10 @@ namespace Tsumugi.Script.Parsing
             {
                 case TokenType.Let:
                     return ParseLetStatement();
+
+                case TokenType.Return:
+                    return ParseReturnStatement();
+
                 default:
                     return null;
             }
@@ -104,6 +108,27 @@ namespace Tsumugi.Script.Parsing
 
             // 右辺（TODO: 後で実装）
             while (CurrentToken.Type != TokenType.Semicolon)
+            {
+                // セミコロンが見つかるまで
+                ReadToken();
+            }
+
+            return statement;
+        }
+
+        /// <summary>
+        /// return 文のパース
+        /// 定義：return <expression>;
+        /// </summary>
+        /// <returns></returns>
+        public ReturnStatement ParseReturnStatement()
+        {
+            var statement = new ReturnStatement();
+            statement.Token = CurrentToken;
+            ReadToken();
+
+            // TODO: 後で実装。
+            while (this.CurrentToken.Type != TokenType.Semicolon)
             {
                 // セミコロンが見つかるまで
                 ReadToken();
