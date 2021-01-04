@@ -52,21 +52,8 @@ namespace ConsoleSample
 
         static void Main(string[] args)
         {
-            var script = "" +
-                ":start|開始位置" +
-                "[var wtime=1000]" +
-                "こんにちは[r]" +
-                "これは Tsumugi のテスト[wait time=wtime]です。[l][cm]" +
-                "ページをクリアしました。[l][r][cm][jump target=start]" +
-                "あなた[indent]「それがどうしたの？」[endindent][r]" +
-                "私[indent]「だからそれがね」[endindent][r]" +
-                "[l]";
-
-            var parser = new Tsumugi.Parser.TsumugiParser();
-            parser.Parse(script);
-
-            CommandExecutor executor = new CommandExecutor();
-            executor.Execute(parser.CommandQueue);
+            var repl = new Tsumugi.Script.ReadEvalPrintLoop();
+            repl.Start();
         }
     }
 }

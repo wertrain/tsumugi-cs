@@ -3,5 +3,7 @@
   <StringItem id="Cannot find label {0} to jump to." context="" translation="ジャンプ対象のラベル {0} が見つかりません。" />
   <StringItem id="{0} is not defined." context="" translation="{0} は定義されていません。" />
   <StringItem id="{0} has already been used as the label name." context="" translation="{0} は既にラベル名として使用されています。" />
-  <StringItem id="Cannot find attribute {0} which is required for tag {1}. " context="" translation="{1} のタグに必須となる属性の {0} が見つかりません。" /> 
+  <StringItem id="Cannot find attribute {0} which is required for tag {1}. " context="" translation="{1} のタグに必須となる属性の {0} が見つかりません。" />
+  
+  <StringItem id="In this token, it must be {0}, not {1}." context="" translation="このトークンでは {1} ではなく {0} である必要があります。" />
 </StringLocalizationTable>

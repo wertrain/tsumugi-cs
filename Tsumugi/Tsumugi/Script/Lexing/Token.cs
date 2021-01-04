@@ -5,7 +5,7 @@ using System.Text;
 namespace Tsumugi.Script.Lexing
 {
     /// <summary>
-    /// 構文解析トークン
+    /// 字句解析トークン
     /// </summary>
     public class Token
     {

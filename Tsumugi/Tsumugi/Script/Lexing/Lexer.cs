@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Tsumugi.Script.Lexing
 {
+    /// <summary>
+    /// 字句解析
+    /// </summary>
     public class Lexer
     {
         private TsumugiStringReader Reader { get; set; }
