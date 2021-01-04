@@ -31,9 +31,15 @@ namespace Tsumugi.Script.Lexing
 
         public override int Peek()
         {
-            if (_string.Length > Position)
+            return Peek(0);
+        }
+
+        public int Peek(int offset)
+        {
+            int position = Position + offset;
+            if (0 <= position && _string.Length > position)
             {
-                return _string[Position];
+                return _string[position];
             }
             return -1;
         }
@@ -41,6 +47,11 @@ namespace Tsumugi.Script.Lexing
         public char PeekChar()
         {
             return (char)Peek();
+        }
+
+        public char PeekChar(int offset)
+        {
+            return (char)Peek(offset);
         }
 
         public override int Read()

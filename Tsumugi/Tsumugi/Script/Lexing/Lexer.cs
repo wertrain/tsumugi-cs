@@ -40,6 +40,51 @@ namespace Tsumugi.Script.Lexing
                         token = new Token(TokenType.Plus, c.ToString());
                         break;
 
+                    case '-':
+                        token = new Token(TokenType.Minus, c.ToString());
+                        break;
+
+                    case '*':
+                        token = new Token(TokenType.Asterisk, c.ToString());
+                        break;
+
+                    case '/':
+                        token = new Token(TokenType.Slash, c.ToString());
+                        break;
+
+                    case '!':
+                        if (Reader.PeekChar(1) == '=')
+                        {
+                            token = new Token(TokenType.NotEqual, "!=");
+                        }
+                        else
+                        {
+                            token = new Token(TokenType.Bang, c.ToString());
+                        }
+                        break;
+
+                    case '>':
+                        if (Reader.PeekChar(1) == '=')
+                        {
+                            token = new Token(TokenType.GreaterThanOrEqual, ">=");
+                        }
+                        else
+                        {
+                            token = new Token(TokenType.GreaterThan, c.ToString());
+                        }
+                        break;
+
+                    case '<':
+                        if (Reader.PeekChar(1) == '=')
+                        {
+                            token = new Token(TokenType.LessThanOrEqual, "<=");
+                        }
+                        else
+                        {
+                            token = new Token(TokenType.LessThan, c.ToString());
+                        }
+                        break;
+
                     case ',':
                         token = new Token(TokenType.Comma, c.ToString());
                         break;

@@ -94,5 +94,45 @@ namespace TsumugiUnitTest
                 Assert.AreEqual(testToken.Literal, token.Literal, string.Format("{0} literal is wrong.", testToken.Literal));
             }
         }
+
+        [TestMethod]
+        public void TestMethodLexerIfCode()
+        {
+            var tokens = new List<Token>();
+            tokens.Add(new Token(TokenType.If, "if"));
+            tokens.Add(new Token(TokenType.LeftParenthesis, "("));
+            tokens.Add(new Token(TokenType.Integer32, "5"));
+            tokens.Add(new Token(TokenType.LessThan, "<"));
+            tokens.Add(new Token(TokenType.Integer32, "10"));
+            tokens.Add(new Token(TokenType.RightParenthesis, ")"));
+            tokens.Add(new Token(TokenType.LeftBraces, "{"));
+            tokens.Add(new Token(TokenType.Return, "return"));
+            tokens.Add(new Token(TokenType.True, "true"));
+            tokens.Add(new Token(TokenType.Semicolon, ";"));
+            tokens.Add(new Token(TokenType.RightBraces, "}"));
+            tokens.Add(new Token(TokenType.Else, "else"));
+            tokens.Add(new Token(TokenType.LeftBraces, "{"));
+            tokens.Add(new Token(TokenType.Return, "return"));
+            tokens.Add(new Token(TokenType.False, "false"));
+            tokens.Add(new Token(TokenType.Semicolon, ";"));
+            tokens.Add(new Token(TokenType.RightBraces, "}"));
+            tokens.Add(new Token(TokenType.EOF, ""));
+
+            var script = "" +
+                        "if (5 < 10) {" +
+                        "    return true;" +
+                        "} else {" +
+                        "    return false;" +
+                        "}" +
+                        "";
+
+            var lexer = new Lexer(script);
+            foreach (var testToken in tokens)
+            {
+                var token = lexer.NextToken();
+                Assert.AreEqual(testToken.Type, token.Type, string.Format("{0} token type is wrong.", testToken.Type.ToString()));
+                Assert.AreEqual(testToken.Literal, token.Literal, string.Format("{0} literal is wrong.", testToken.Literal));
+            }
+        }
     }
 }

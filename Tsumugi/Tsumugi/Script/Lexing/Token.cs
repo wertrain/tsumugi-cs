@@ -26,8 +26,8 @@ namespace Tsumugi.Script.Lexing
         /// <param name="literal"></param>
         public Token(TokenType type, string literal)
         {
-            this.Type = type;
-            this.Literal = literal;
+            Type = type;
+            Literal = literal;
         }
 
         /// <summary>
@@ -50,6 +50,11 @@ namespace Tsumugi.Script.Lexing
         public static Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>() {
             { "let", TokenType.Let },
             { "function", TokenType.Function },
+            { "if", TokenType.If },
+            { "else", TokenType.Else },
+            { "return", TokenType.Return },
+            { "true", TokenType.True },
+            { "false", TokenType.False },
         };
     }
 
@@ -98,6 +103,56 @@ namespace Tsumugi.Script.Lexing
         /// + 演算子
         /// </summary>
         Plus,
+
+        /// <summary>
+        /// - 演算子
+        /// </summary>
+        Minus,
+
+        /// <summary>
+        /// * 演算子
+        /// </summary>
+        Asterisk,
+
+        /// <summary>
+        /// / 演算子
+        /// </summary>
+        Slash,
+
+        /// <summary>
+        /// ! 演算子
+        /// </summary>
+        Bang,
+
+        /// <summary>
+        /// < 演算子
+        /// </summary>
+        LessThan,
+
+        /// <summary>
+        /// > 演算子
+        /// </summary>
+        GreaterThan,
+
+        /// <summary>
+        /// <= 演算子
+        /// </summary>
+        LessThanOrEqual,
+
+        /// <summary>
+        /// >= 演算子
+        /// </summary>
+        GreaterThanOrEqual,
+
+        /// <summary>
+        /// == 演算子
+        /// </summary>
+        Equal,
+
+        /// <summary>
+        /// != 演算子
+        /// </summary>
+        NotEqual,
 
         /// --------- デリミタ --------- 
         /// 
@@ -154,5 +209,30 @@ namespace Tsumugi.Script.Lexing
         /// 変数宣言キーワード
         /// </summary>
         Let,
+
+        /// <summary>
+        /// if キーワード
+        /// </summary>
+        If,
+
+        /// <summary>
+        /// else キーワード
+        /// </summary>
+        Else,
+
+        /// <summary>
+        /// return キーワード
+        /// </summary>
+        Return,
+
+        /// <summary>
+        /// true キーワード
+        /// </summary>
+        True,
+
+        /// <summary>
+        /// false キーワード
+        /// </summary>
+        False
     }
 }
