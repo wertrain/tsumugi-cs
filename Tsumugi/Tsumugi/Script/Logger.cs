@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Tsumugi.Script
 {
@@ -9,6 +8,10 @@ namespace Tsumugi.Script
     /// </summary>
     public class Logger
     {
+        /// <summary>
+        /// ログのカテゴリ
+        /// 
+        /// </summary>
         public enum Categories
         {
             Information,
@@ -16,18 +19,27 @@ namespace Tsumugi.Script
             Error
         }
 
+        /// <summary>
+        /// 履歴
+        /// </summary>
         private struct History
         {
             public Categories Category { get; set; }
             public string Message { get; set; }
         }
 
+        /// <summary>
+        /// 静的コンストラクタ
+        /// </summary>
         static Logger()
         {
             System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.CurrentCulture;
             Localize.Localizer.SetStringLocalizer(new Localize.EmbeddedResourceStringLocalizer());
         }
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public Logger()
         {
             histories = new List<List<History>>();
@@ -47,7 +59,7 @@ namespace Tsumugi.Script
         };
 
         /// <summary>
-        /// 
+        /// 指定されたカテゴリのログ数を取得
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
@@ -57,7 +69,7 @@ namespace Tsumugi.Script
         }
 
         /// <summary>
-        /// 
+        /// ログを表示
         /// </summary>
         /// <param name="category"></param>
         /// <param name="message"></param>
@@ -68,7 +80,7 @@ namespace Tsumugi.Script
         }
 
         /// <summary>
-        /// 
+        /// ログを記録
         /// </summary>
         /// <param name="category"></param>
         /// <param name="message"></param>
@@ -82,7 +94,7 @@ namespace Tsumugi.Script
         }
 
         /// <summary>
-        /// 
+        /// 指定されたカテゴリの履歴を取得
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
@@ -97,7 +109,7 @@ namespace Tsumugi.Script
         }
 
         /// <summary>
-        /// 
+        /// カテゴリごとの履歴
         /// </summary>
         private List<List<History>> histories { get; set; }
     }
