@@ -1,4 +1,5 @@
-﻿using Tsumugi.Script.Lexing;
+﻿using System.Text;
+using Tsumugi.Script.Lexing;
 
 namespace Tsumugi.Script.AbstractSyntaxTree.Statements
 {
@@ -23,5 +24,19 @@ namespace Tsumugi.Script.AbstractSyntaxTree.Statements
         /// </summary>
         /// <returns>トークンのリテラル</returns>
         public string TokenLiteral() => Token.Literal;
+
+        /// <summary>
+        /// コードに変換
+        /// </summary>
+        /// <returns>コード</returns>
+        public string ToCode()
+        {
+            var builder = new StringBuilder();
+            builder.Append(this.Token?.Literal ?? "");
+            builder.Append(" ");
+            builder.Append(this.ReturnValue?.ToCode() ?? "");
+            builder.Append(";");
+            return builder.ToString();
+        }
     }
 }

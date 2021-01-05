@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Tsumugi.Script.Parsing
+namespace Tsumugi.Script
 {
     /// <summary>
     /// 標準のロガー兼ベースクラス

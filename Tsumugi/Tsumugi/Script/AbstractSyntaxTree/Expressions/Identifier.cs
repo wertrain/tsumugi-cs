@@ -1,4 +1,5 @@
-﻿using Tsumugi.Script.Lexing;
+﻿using System.Text;
+using Tsumugi.Script.Lexing;
 
 namespace Tsumugi.Script.AbstractSyntaxTree.Expressions
 {
@@ -33,5 +34,11 @@ namespace Tsumugi.Script.AbstractSyntaxTree.Expressions
         /// </summary>
         /// <returns>リテラル</returns>
         public string TokenLiteral() => Token.Literal;
+
+        /// <summary>
+        /// コードに変換
+        /// </summary>
+        /// <returns>コード</returns>
+        public string ToCode() => Value;
     }
 }

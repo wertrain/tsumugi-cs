@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Tsumugi.Localize;
 using Tsumugi.Script.AbstractSyntaxTree;
 using Tsumugi.Script.AbstractSyntaxTree.Expressions;
@@ -7,6 +8,30 @@ using Tsumugi.Script.Lexing;
 
 namespace Tsumugi.Script.Parsing
 {
+    /// <summary>
+    /// 前置構文解析関数
+    /// </summary>
+    using PrefixParseFunction = Func<IExpression>;
+
+    /// <summary>
+    /// 中置構文解析関数
+    /// </summary>
+    using InfixParseFunction = Func<IExpression, IExpression>;
+
+    /// <summary>
+    /// 優先順位
+    /// </summary>
+    public enum Precedence
+    {
+        Lowest = 1,
+        Equals,      /// ==
+        Lessgreater, /// >, <
+        Sum,         /// +
+        Product,     /// *
+        Prefix,      /// -x, !x
+        Call,        /// myFunction(x)
+    }
+
     /// <summary>
     /// 構文解析
     /// </summary>
@@ -33,6 +58,16 @@ namespace Tsumugi.Script.Parsing
         public Logger Logger { get; set; }
 
         /// <summary>
+        /// 前置構文解析関数辞書
+        /// </summary>
+        public Dictionary<TokenType, PrefixParseFunction> PrefixParseFunctions { get; set; }
+
+        /// <summary>
+        /// 中置構文解析関数辞書
+        /// </summary>
+        public Dictionary<TokenType, InfixParseFunction> InfixParseFunctions { get; set; }
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="lexer"></param>
@@ -44,6 +79,8 @@ namespace Tsumugi.Script.Parsing
             NextToken = Lexer.NextToken();
 
             Logger = new Logger();
+
+            RegisterPrefixParseFunctions();
         }
 
         /// <summary>
@@ -82,7 +119,7 @@ namespace Tsumugi.Script.Parsing
                     return ParseReturnStatement();
 
                 default:
-                    return null;
+                    return ParseExpressionStatement();
             }
         }
 
@@ -138,6 +175,37 @@ namespace Tsumugi.Script.Parsing
         }
 
         /// <summary>
+        /// 式のパース
+        /// </summary>
+        /// <param name="precedence"></param>
+        /// <returns></returns>
+        public IExpression ParseExpression(Precedence precedence)
+        {
+            PrefixParseFunctions.TryGetValue(CurrentToken.Type, out var prefix);
+            if (prefix == null) return null;
+
+            var leftExpression = prefix();
+            return leftExpression;
+        }
+
+        /// <summary>
+        /// 式文のパース
+        /// </summary>
+        /// <returns></returns>
+        public ExpressionStatement ParseExpressionStatement()
+        {
+            var statement = new ExpressionStatement();
+            statement.Token = this.CurrentToken;
+
+            statement.Expression = this.ParseExpression(Precedence.Lowest);
+
+            // セミコロンを読み飛ばす(省略可能)
+            if (NextToken.Type == TokenType.Semicolon) ReadToken();
+
+            return statement;
+        }
+
+        /// <summary>
         /// 次のトークンが期待するものであれば読み飛ばす
         /// </summary>
         /// <param name="type"></param>
@@ -170,6 +238,45 @@ namespace Tsumugi.Script.Parsing
         /// <returns></returns>
         public Root ParseRoot()
         {
+            return null;
+        }
+
+        /// <summary>
+        /// 前置構文解析関数を登録
+        /// </summary>
+        private void RegisterPrefixParseFunctions()
+        {
+            PrefixParseFunctions = new Dictionary<TokenType, PrefixParseFunction>();
+            PrefixParseFunctions.Add(TokenType.Identifier, ParseIdentifier);
+            PrefixParseFunctions.Add(TokenType.Integer32, ParseIntegerLiteral);
+        }
+
+        /// <summary>
+        /// 識別子式のパース
+        /// </summary>
+        /// <returns></returns>
+        public IExpression ParseIdentifier()
+        {
+            return new Identifier(CurrentToken, CurrentToken.Literal);
+        }
+
+        /// <summary>
+        /// 整数式のパース
+        /// </summary>
+        /// <returns></returns>
+        public IExpression ParseIntegerLiteral()
+        {
+            if (int.TryParse(CurrentToken.Literal, out int result))
+            {
+                return new IntegerLiteral()
+                {
+                    Token = this.CurrentToken,
+                    Value = result,
+                };
+            }
+
+            Logger.Logging(Logger.Categories.Error, string.Format(LocalizationTexts.CannotConvertInteger.Localize(), CurrentToken.Literal));
+
             return null;
         }
     }
