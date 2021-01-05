@@ -29,7 +29,7 @@ namespace TsumugiUnitTest
                 "[l]";
             parser.Parse(script);
 
-            Assert.IsTrue(parser.Logger.Count(Tsumugi.Parser.Logger.Categories.Error) == 2);
+            Assert.IsTrue(parser.Logger.Count(Tsumugi.Script.Logger.Categories.Error) == 2);
         }
     }
 }
