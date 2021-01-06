@@ -10,13 +10,24 @@ namespace Tsumugi.Script.Lexing
     /// </summary>
     public class Lexer
     {
+        /// <summary>
+        /// 字句解析用の文字列リーダー
+        /// </summary>
         private TsumugiStringReader Reader { get; set; }
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="script"></param>
         public Lexer(string script)
         {
             Reader = new TsumugiStringReader(script);
         }
 
+        /// <summary>
+        /// 次のトークンを取り出す
+        /// </summary>
+        /// <returns></returns>
         public Token NextToken()
         {
             SkipWhiteSpace();
@@ -36,7 +47,18 @@ namespace Tsumugi.Script.Lexing
                 switch (c)
                 {
                     case '=':
-                        token = new Token(TokenType.Assign, c.ToString());
+                        // 次の文字によって、トークンの意味が変わるのでチェックする
+                        if (Reader.PeekChar(1) == '=')
+                        {
+                            // = が二回続けば比較演算子
+                            token = new Token(TokenType.Equal, "==");
+                            Reader.ReadChar();
+                        }
+                        // そうでなければ代入演算子
+                        else
+                        {
+                            token = new Token(TokenType.Assign, c.ToString());
+                        }
                         break;
 
                     case '+':
@@ -59,6 +81,7 @@ namespace Tsumugi.Script.Lexing
                         if (Reader.PeekChar(1) == '=')
                         {
                             token = new Token(TokenType.NotEqual, "!=");
+                            Reader.ReadChar();
                         }
                         else
                         {
@@ -70,6 +93,7 @@ namespace Tsumugi.Script.Lexing
                         if (Reader.PeekChar(1) == '=')
                         {
                             token = new Token(TokenType.GreaterThanOrEqual, ">=");
+                            Reader.ReadChar();
                         }
                         else
                         {
@@ -81,6 +105,7 @@ namespace Tsumugi.Script.Lexing
                         if (Reader.PeekChar(1) == '=')
                         {
                             token = new Token(TokenType.LessThanOrEqual, "<=");
+                            Reader.ReadChar();
                         }
                         else
                         {
@@ -145,6 +170,10 @@ namespace Tsumugi.Script.Lexing
             return token;
         }
 
+        /// <summary>
+        /// 文字列が連続する間、数字として読み出す
+        /// </summary>
+        /// <returns>読みだした数字</returns>
         private string ReadNumber()
         {
             var number = Reader.ReadChar().ToString();
@@ -159,6 +188,10 @@ namespace Tsumugi.Script.Lexing
             return number;
         }
 
+        /// <summary>
+        /// 文字列が連続する間、識別子として読み出す
+        /// </summary>
+        /// <returns>読みだした識別子</returns>
         private string ReadIdentifier()
         {
             var identifier = Reader.ReadChar().ToString();
@@ -173,11 +206,21 @@ namespace Tsumugi.Script.Lexing
             return identifier;
         }
 
+        /// <summary>
+        /// 引数が数字かチェックする
+        /// </summary>
+        /// <param name="c">対象の文字</param>
+        /// <returns>引数が数字なら true</returns>
         private bool IsDigit(char c)
         {
             return '0' <= c && c <= '9';
         }
 
+        /// <summary>
+        /// 引数が（識別子として有効な）文字かをチェックする
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns>引数が文字なら true</returns>
         private bool IsLetter(char c)
         {
             return ('a' <= c && c <= 'z')
@@ -185,6 +228,9 @@ namespace Tsumugi.Script.Lexing
                 || c == '_';
         }
 
+        /// <summary>
+        /// 空白・タブ・改行などの間、リーダーを進める
+        /// </summary>
         private void SkipWhiteSpace()
         {
             var next = Reader.PeekChar();
