@@ -7,4 +7,5 @@
 
   <StringItem id="In this token, it must be {0}, not {1}." context="" translation="このトークンでは {1} ではなく {0} である必要があります。" />
   <StringItem id="Cannot convert {0} to an integer." context="" translation="{0} を整数に変換できません。" />
+  <StringItem id="There is no {1} associated with {0}." context="" translation="{0} に関連付けられた {1} が存在しません。" />
 </StringLocalizationTable>

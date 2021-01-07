@@ -68,6 +68,51 @@ namespace Tsumugi.Script.Parsing
         public Dictionary<TokenType, InfixParseFunction> InfixParseFunctions { get; set; }
 
         /// <summary>
+        /// 優先度の辞書
+        /// </summary>
+        public Dictionary<TokenType, Precedence> Precedences { get; set; } = new Dictionary<TokenType, Precedence>()
+        {
+            { TokenType.Equal, Precedence.Equals },
+            { TokenType.NotEqual, Precedence.Equals },
+            { TokenType.LessThan, Precedence.Lessgreater },
+            { TokenType.GreaterThan, Precedence.Lessgreater },
+            { TokenType.Plus, Precedence.Sum },
+            { TokenType.Minus, Precedence.Sum },
+            { TokenType.Slash, Precedence.Product },
+            { TokenType.Asterisk, Precedence.Product },
+        };
+
+        /// <summary>
+        /// 現在のトークンの優先度
+        /// </summary>
+        public Precedence CurrentPrecedence
+        {
+            get
+            {
+                if (Precedences.TryGetValue(CurrentToken.Type, out var p))
+                {
+                    return p;
+                }
+                return Precedence.Lowest;
+            }
+        }
+
+        /// <summary>
+        /// 次のトークンの優先度
+        /// </summary>
+        public Precedence NextPrecedence
+        {
+            get
+            {
+                if (Precedences.TryGetValue(NextToken.Type, out var p))
+                {
+                    return p;
+                }
+                return Precedence.Lowest;
+            }
+        }
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="lexer"></param>
@@ -81,6 +126,7 @@ namespace Tsumugi.Script.Parsing
             Logger = new Logger();
 
             RegisterPrefixParseFunctions();
+            RegisterInfixParseFunctions();
         }
 
         /// <summary>
@@ -165,7 +211,7 @@ namespace Tsumugi.Script.Parsing
             ReadToken();
 
             // TODO: 後で実装。
-            while (this.CurrentToken.Type != TokenType.Semicolon)
+            while (CurrentToken.Type != TokenType.Semicolon)
             {
                 // セミコロンが見つかるまで
                 ReadToken();
@@ -182,9 +228,26 @@ namespace Tsumugi.Script.Parsing
         public IExpression ParseExpression(Precedence precedence)
         {
             PrefixParseFunctions.TryGetValue(CurrentToken.Type, out var prefix);
-            if (prefix == null) return null;
+            if (prefix == null)
+            {
+                Logger.Logging(Logger.Categories.Error, string.Format(LocalizationTexts.NoAssociatedWith.Localize(), CurrentToken.Type.ToString(), "Prefix Parse Function"));
+                return null;
+            }
 
             var leftExpression = prefix();
+
+            while (NextToken.Type != TokenType.Semicolon && precedence < NextPrecedence)
+            {
+                InfixParseFunctions.TryGetValue(NextToken.Type, out var infix);
+                if (infix == null)
+                {
+                    return leftExpression;
+                }
+
+                ReadToken();
+                leftExpression = infix(leftExpression);
+            }
+
             return leftExpression;
         }
 
@@ -195,9 +258,9 @@ namespace Tsumugi.Script.Parsing
         public ExpressionStatement ParseExpressionStatement()
         {
             var statement = new ExpressionStatement();
-            statement.Token = this.CurrentToken;
+            statement.Token = CurrentToken;
 
-            statement.Expression = this.ParseExpression(Precedence.Lowest);
+            statement.Expression = ParseExpression(Precedence.Lowest);
 
             // セミコロンを読み飛ばす(省略可能)
             if (NextToken.Type == TokenType.Semicolon) ReadToken();
@@ -249,6 +312,24 @@ namespace Tsumugi.Script.Parsing
             PrefixParseFunctions = new Dictionary<TokenType, PrefixParseFunction>();
             PrefixParseFunctions.Add(TokenType.Identifier, ParseIdentifier);
             PrefixParseFunctions.Add(TokenType.Integer32, ParseIntegerLiteral);
+            PrefixParseFunctions.Add(TokenType.Bang, ParsePrefixExpression);
+            PrefixParseFunctions.Add(TokenType.Minus, ParsePrefixExpression);
+        }
+
+        /// <summary>
+        /// 中置構文解析関数を登録
+        /// </summary>
+        private void RegisterInfixParseFunctions()
+        {
+            InfixParseFunctions = new Dictionary<TokenType, InfixParseFunction>();
+            InfixParseFunctions.Add(TokenType.Plus, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.Minus, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.Slash, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.Asterisk, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.Equal, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.NotEqual, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.LessThan, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.GreaterThan, ParseInfixExpression);
         }
 
         /// <summary>
@@ -278,6 +359,47 @@ namespace Tsumugi.Script.Parsing
             Logger.Logging(Logger.Categories.Error, string.Format(LocalizationTexts.CannotConvertInteger.Localize(), CurrentToken.Literal));
 
             return null;
+        }
+
+        /// <summary>
+        /// 前置演算子式のパース
+        /// 定義：<prefix operator><expression>;
+        /// </summary>
+        /// <returns></returns>
+        public IExpression ParsePrefixExpression()
+        {
+            var expression = new PrefixExpression()
+            {
+                Token = CurrentToken,
+                Operator = CurrentToken.Literal
+            };
+
+            ReadToken();
+
+            expression.Right = ParseExpression(Precedence.Prefix);
+
+            return expression;
+        }
+
+        /// <summary>
+        /// 中置演算子式のパース
+        /// 定義：<expression> <infix operator> <expression>
+        /// </summary>
+        /// <returns></returns>
+        public IExpression ParseInfixExpression(IExpression left)
+        {
+            var expression = new InfixExpression()
+            {
+                Token = CurrentToken,
+                Operator = CurrentToken.Literal,
+                Left = left,
+            };
+
+            var precedence = CurrentPrecedence;
+            ReadToken();
+            expression.Right = ParseExpression(precedence);
+
+            return expression;
         }
     }
 }
