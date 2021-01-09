@@ -468,7 +468,7 @@ namespace TsumugiUnitTest
         }
 
         /// <summary>
-        /// 
+        /// 真偽式のテスト
         /// </summary>
         [TestMethod]
         public void TestMethodParserBooleanLiteralExpression()
@@ -522,6 +522,129 @@ namespace TsumugiUnitTest
             {
                 Assert.Fail($"booleanLiteral.TokenLiteral が {value.ToString().ToLower()} ではありません。({booleanLiteral.TokenLiteral()})");
             }
+        }
+
+        /// <summary>
+        /// 関数式のテスト
+        /// </summary>
+        [TestMethod]
+        public void TestMethodParserFunctionLiteral()
+        {
+            var input = "function(x, y) { x + y; }";
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var root = parser.ParseProgram();
+            checkParserErrors(parser);
+
+            Assert.AreEqual(
+                root.Statements.Count, 1,
+                "Root.Statementsの数が間違っています。"
+            );
+
+            var statement = root.Statements[0] as ExpressionStatement;
+            if (statement == null)
+            {
+                Assert.Fail("statement が ExpressionStatement ではありません。");
+            }
+
+            var expression = statement.Expression as FunctionLiteral;
+            if (expression == null)
+            {
+                Assert.Fail("expression が FunctionLiteral ではありません。");
+            }
+
+            Assert.AreEqual(
+                expression.Parameters.Count, 2,
+                "関数リテラルの引数の数が間違っています。"
+            );
+            testIdentifier(expression.Parameters[0], "x");
+            testIdentifier(expression.Parameters[1], "y");
+
+            Assert.AreEqual(
+                expression.Body.Statements.Count, 1,
+                "関数リテラルの本文の式の数が間違っています。"
+            );
+
+            var bodyStatement = expression.Body.Statements[0] as ExpressionStatement;
+            if (bodyStatement == null)
+            {
+                Assert.Fail("bodyStatement が ExpressionStatement ではありません。");
+            }
+            testInfixExpression(bodyStatement.Expression, "x", "+", "y");
+        }
+
+        /// <summary>
+        /// 関数式の引数のテスト
+        /// </summary>
+        [TestMethod]
+        public void TestMethodParserFunctionParameter()
+        {
+            var tests = new[]
+            {
+                ("function() {};", new string[] { }),
+                ("function(x) {};", new string[] { "x" }),
+                ("function(x, y, z) {};", new string[] { "x", "y", "z" }),
+            };
+
+            foreach (var (input, parameters) in tests)
+            {
+                var lexer = new Lexer(input);
+                var parser = new Parser(lexer);
+                var root = parser.ParseProgram();
+
+                var statement = root.Statements[0] as ExpressionStatement;
+                var fn = statement.Expression as FunctionLiteral;
+
+                Assert.AreEqual(
+                    fn.Parameters.Count, parameters.Length,
+                    "関数リテラルの引数の数が間違っています。"
+                );
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    testIdentifier(fn.Parameters[i], parameters[i]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 関数呼び出し式のテスト
+        /// </summary>
+        [TestMethod]
+        public void TestCallExpression()
+        {
+            var input = "add(1, 2 * 3, 4 + 5);";
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var root = parser.ParseProgram();
+            checkParserErrors(parser);
+
+            Assert.AreEqual(
+                root.Statements.Count, 1,
+                "Root.Statementsの数が間違っています。"
+            );
+
+            var statement = root.Statements[0] as ExpressionStatement;
+            if (statement == null)
+            {
+                Assert.Fail("statement が ExpressionStatement ではありません。");
+            }
+
+            var expression = statement.Expression as CallExpression;
+            if (expression == null)
+            {
+                Assert.Fail("expression が CallExpression ではありません。");
+            }
+
+            testIdentifier(expression.Function, "add");
+
+            Assert.AreEqual(
+                expression.Arguments.Count, 3,
+                "関数リテラルの引数の数が間違っています。"
+            );
+
+            testLiteralExpression(expression.Arguments[0], 1);
+            testInfixExpression(expression.Arguments[1], 2, "*", 3);
+            testInfixExpression(expression.Arguments[2], 4, "+", 5);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Tsumugi.Script.AbstractSyntaxTree.Statements
     /// If 文
     /// 定義：if (<condition>) <consequence> else <alternative>
     /// </summary>
-    class IfExpression
+    class IfExpression : IExpression
     {
         /// <summary>
         /// If 文の最初のトークン

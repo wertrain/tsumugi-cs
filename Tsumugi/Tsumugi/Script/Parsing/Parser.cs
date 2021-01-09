@@ -80,6 +80,7 @@ namespace Tsumugi.Script.Parsing
             { TokenType.Minus, Precedence.Sum },
             { TokenType.Slash, Precedence.Product },
             { TokenType.Asterisk, Precedence.Product },
+            { TokenType.LeftParenthesis, Precedence.Call },
         };
 
         /// <summary>
@@ -140,7 +141,7 @@ namespace Tsumugi.Script.Parsing
 
             while (CurrentToken.Type != TokenType.EOF)
             {
-                var statement = this.ParseStatement();
+                var statement = ParseStatement();
                 if (statement != null)
                 {
                     root.Statements.Add(statement);
@@ -317,6 +318,8 @@ namespace Tsumugi.Script.Parsing
             PrefixParseFunctions.Add(TokenType.True, ParseBooleanLiteral);
             PrefixParseFunctions.Add(TokenType.False, ParseBooleanLiteral);
             PrefixParseFunctions.Add(TokenType.LeftParenthesis, ParseGroupedExpression);
+            PrefixParseFunctions.Add(TokenType.If, ParseIfExpression);
+            PrefixParseFunctions.Add(TokenType.Function, ParseFunctionLiteral);
         }
 
         /// <summary>
@@ -333,6 +336,7 @@ namespace Tsumugi.Script.Parsing
             InfixParseFunctions.Add(TokenType.NotEqual, ParseInfixExpression);
             InfixParseFunctions.Add(TokenType.LessThan, ParseInfixExpression);
             InfixParseFunctions.Add(TokenType.GreaterThan, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.LeftParenthesis, ParseCallExpression);
         }
 
         /// <summary>
@@ -354,7 +358,7 @@ namespace Tsumugi.Script.Parsing
             {
                 return new IntegerLiteral()
                 {
-                    Token = this.CurrentToken,
+                    Token = CurrentToken,
                     Value = result,
                 };
             }
@@ -419,6 +423,79 @@ namespace Tsumugi.Script.Parsing
         }
 
         /// <summary>
+        /// If 式のパース
+        /// </summary>
+        /// <returns></returns>
+        public IExpression ParseIfExpression()
+        {
+            var expression = new IfExpression()
+            {
+                Token = CurrentToken // If
+            };
+
+            // if の後は括弧 ( でなければならない
+            if (!ExpectPeek(TokenType.LeftParenthesis)) return null;
+
+            // 括弧 ( を読み飛ばす
+            ReadToken();
+
+            // if の条件式を解析する
+            expression.Condition = ParseExpression(Precedence.Lowest);
+
+            // 閉じ括弧 ) 中括弧が続く 
+            if (!ExpectPeek(TokenType.RightParenthesis)) return null;
+            if (!ExpectPeek(TokenType.LeftBraces)) return null;
+
+            // この時点で { が現在のトークン
+            // ブロック文の解析関数を呼ぶ
+            expression.Consequence = ParseBlockStatement();
+
+            // else 句があれば解析する
+            if (NextToken.Type == TokenType.Else)
+            {
+                // else に読み進める
+                ReadToken();
+                // else の後に { が続かなければならない
+                if (!ExpectPeek(TokenType.LeftBraces)) return null;
+
+                // この時点で { が現在のトークン
+                // ブロック文の解析関数を呼ぶ
+                expression.Alternative = ParseBlockStatement();
+            }
+
+            return expression;
+        }
+
+        /// <summary>
+        /// ブロックのパース
+        /// </summary>
+        /// <returns></returns>
+        public BlockStatement ParseBlockStatement()
+        {
+            var block = new BlockStatement()
+            {
+                Token = CurrentToken, // "{"
+                Statements = new List<IStatement>(),
+            };
+
+            // "{" を読み飛ばす
+            ReadToken();
+
+            while (CurrentToken.Type != TokenType.RightBraces && CurrentToken.Type != TokenType.EOF)
+            {
+                // ブロックの中身を解析する
+                var statement = ParseStatement();
+                if (statement != null)
+                {
+                    block.Statements.Add(statement);
+                }
+                ReadToken();
+            }
+
+            return block;
+        }
+
+        /// <summary>
         /// 丸括弧でグループされた式のパース
         /// </summary>
         /// <returns></returns>
@@ -434,6 +511,114 @@ namespace Tsumugi.Script.Parsing
             if (!ExpectPeek(TokenType.RightParenthesis)) return null;
 
             return expression;
+        }
+
+        /// <summary>
+        /// 関数式のパース
+        /// </summary>
+        /// <returns></returns>
+        public IExpression ParseFunctionLiteral()
+        {
+            var function = new FunctionLiteral()
+            {
+                Token = CurrentToken
+            };
+
+            if (!ExpectPeek(TokenType.LeftParenthesis)) return null;
+
+            function.Parameters = ParseParameters();
+
+            if (!ExpectPeek(TokenType.LeftBraces)) return null;
+
+            function.Body = ParseBlockStatement();
+
+            return function;
+        }
+
+        /// <summary>
+        /// 関数の引数のパース
+        /// </summary>
+        /// <returns>引数のリスト</returns>
+        public List<Identifier> ParseParameters()
+        {
+            var parameters = new List<Identifier>();
+
+            // () となってパラメータがないときは空のリストを返す
+            if (NextToken.Type == TokenType.RightParenthesis)
+            {
+                ReadToken();
+                return parameters;
+            }
+
+            // ( を読み飛ばす
+            ReadToken();
+
+            // 最初のパラメータ
+            parameters.Add(new Identifier(CurrentToken, CurrentToken.Literal));
+
+            // 2つ目以降のパラメータをカンマが続く限り処理する
+            while (NextToken.Type == TokenType.Comma)
+            {
+                // すでに処理した識別子とその後ろのカンマを飛ばす
+                ReadToken();
+                ReadToken();
+
+                // 識別子を処理
+                parameters.Add(new Identifier(CurrentToken, CurrentToken.Literal));
+            }
+
+            if (!ExpectPeek(TokenType.RightParenthesis)) return null;
+
+            return parameters;
+        }
+
+        /// <summary>
+        /// 関数呼び出し式のパース
+        /// </summary>
+        /// <param name="function">関数式</param>
+        /// <returns>関数呼び出し式</returns>
+        public IExpression ParseCallExpression(IExpression function)
+        {
+            var expression = new CallExpression()
+            {
+                Token = CurrentToken,
+                Function = function,
+                Arguments = ParseCallArguments(),
+            };
+
+            return expression;
+        }
+
+        /// <summary>
+        /// 関数呼び出し式の引数のパース
+        /// </summary>
+        /// <returns></returns>
+        public List<IExpression> ParseCallArguments()
+        {
+            var args = new List<IExpression>();
+
+            // ( を読み飛ばす
+            ReadToken();
+
+            // 引数なしの場合
+            if (CurrentToken.Type == TokenType.RightParenthesis) return args;
+
+            // 引数ありの場合は1つ目の引数を解析
+            args.Add(ParseExpression(Precedence.Lowest));
+
+            // 2つ目以降の引数があればそれを解析
+            while (NextToken.Type == TokenType.Comma)
+            {
+                // カンマ直前のトークンとカンマトークンを読み飛ばす
+                ReadToken();
+                ReadToken();
+                args.Add(ParseExpression(Precedence.Lowest));
+            }
+
+            // 閉じかっこがなければエラー
+            if (!ExpectPeek(TokenType.RightParenthesis)) return null;
+
+            return args;
         }
     }
 }
