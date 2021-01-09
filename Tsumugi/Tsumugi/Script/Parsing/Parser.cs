@@ -314,6 +314,9 @@ namespace Tsumugi.Script.Parsing
             PrefixParseFunctions.Add(TokenType.Integer32, ParseIntegerLiteral);
             PrefixParseFunctions.Add(TokenType.Bang, ParsePrefixExpression);
             PrefixParseFunctions.Add(TokenType.Minus, ParsePrefixExpression);
+            PrefixParseFunctions.Add(TokenType.True, ParseBooleanLiteral);
+            PrefixParseFunctions.Add(TokenType.False, ParseBooleanLiteral);
+            PrefixParseFunctions.Add(TokenType.LeftParenthesis, ParseGroupedExpression);
         }
 
         /// <summary>
@@ -362,6 +365,19 @@ namespace Tsumugi.Script.Parsing
         }
 
         /// <summary>
+        /// 真偽式のパース
+        /// </summary>
+        /// <returns></returns>
+        public IExpression ParseBooleanLiteral()
+        {
+            return new BooleanLiteral()
+            {
+                Token = CurrentToken,
+                Value = CurrentToken.Type == TokenType.True,
+            };
+        }
+
+        /// <summary>
         /// 前置演算子式のパース
         /// 定義：<prefix operator><expression>;
         /// </summary>
@@ -398,6 +414,24 @@ namespace Tsumugi.Script.Parsing
             var precedence = CurrentPrecedence;
             ReadToken();
             expression.Right = ParseExpression(precedence);
+
+            return expression;
+        }
+
+        /// <summary>
+        /// 丸括弧でグループされた式のパース
+        /// </summary>
+        /// <returns></returns>
+        public IExpression ParseGroupedExpression()
+        {
+            // "(" を読み飛ばす
+            ReadToken();
+
+            // 括弧内の式を解析する
+            var expression = this.ParseExpression(Precedence.Lowest);
+
+            // 閉じ括弧 ")" がないとエラーになる
+            if (!ExpectPeek(TokenType.RightParenthesis)) return null;
 
             return expression;
         }

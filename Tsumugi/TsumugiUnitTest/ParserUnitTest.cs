@@ -238,10 +238,50 @@ namespace TsumugiUnitTest
         }
 
         /// <summary>
+        /// 演算式のテスト
+        /// </summary>
+        [TestMethod]
+        public void TestMethodParserOperatorPrecedenceParsing()
+        {
+            var tests = new[]
+            {
+                ("a + b", "(a + b)"),
+                ("!-a", "(!(-a))"),
+                ("a + b - c", "((a + b) - c)"),
+                ("a * b / c", "((a * b) / c)"),
+                ("a + b * c", "(a + (b * c))"),
+                ("a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"),
+                ("1 + 2; -3 * 4", "(1 + 2)\r\n((-3) * 4)"),
+                ("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"),
+                ("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+                ("true", "true"),
+                ("true == false", "(true == false)"),
+                ("1 > 2 == false", "((1 > 2) == false)"),
+                ("(1 + 2) * 3", "((1 + 2) * 3)"),
+                ("1 + (2 - 3)", "(1 + (2 - 3))"),
+                ("-(1 + 2)", "(-(1 + 2))"),
+                ("!(true == true)", "(!(true == true))"),
+                ("1 + (2 - 3) * 4", "(1 + ((2 - 3) * 4))"),
+                ("(1 + -(2 + 3)) * 4", "((1 + (-(2 + 3))) * 4)"),
+            };
+
+            foreach (var (input, code) in tests)
+            {
+                var lexer = new Lexer(input);
+                var parser = new Parser(lexer);
+                var root = parser.ParseProgram();
+                checkParserErrors(parser);
+
+                var actual = root.ToCode();
+                Assert.AreEqual(code, actual);
+            }
+        }
+
+        /// <summary>
         /// 前置演算子式のテスト
         /// </summary>
         [TestMethod]
-        public void TestMethodParsertPrefixExpression()
+        public void TestMethodParserPrefixExpression()
         {
             var tests = new[] {
                 ("!5", "!", 5),
@@ -285,9 +325,9 @@ namespace TsumugiUnitTest
         /// 中置演算子式のテスト
         /// </summary>
         [TestMethod]
-        public void TestMethodParsertInfixExpression()
+        public void TestMethodParserInfixExpression()
         {
-            var tests = new[] {
+            var tests = new (string, object, string, object)[] {
                 ("1 + 1;", 1, "+", 1),
                 ("1 - 1;", 1, "-", 1),
                 ("1 * 1;", 1, "*", 1),
@@ -296,6 +336,8 @@ namespace TsumugiUnitTest
                 ("1 > 1;", 1, ">", 1),
                 ("1 == 1;", 1, "==", 1),
                 ("1 != 1;", 1, "!=", 1),
+                ("true == false", true, "==", false),
+                ("false != false", false, "!=", false),
             };
 
             foreach (var (input, leftValue, op, rightValue) in tests)
@@ -344,6 +386,9 @@ namespace TsumugiUnitTest
                     break;
                 case string stringValue:
                     testIdentifier(expression, stringValue);
+                    break;
+                case bool boolValue:
+                    testBooleanLiteral(expression, boolValue);
                     break;
                 default:
                     Assert.Fail("予期せぬ型です。");
@@ -420,6 +465,63 @@ namespace TsumugiUnitTest
             }
 
             testLiteralExpression(infixExpression.Right, right);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod]
+        public void TestMethodParserBooleanLiteralExpression()
+        {
+            var tests = new[]
+            {
+                ("true;", true),
+                ("false;", false),
+            };
+
+            foreach (var (input, value) in tests)
+            {
+                var lexer = new Lexer(input);
+                var parser = new Parser(lexer);
+                var root = parser.ParseProgram();
+                checkParserErrors(parser);
+
+                Assert.AreEqual(
+                    root.Statements.Count, 1,
+                    "Root.Statementsの数が間違っています。"
+                );
+
+                var statement = root.Statements[0] as ExpressionStatement;
+                if (statement == null)
+                {
+                    Assert.Fail("statement が ExpressionStatement ではありません。");
+                }
+
+                testBooleanLiteral(statement.Expression, value);
+            }
+        }
+
+        /// <summary>
+        /// 真偽式のテスト
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="value"></param>
+        private void testBooleanLiteral(IExpression expression, bool value)
+        {
+            var booleanLiteral = expression as BooleanLiteral;
+            if (booleanLiteral == null)
+            {
+                Assert.Fail("Expression が BooleanLiteral ではありません。");
+            }
+            if (booleanLiteral.Value != value)
+            {
+                Assert.Fail($"booleanLiteral.Value が {value} ではありません。({booleanLiteral.Value})");
+            }
+            // bool値をToString()すると "True", "False" になるので小文字化してます
+            if (booleanLiteral.TokenLiteral() != value.ToString().ToLower())
+            {
+                Assert.Fail($"booleanLiteral.TokenLiteral が {value.ToString().ToLower()} ではありません。({booleanLiteral.TokenLiteral()})");
+            }
         }
     }
 }
