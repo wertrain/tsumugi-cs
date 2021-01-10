@@ -1,5 +1,7 @@
 ﻿using System;
+using Tsumugi.Script.Evaluating;
 using Tsumugi.Script.Lexing;
+using Tsumugi.Script.Objects;
 using Tsumugi.Script.Parsing;
 
 namespace Tsumugi.Script
@@ -10,6 +12,9 @@ namespace Tsumugi.Script
 
         public void Start()
         {
+            var enviroment = new Enviroment();
+
+            Console.WriteLine("Hello Tsumugi Script!");
             while (true)
             {
                 Console.Write(PROMPT);
@@ -30,7 +35,13 @@ namespace Tsumugi.Script
                     continue;
                 }
 
-                Console.WriteLine(root.ToCode());
+                var evaluator = new Evaluator();
+
+                var evaluated = evaluator.Eval(root, enviroment);
+                if (evaluated != null)
+                {
+                    Console.WriteLine(evaluated.Inspect());
+                }
             }
         }
     }

@@ -41,5 +41,20 @@ namespace Tsumugi.Script.Objects
         /// NULL
         /// </summary>
         Null,
+
+        /// <summary>
+        /// Return オブジェクト
+        /// </summary>
+        Return,
+
+        /// <summary>
+        /// エラーオブジェクト
+        /// </summary>
+        Error,
+
+        /// <summary>
+        /// 関数オブジェクト
+        /// </summary>
+        Function,
     }
 }

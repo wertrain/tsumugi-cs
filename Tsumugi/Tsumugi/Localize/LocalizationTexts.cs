@@ -14,5 +14,11 @@ namespace Tsumugi.Localize
         public static readonly string ThisTokenMustBe = "In this token, it must be {0}, not {1}.";
         public static readonly string CannotConvertInteger = "Cannot convert {0} to an integer.";
         public static readonly string NoAssociatedWith = "There is no {1} associated with {0}.";
+        public static readonly string UnknownOperatorPrefix = "Unknown operator : {0}{1}";
+        public static readonly string UnknownOperatorInfix = "Unknown operator : {0} {1} {2}";
+        public static readonly string TypeMismatch = "Type mismatch : {0} {1} {2}";
+        public static readonly string UndefinedIdentifier = "Undefined identifier {0}.";
+        public static readonly string NotFunction = "{0} is not a function.";
+        public static readonly string NumberOfArgumentsDoesNotMatch = "Number of arguments to the function {0} does not match.";
     }
 }

@@ -8,4 +8,10 @@
   <StringItem id="In this token, it must be {0}, not {1}." context="" translation="このトークンでは {1} ではなく {0} である必要があります。" />
   <StringItem id="Cannot convert {0} to an integer." context="" translation="{0} を整数に変換できません。" />
   <StringItem id="There is no {1} associated with {0}." context="" translation="{0} に関連付けられた {1} が存在しません。" />
+  <StringItem id="Unknown operator : {0}{1}" context="" translation="未知の演算子：{0}{1}" />
+  <StringItem id="Unknown operator : {0} {1} {2}" context="" translation="未知の演算子：{0} {1} {2}" />
+  <StringItem id="Type mismatch : {0} {1} {2}" context="" translation="型のミスマッチ：{0} {1} {2}" />
+  <StringItem id="Undefined identifier {0}." context="" translation="未定義の識別子 {0} です。" />
+  <StringItem id="{0} is not a function." context="" translation="{0} は関数ではありません。" />  
+  <StringItem id="Number of arguments to the function {0} does not match." context="" translation="関数 {0} の引数の数が一致しません。" />
 </StringLocalizationTable>

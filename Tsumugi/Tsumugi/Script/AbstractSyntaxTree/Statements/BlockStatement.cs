@@ -32,10 +32,15 @@ namespace Tsumugi.Script.AbstractSyntaxTree.Statements
         public string ToCode()
         {
             var builder = new StringBuilder();
+            builder.Append("{");
             foreach (var statement in Statements)
             {
                 builder.Append(statement.ToCode());
+
+                if (Statements.LastIndexOf(statement) > 0)
+                    builder.Append(" ");
             }
+            builder.Append("}");
             return builder.ToString();
         }
     }
