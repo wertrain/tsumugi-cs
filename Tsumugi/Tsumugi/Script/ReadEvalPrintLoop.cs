@@ -1,5 +1,6 @@
 ﻿using System;
 using Tsumugi.Script.Lexing;
+using Tsumugi.Script.Parsing;
 
 namespace Tsumugi.Script
 {
@@ -17,10 +18,19 @@ namespace Tsumugi.Script
                 if (string.IsNullOrEmpty(input)) return;
 
                 var lexer = new Lexer(input);
-                for (var token = lexer.NextToken(); token.Type != TokenType.EOF; token = lexer.NextToken())
+                var parser = new Tsumugi.Script.Parsing.Parser(lexer);
+                var root = parser.ParseProgram();
+
+                if (parser.Logger.Count() > 0)
                 {
-                    Console.WriteLine("{{ Type: {0}, Literal: {1} }}", token.Type.ToString(), token.Literal.ToString());
+                    foreach (var error in parser.Logger.GetHistories())
+                    {
+                        Console.WriteLine("{0}{1}", "\t", error);
+                    }
+                    continue;
                 }
+
+                Console.WriteLine(root.ToCode());
             }
         }
     }

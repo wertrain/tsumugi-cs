@@ -40,7 +40,7 @@ namespace TsumugiUnitTest
             {
                 var name = tests[i];
                 var statement = root.Statements[i];
-                letStatement(statement, name);
+                testLetStatement(statement, name);
             }
         }
 
@@ -63,12 +63,41 @@ namespace TsumugiUnitTest
             Assert.IsTrue(parser.Logger.Count(Logger.Categories.Error) >= 3, parser.Logger.GetHistory(Logger.Categories.Error));
         }
 
+        public void TestMethodParserLetStatement2()
+        {
+            var tests = new (string, string, object)[]
+            {
+                ("let x = 5;", "x", 5),
+                ("let y = true;", "y", true),
+                ("let z = x;", "z", "x"),
+            };
+
+            foreach (var (input, name, expected) in tests)
+            {
+                var lexer = new Lexer(input);
+                var parser = new Parser(lexer);
+                var root = parser.ParseProgram();
+                checkParserErrors(parser);
+
+                Assert.AreEqual(
+                    root.Statements.Count, 1,
+                    "Root.Statementsの数が間違っています。"
+                );
+
+                var statement = root.Statements[0];
+                testLetStatement(statement, name);
+
+                var value = (statement as LetStatement).Value;
+                testLiteralExpression(value, expected);
+            }
+        }
+
         /// <summary>
         /// Let 文のテスト
         /// </summary>
         /// <param name="statement"></param>
         /// <param name="name"></param>
-        private void letStatement(IStatement statement, string name)
+        private void testLetStatement(IStatement statement, string name)
         {
             Assert.AreEqual(
                 statement.TokenLiteral(), "let",
@@ -99,24 +128,26 @@ namespace TsumugiUnitTest
         [TestMethod]
         public void TestMethodParserReturnStatement()
         {
-            var script = "" +
-                        "return 5;" +
-                        "return 10;" +
-                        "return = 993322;" +
-                        "";
-            var lexer = new Lexer(script);
-            var parser = new Parser(lexer);
-            var root = parser.ParseProgram();
-            checkParserErrors(parser);
-
-            Assert.AreEqual(
-                root.Statements.Count, 3,
-                "Root.Statementsの数が間違っています。"
-            );
-
-            foreach (var statement in root.Statements)
+            var tests = new (string, object)[]
             {
-                var returnStatement = statement as ReturnStatement;
+                ("return 5;", 5),
+                ("return true;", true),
+                ("return x;", "x"),
+            };
+
+            foreach (var (input, expected) in tests)
+            {
+                var lexer = new Lexer(input);
+                var parser = new Parser(lexer);
+                var root = parser.ParseProgram();
+                checkParserErrors(parser);
+
+                Assert.AreEqual(
+                    root.Statements.Count, 1,
+                    "Root.Statementsの数が間違っています。"
+                );
+
+                var returnStatement = root.Statements[0] as ReturnStatement;
                 if (returnStatement == null)
                 {
                     Assert.Fail("statement が ReturnStatement ではありません。");
@@ -126,6 +157,8 @@ namespace TsumugiUnitTest
                     returnStatement.TokenLiteral(), "return",
                     $"return のリテラルが間違っています。"
                 );
+
+                testLiteralExpression(returnStatement.ReturnValue, expected);
             }
         }
 
@@ -263,6 +296,10 @@ namespace TsumugiUnitTest
                 ("!(true == true)", "(!(true == true))"),
                 ("1 + (2 - 3) * 4", "(1 + ((2 - 3) * 4))"),
                 ("(1 + -(2 + 3)) * 4", "((1 + (-(2 + 3))) * 4)"),
+                // 関数呼び出し式の ( も演算子として扱うのでここでテストする
+                ("add(1, 2) + 3 > 4", "((add(1, 2) + 3) > 4)"),
+                ("add(x, y, 1, 2*3, 4+5, add(z) )", "add(x, y, 1, (2 * 3), (4 + 5), add(z))"),
+                ("add(1 + 2 - 3 * 4 / 5 + 6)", "add((((1 + 2) - ((3 * 4) / 5)) + 6))"),
             };
 
             foreach (var (input, code) in tests)

@@ -61,18 +61,32 @@ namespace Tsumugi.Script
         /// <summary>
         /// 指定されたカテゴリのログ数を取得
         /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
+        /// <param name="category">カテゴリ</param>
+        /// <returns>カテゴリのログ数</returns>
         public int Count(Categories category)
         {
             return histories[(int)category].Count;
         }
 
         /// <summary>
+        /// すべてのカテゴリのログの総数を取得
+        /// </summary>
+        /// <returns>ログの総数</returns>
+        public int Count()
+        {
+            int count = 0;
+            foreach (var history in histories)
+            {
+                count += history.Count;
+            }
+            return count;
+        }
+
+        /// <summary>
         /// ログを表示
         /// </summary>
-        /// <param name="category"></param>
-        /// <param name="message"></param>
+        /// <param name="category">カテゴリ</param>
+        /// <param name="message">表示するログ</param>
         public virtual void Log(Categories category, string message)
         {
             Logging(category, message);
@@ -82,8 +96,8 @@ namespace Tsumugi.Script
         /// <summary>
         /// ログを記録
         /// </summary>
-        /// <param name="category"></param>
-        /// <param name="message"></param>
+        /// <param name="category">カテゴリ</param>
+        /// <param name="message">記録するログ</param>
         public void Logging(Categories category, string message)
         {
             histories[(int)category].Add(new History
@@ -94,10 +108,10 @@ namespace Tsumugi.Script
         }
 
         /// <summary>
-        /// 指定されたカテゴリの履歴を取得
+        /// 指定されたカテゴリの履歴を一行にして取得
         /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
+        /// <param name="category">カテゴリ</param>
+        /// <returns>改行で区切られたログ履歴</returns>
         public string GetHistory(Categories category)
         {
             var messages = new List<string>();
@@ -106,6 +120,51 @@ namespace Tsumugi.Script
                 messages.Add(string.Format("[{0}] {1}", CategoryToString[(int)history.Category], history.Message));
             }
             return string.Join(System.Environment.NewLine, messages.ToArray());
+        }
+
+        /// <summary>
+        /// すべてのカテゴリの履歴を取得
+        /// </summary>
+        /// <returns>改行で区切られたログ履歴</returns>
+        public string GetHistory()
+        {
+            var messages = new List<string>();
+            foreach (Categories category in Enum.GetValues(typeof(Categories)))
+            {
+                foreach (var history in histories[(int)category])
+                {
+                    messages.Add(string.Format("[{0}] {1}", CategoryToString[(int)history.Category], history.Message));
+                }
+            }
+            return string.Join(System.Environment.NewLine, messages.ToArray());
+        }
+
+        /// <summary>
+        /// 指定されたカテゴリの履歴を取得
+        /// </summary>
+        /// <param name="category">カテゴリ</param>
+        /// <returns>カテゴリの履歴</returns>
+        public IEnumerable<string> GetHistories(Categories category)
+        {
+            foreach (var history in histories[(int)category])
+            {
+                yield return string.Format("[{0}] {1}", CategoryToString[(int)history.Category], history.Message);
+            }
+        }
+
+        /// <summary>
+        /// すべてのカテゴリの履歴を取得
+        /// </summary>
+        /// <returns>履歴</returns>
+        public IEnumerable<string> GetHistories()
+        {
+            foreach (Categories category in Enum.GetValues(typeof(Categories)))
+            {
+                foreach (var history in histories[(int)category])
+                {
+                    yield return string.Format("[{0}] {1}", CategoryToString[(int)history.Category], history.Message);
+                }
+            }
         }
 
         /// <summary>

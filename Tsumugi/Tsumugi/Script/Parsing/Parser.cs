@@ -190,12 +190,14 @@ namespace Tsumugi.Script.Parsing
             // 次は等号がある
             if (!ExpectPeek(TokenType.Assign)) return null;
 
-            // 右辺（TODO: 後で実装）
-            while (CurrentToken.Type != TokenType.Semicolon)
-            {
-                // セミコロンが見つかるまで
-                ReadToken();
-            }
+            // = を読み飛ばす
+            ReadToken();
+
+            // 式を解析
+            statement.Value = ParseExpression(Precedence.Lowest);
+            
+            // セミコロンは必須ではない
+            if (NextToken.Type == TokenType.Semicolon) ReadToken();
 
             return statement;
         }
@@ -211,12 +213,11 @@ namespace Tsumugi.Script.Parsing
             statement.Token = CurrentToken;
             ReadToken();
 
-            // TODO: 後で実装。
-            while (CurrentToken.Type != TokenType.Semicolon)
-            {
-                // セミコロンが見つかるまで
-                ReadToken();
-            }
+            // 式を解析
+            statement.ReturnValue = ParseExpression(Precedence.Lowest);
+
+            // セミコロンは必須ではない
+            if (NextToken.Type == TokenType.Semicolon) ReadToken();
 
             return statement;
         }
