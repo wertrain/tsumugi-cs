@@ -45,7 +45,7 @@ namespace Tsumugi.Script.Lexing
         }
 
         /// <summary>
-        /// 予約後の辞書
+        /// 予約語の辞書
         /// </summary>
         public static Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>() {
             { "let", TokenType.Let },
@@ -91,6 +91,11 @@ namespace Tsumugi.Script.Lexing
         /// 変数リテラル
         /// </summary>
         Variable,
+
+        /// <summary>
+        /// 文字列リテラル
+        /// </summary>
+        String,
 
         /// --------- 演算子 --------- 
 
@@ -197,6 +202,11 @@ namespace Tsumugi.Script.Lexing
         /// 右角括弧
         /// </summary>
         RightBrackets,
+
+        /// <summary>
+        /// ダブルクォーテーション
+        /// </summary>
+        StraightQuotes,
 
         /// --------- キーワード --------- 
 

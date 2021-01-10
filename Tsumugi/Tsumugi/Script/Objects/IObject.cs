@@ -56,5 +56,10 @@ namespace Tsumugi.Script.Objects
         /// 関数オブジェクト
         /// </summary>
         Function,
+
+        /// <summary>
+        /// 文字列オブジェクト
+        /// </summary>
+        String,
     }
 }

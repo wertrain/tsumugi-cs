@@ -145,6 +145,11 @@ namespace Tsumugi.Script.Lexing
                         token = new Token(TokenType.RightBrackets, c.ToString());
                         break;
 
+                    case '"':
+                        var str = ReadString();
+                        token = new Token(TokenType.String, str);
+                        break;
+
                     default:
                         if (IsLetter(c))
                         {
@@ -204,6 +209,25 @@ namespace Tsumugi.Script.Lexing
             Reader.Seek(-1, SeekOrigin.Current);
 
             return identifier;
+        }
+
+        /// <summary>
+        /// ダブルクォーテーションまで、文字列として読み出す
+        /// </summary>
+        /// <returns></returns>
+        private string ReadString()
+        {
+            // ダブルクォーテーションを読み飛ばす
+            Reader.ReadChar();
+
+            var str = Reader.ReadChar().ToString();
+
+            while ('"' != (Reader.PeekChar()))
+            {
+                str += Reader.ReadChar();
+            }
+
+            return str;
         }
 
         /// <summary>

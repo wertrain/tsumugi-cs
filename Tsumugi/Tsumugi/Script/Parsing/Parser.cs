@@ -321,6 +321,7 @@ namespace Tsumugi.Script.Parsing
             PrefixParseFunctions.Add(TokenType.LeftParenthesis, ParseGroupedExpression);
             PrefixParseFunctions.Add(TokenType.If, ParseIfExpression);
             PrefixParseFunctions.Add(TokenType.Function, ParseFunctionLiteral);
+            PrefixParseFunctions.Add(TokenType.String, ParseStringLiteral);
         }
 
         /// <summary>
@@ -506,7 +507,7 @@ namespace Tsumugi.Script.Parsing
             ReadToken();
 
             // 括弧内の式を解析する
-            var expression = this.ParseExpression(Precedence.Lowest);
+            var expression = ParseExpression(Precedence.Lowest);
 
             // 閉じ括弧 ")" がないとエラーになる
             if (!ExpectPeek(TokenType.RightParenthesis)) return null;
@@ -620,6 +621,19 @@ namespace Tsumugi.Script.Parsing
             if (!ExpectPeek(TokenType.RightParenthesis)) return null;
 
             return args;
+        }
+
+        /// <summary>
+        /// 文字列式のパース
+        /// </summary>
+        /// <returns></returns>
+        public IExpression ParseStringLiteral()
+        {
+            return new StringLiteral()
+            {
+                Token = CurrentToken,
+                Value = CurrentToken.Literal
+            };
         }
     }
 }

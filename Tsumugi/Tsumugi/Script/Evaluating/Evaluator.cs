@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Tsumugi.Localize;
 using Tsumugi.Script.AbstractSyntaxTree;
 using Tsumugi.Script.AbstractSyntaxTree.Expressions;
@@ -44,6 +45,8 @@ namespace Tsumugi.Script.Evaluating
                     return EvalIdentifier(identifier, enviroment);
                 case IntegerLiteral integerLiteral:
                     return new IntegerObject(integerLiteral.Value);
+                case StringLiteral stringLiteral:
+                    return new StringObject(stringLiteral.Value);
                 case BooleanLiteral booleanLiteral:
                     return ToBooleanObject(booleanLiteral.Value);
                 case PrefixExpression prefixExpression:
@@ -212,6 +215,14 @@ namespace Tsumugi.Script.Evaluating
             {
                 return EvalIntegerInfixExpression(op, leftIntegerObject, rightIntegerObject);
             }
+            else if (left is StringObject leftStringObject && right is StringObject rightStringObject)
+            {
+                return EvalStringInfixExpression(op, leftStringObject, rightStringObject);
+            }
+            else if (left is StringObject stringObject && right is IntegerObject integerObject)
+            {
+                return EvalStringIntegerInfixExpression(op, stringObject, integerObject);
+            }
 
             switch (op)
             {
@@ -246,6 +257,53 @@ namespace Tsumugi.Script.Evaluating
                 case ">": return ToBooleanObject(leftValue > rightValue);
                 case "==": return ToBooleanObject(leftValue == rightValue);
                 case "!=": return ToBooleanObject(leftValue != rightValue);
+            }
+            return Null;
+        }
+
+        /// <summary>
+        /// 文字列の中置演算子式の評価
+        /// </summary>
+        /// <param name="op">演算子</param>
+        /// <param name="left">左辺</param>
+        /// <param name="right">右辺</param>
+        /// <returns>評価後のオブジェクト</returns>
+        public IObject EvalStringInfixExpression(string op, StringObject left, StringObject right)
+        {
+            var leftValue = left.Value;
+            var rightValue = right.Value;
+
+            switch (op)
+            {
+                case "+": return new StringObject(leftValue + rightValue);
+            }
+            return Null;
+        }
+
+        /// <summary>
+        /// 文字列と整数値の中置演算子式の評価
+        /// </summary>
+        /// <param name="op">演算子</param>
+        /// <param name="left">左辺</param>
+        /// <param name="right">右辺</param>
+        /// <returns>評価後のオブジェクト</returns>
+        public IObject EvalStringIntegerInfixExpression(string op, StringObject left, IntegerObject right)
+        {
+            var leftValue = left.Value;
+            var rightValue = right.Value;
+
+            switch (op)
+            {
+                case "+": return new StringObject(leftValue + rightValue);
+                case "*":
+                    {
+                        var result = new StringBuilder();
+                        for (int i = 0; i < rightValue; ++i)
+                        {
+                            result.Append(leftValue);
+                        }
+                        return new StringObject(result.ToString());
+                    }
             }
             return Null;
         }
