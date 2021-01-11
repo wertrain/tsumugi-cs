@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Tsumugi.Text.Commanding;
 
-namespace Tsumugi.Executor
+namespace Tsumugi.Text.Executing
 {
     /// <summary>
-    /// Tsumugi 標準のコマンド実行クラス
+    /// 標準のコマンド実行クラス
     /// </summary>
-    public class TsumugiCommandExecutor : ICommandExecutor
+    public class CommandExecutor : ICommandExecutor
     {
-        public TsumugiCommandExecutor()
+        public CommandExecutor()
         {
             Environment = Environment.Default();
         }
@@ -24,40 +22,40 @@ namespace Tsumugi.Executor
         /// </summary>
         /// <param name="queue"></param>
         /// <returns></returns>
-        public int Execute(Commands.CommandQueue queue)
+        public int Execute(CommandQueue queue)
         {
-            Commands.CommandBase command = null;
+            CommandBase command = null;
 
             while((command = queue.Dequeue()) != null)
             {
                 switch (command)
                 {
-                    case Commands.PrintTextCommand cmd:
+                    case Commanding.Commands.PrintTextCommand cmd:
                         PrintText(cmd.Text);
                         break;
 
-                    case Commands.NewLineCommand cmd:
+                    case Commanding.Commands.NewLineCommand cmd:
                         StartNewLine();
                         break;
 
-                    case Commands.WaitKeyCommand cmd:
+                    case Commanding.Commands.WaitKeyCommand cmd:
                         WaitAnyKey();
                         break;
 
-                    case Commands.NewPageCommand cmd:
+                    case Commanding.Commands.NewPageCommand cmd:
                         StartNewPage();
                         break;
 
-                    case Commands.WaitTimeCommand cmd:
+                    case Commanding.Commands.WaitTimeCommand cmd:
                         WaitTime(cmd.Time);
                         break;
 
-                    case Commands.InsertIndentCommand cmd:
+                    case Commanding.Commands.InsertIndentCommand cmd:
                         Indent(Environment.Indentation);
                         break;
 
-                    case Commands.JumpCommand cmd:
-                        var labels = queue.FindCommands<Commands.LabelCommand>();
+                    case Commanding.Commands.JumpCommand cmd:
+                        var labels = queue.FindCommands<Commanding.Commands.LabelCommand>();
                         var label = labels.Find(c => c.Name == cmd.Target);
                         queue.Seek(label);
                         break;
@@ -99,7 +97,5 @@ namespace Tsumugi.Executor
         /// </summary>
         /// <param name="size"></param>
         public virtual void Indent(int count) { }
-
-
     }
 }

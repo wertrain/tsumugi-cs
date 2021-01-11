@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Tsumugi.Commands
+﻿namespace Tsumugi.Text.Commanding.Commands
 {
     public class LabelCommand : CommandBase
     {

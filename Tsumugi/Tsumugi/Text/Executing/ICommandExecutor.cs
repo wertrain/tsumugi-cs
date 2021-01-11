@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Tsumugi.Executor
+﻿namespace Tsumugi.Text.Executing
 {
+    /// <summary>
+    /// コマンド実行の基底クラス
+    /// </summary>
     public interface ICommandExecutor
     {
         /// <summary>
@@ -16,6 +15,6 @@ namespace Tsumugi.Executor
         /// </summary>
         /// <param name="queue">実行するコマンドキュー</param>
         /// <returns></returns>
-        int Execute(Commands.CommandQueue queue);
+        int Execute(Commanding.CommandQueue queue);
     }
 }

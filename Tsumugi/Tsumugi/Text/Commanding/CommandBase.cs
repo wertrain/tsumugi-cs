@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Tsumugi.Commands
+namespace Tsumugi.Text.Commanding
 {
     /// <summary>
     /// コマンドのベースクラス

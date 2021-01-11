@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ConsoleSample
@@ -11,7 +8,7 @@ namespace ConsoleSample
         /// <summary>
         /// Tsumugi コマンド実行クラスのコンソール版
         /// </summary>
-        private class CommandExecutor : Tsumugi.Executor.TsumugiCommandExecutor
+        private class CommandExecutor : Tsumugi.Text.Executing.CommandExecutor
         {
             public override void PrintText(string text)
             {
@@ -43,9 +40,9 @@ namespace ConsoleSample
                 Console.Write("\t");
             }
 
-            public void DebugPring(Tsumugi.Commands.CommandQueue queue)
+            public void DebugPring(Tsumugi.Text.Commanding.CommandQueue queue)
             {
-                queue.Each((int index, Tsumugi.Commands.CommandBase command) => { Console.WriteLine("[{0}] {1}", index, command.GetType().ToString()); });
+                queue.Each((int index, Tsumugi.Text.Commanding.CommandBase command) => { Console.WriteLine("[{0}] {1}", index, command.GetType().ToString()); });
             }
 
         }

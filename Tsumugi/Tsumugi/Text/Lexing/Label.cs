@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Tsumugi.Parser
+﻿namespace Tsumugi.Text.Lexing
 {
     public class Label
     {

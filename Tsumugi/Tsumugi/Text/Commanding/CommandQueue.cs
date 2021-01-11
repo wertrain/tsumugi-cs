@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace Tsumugi.Commands
+namespace Tsumugi.Text.Commanding
 {
     /// <summary>
     /// コマンドをキューで管理するクラス

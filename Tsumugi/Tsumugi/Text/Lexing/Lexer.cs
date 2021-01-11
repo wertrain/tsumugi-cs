@@ -1,26 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Tsumugi.Localize;
-using Tsumugi.Script;
+using Tsumugi.Text.Commanding;
 
-namespace Tsumugi.Parser
+namespace Tsumugi.Text.Lexing
 {
-    /// <summary>
-    /// Tsumugi 標準のパーサー
-    /// </summary>
-    public class TsumugiParser : IParser
+    public class Lexer
     {
-        public Commands.CommandQueue CommandQueue { get; }
+        public CommandQueue CommandQueue { get; }
 
-        public Logger Logger { get; set; }
+        public Script.Logger Logger { get; set; }
 
-        public TsumugiParser()
+        public Lexer()
         {
-            CommandQueue = new Commands.CommandQueue();
-            Logger = new Logger();
+            CommandQueue = new CommandQueue();
+            Logger = new Script.Logger();
             TemporaryVariables = new Dictionary<string, string>();
             Labels = new Dictionary<string, Label>();
             _enableIndent = false;
@@ -37,7 +33,7 @@ namespace Tsumugi.Parser
             using (var reader = new StringReader(script))
             {
                 int c = -1;
-                while((c = reader.Read()) >= 0)
+                while ((c = reader.Read()) >= 0)
                 {
                     switch (c)
                     {
@@ -85,7 +81,7 @@ namespace Tsumugi.Parser
                 {
                     if (Labels.ContainsKey(label.ToString()))
                     {
-                        Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.AlreadyUsedLabelName.Localize(), label.ToString()));
+                        error(string.Format(LocalizationTexts.AlreadyUsedLabelName.Localize(), label.ToString()));
                     }
                     else
                     {
@@ -95,7 +91,7 @@ namespace Tsumugi.Parser
                             Name = label.ToString(),
                             Headline = headline
                         });
-                        CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString(), headline));
+                        CommandQueue.Enqueue(new Commanding.Commands.LabelCommand(label.ToString(), headline));
                     }
                     progressingText.Clear();
                     return;
@@ -106,7 +102,7 @@ namespace Tsumugi.Parser
                     case TsumugiKeyword.HeadlineSeparator:
                         if (Labels.ContainsKey(label.ToString()))
                         {
-                            Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.AlreadyUsedLabelName.Localize(), label.ToString()));
+                            error(string.Format(LocalizationTexts.AlreadyUsedLabelName.Localize(), label.ToString()));
                         }
                         else
                         {
@@ -116,7 +112,7 @@ namespace Tsumugi.Parser
                                 Name = label.ToString(),
                                 Headline = headline
                             });
-                            CommandQueue.Enqueue(new Commands.LabelCommand(label.ToString(), headline));
+                            CommandQueue.Enqueue(new Commanding.Commands.LabelCommand(label.ToString(), headline));
                         }
                         progressingText.Clear();
                         return;
@@ -285,17 +281,17 @@ namespace Tsumugi.Parser
                 case TsumugiTag.WaitKey:
                     addPrintTextCommand(progressingText.ToString(), false);
                     progressingText.Clear();
-                    CommandQueue.Enqueue(new Commands.WaitKeyCommand());
+                    CommandQueue.Enqueue(new Commanding.Commands.WaitKeyCommand());
                     break;
 
                 case TsumugiTag.NewLine:
                     addPrintTextCommand(progressingText.ToString(), false);
                     progressingText.Clear();
-                    CommandQueue.Enqueue(new Commands.NewLineCommand());
+                    CommandQueue.Enqueue(new Commanding.Commands.NewLineCommand());
                     break;
 
                 case TsumugiTag.NewPage:
-                    CommandQueue.Enqueue(new Commands.NewPageCommand());
+                    CommandQueue.Enqueue(new Commanding.Commands.NewPageCommand());
                     break;
 
                 case TsumugiTag.WaitTime:
@@ -312,12 +308,12 @@ namespace Tsumugi.Parser
                             }
                             else
                             {
-                                Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.NotDefined.Localize(), attr?.Value));
+                                error(string.Format(LocalizationTexts.NotDefined.Localize(), attr?.Value));
                             }
                         }
                         addPrintTextCommand(progressingText.ToString(), true);
                         progressingText.Clear();
-                        CommandQueue.Enqueue(new Commands.WaitTimeCommand(time));
+                        CommandQueue.Enqueue(new Commanding.Commands.WaitTimeCommand(time));
                     }
                     break;
 
@@ -355,15 +351,15 @@ namespace Tsumugi.Parser
 
                         if (attr == null)
                         {
-                            Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "target", TsumugiTag.Jump));
+                            error(string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "target", TsumugiTag.Jump));
                         }
                         else if (Labels.ContainsKey(attr?.Value))
                         {
-                            CommandQueue.Enqueue(new Commands.JumpCommand(Labels[attr?.Value].Name));
+                            CommandQueue.Enqueue(new Commanding.Commands.JumpCommand(Labels[attr?.Value].Name));
                         }
                         else
                         {
-                            Logger.Log(Logger.Categories.Error, string.Format(LocalizationTexts.CannotFindJumpTarget.Localize(), attr?.Value));
+                            error(string.Format(LocalizationTexts.CannotFindJumpTarget.Localize(), attr?.Value));
                         }
                     }
                     break;
@@ -386,10 +382,10 @@ namespace Tsumugi.Parser
             {
                 if (fromCommand && _enableIndent)
                 {
-                    CommandQueue.Enqueue(new Commands.InsertIndentCommand() {});
+                    CommandQueue.Enqueue(new Commanding.Commands.InsertIndentCommand() { });
                 }
 
-                CommandQueue.Enqueue(new Commands.PrintTextCommand() { Text = text });
+                CommandQueue.Enqueue(new Commanding.Commands.PrintTextCommand() { Text = text });
             }
         }
 
@@ -410,6 +406,15 @@ namespace Tsumugi.Parser
                     return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// エラー出力
+        /// </summary>
+        /// <param name="message"></param>
+        private void error(string message)
+        {
+            Logger.Log(Script.Logger.Categories.Error, message);
         }
 
         /// <summary>

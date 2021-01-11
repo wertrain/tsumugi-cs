@@ -9,7 +9,7 @@ namespace TsumugiUnitTest
         [TestMethod]
         public void TestMethodParserBasic()
         {
-            var parser = new Tsumugi.Parser.TsumugiParser();
+            var parser = new Tsumugi.Text.Lexing.Lexer();
             parser.Parse("Hello, Tsumugi!");
 
             Assert.AreNotEqual(parser.CommandQueue.Dequeue(), null);
@@ -18,7 +18,7 @@ namespace TsumugiUnitTest
         [TestMethod]
         public void TestMethodParserError()
         {
-            var parser = new Tsumugi.Parser.TsumugiParser();
+            var parser = new Tsumugi.Text.Lexing.Lexer();
 
             var script = "" +
                 ":start|開始位置" +

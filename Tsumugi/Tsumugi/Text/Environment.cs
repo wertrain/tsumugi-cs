@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Tsumugi
+namespace Tsumugi.Text
 {
     public class Environment
     {
