@@ -24,6 +24,7 @@ namespace Tsumugi.Script.Parsing
     public enum Precedence
     {
         Lowest = 1,
+        Assign,      /// =
         Equals,      /// ==
         Lessgreater, /// >, <, >=, <=
         Sum,         /// +
@@ -83,6 +84,7 @@ namespace Tsumugi.Script.Parsing
             { TokenType.Slash, Precedence.Product },
             { TokenType.Asterisk, Precedence.Product },
             { TokenType.LeftParenthesis, Precedence.Call },
+            { TokenType.Assign, Precedence.Assign },
         };
 
         /// <summary>
@@ -343,6 +345,7 @@ namespace Tsumugi.Script.Parsing
             InfixParseFunctions.Add(TokenType.LessThanOrEqual, ParseInfixExpression);
             InfixParseFunctions.Add(TokenType.GreaterThanOrEqual, ParseInfixExpression);
             InfixParseFunctions.Add(TokenType.LeftParenthesis, ParseCallExpression);
+            InfixParseFunctions.Add(TokenType.Assign, ParseAssignExpression);
         }
 
         /// <summary>
@@ -591,6 +594,34 @@ namespace Tsumugi.Script.Parsing
                 Function = function,
                 Arguments = ParseCallArguments(),
             };
+
+            return expression;
+        }
+
+        /// <summary>
+        /// 代入式
+        /// </summary>
+        /// <param name="left"></param>
+        /// <returns></returns>
+        public IExpression ParseAssignExpression(IExpression left)
+        {
+            var identifier = left as Identifier;
+
+            if (identifier == null)
+            {
+                Error(CurrentToken, LocalizationTexts.AssigningValuesNotAllowed.Localize());
+                return null;
+            }
+
+            var expression = new AssignExpression()
+            {
+                Token = CurrentToken,
+                Identifier = identifier,
+            };
+
+            var precedence = CurrentPrecedence;
+            ReadToken();
+            expression.Right = ParseExpression(precedence);
 
             return expression;
         }

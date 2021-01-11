@@ -43,6 +43,8 @@ namespace Tsumugi.Script.Evaluating
                 // 式
                 case Identifier identifier:
                     return EvalIdentifier(identifier, enviroment);
+                case AssignExpression assignExpression:
+                    return EvalAssignExpression(assignExpression, enviroment);
                 case IntegerLiteral integerLiteral:
                     return new IntegerObject(integerLiteral.Value);
                 case StringLiteral stringLiteral:
@@ -156,6 +158,27 @@ namespace Tsumugi.Script.Evaluating
 
             ok = Builtins.Functions.TryGetValue(identifier.Value, out value);
             if (ok) return value;
+
+            return new Error(string.Format(LocalizationTexts.UndefinedIdentifier.Localize(), identifier.Value));
+        }
+
+        /// <summary>
+        /// 代入式の評価
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="enviroment"></param>
+        /// <returns></returns>
+        public IObject EvalAssignExpression(AssignExpression expression, Enviroment enviroment)
+        {
+            var identifier = expression.Identifier;
+            var (value, ok) = enviroment.Get(identifier.Value);
+
+            if (ok)
+            {
+                var result = Eval(expression.Right, enviroment);
+                enviroment.Set(expression.Identifier.Value, result);
+                return result;
+            }
 
             return new Error(string.Format(LocalizationTexts.UndefinedIdentifier.Localize(), identifier.Value));
         }

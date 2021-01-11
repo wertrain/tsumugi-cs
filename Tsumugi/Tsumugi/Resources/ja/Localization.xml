@@ -15,4 +15,5 @@
   <StringItem id="{0} is not a function." context="" translation="{0} は関数ではありません。" />
   <StringItem id="Number of arguments to the function {0} does not match." context="" translation="関数 {0} の引数の数が一致しません。" />
   <StringItem id="{0} does not support arguments of type {1}." context="" translation="{0} では {1} の型の引数をサポートしません。" />
+  <StringItem id="Assigning values to other than identifiers is not allowed." context="" translation="識別子以外への値の代入はできません。" />
 </StringLocalizationTable>
