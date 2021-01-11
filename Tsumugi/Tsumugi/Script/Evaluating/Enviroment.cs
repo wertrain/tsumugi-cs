@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Tsumugi.Script.Objects;
 
-namespace Tsumugi.Script.Objects
+namespace Tsumugi.Script.Evaluating
 {
     /// <summary>
     /// 環境
@@ -30,7 +31,7 @@ namespace Tsumugi.Script.Objects
         }
 
         /// <summary>
-        /// 変数を取得
+        /// 変数・組み込み関数を取得
         /// </summary>
         /// <param name="name">取得する変数名</param>
         /// <returns>評価オブジェクト</returns>
@@ -54,7 +55,16 @@ namespace Tsumugi.Script.Objects
         /// <returns>評価オブジェクト</returns>
         public IObject Set(string name, IObject value)
         {
-            Store.Add(name, value);
+            if (Store.ContainsKey(name))
+            {
+                // 変数の再定義がされている
+                Store[name] = value;
+            }
+            else
+            {
+                Store.Add(name, value);
+            }
+
             return value;
         }
     }

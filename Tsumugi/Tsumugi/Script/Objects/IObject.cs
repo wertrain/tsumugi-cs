@@ -61,5 +61,10 @@ namespace Tsumugi.Script.Objects
         /// 文字列オブジェクト
         /// </summary>
         String,
+        
+        /// <summary>
+        /// 組み込み関数オブジェクト
+        /// </summary>
+        Builtin
     }
 }

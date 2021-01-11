@@ -154,6 +154,9 @@ namespace Tsumugi.Script.Evaluating
             var (value, ok) = enviroment.Get(identifier.Value);
             if (ok) return value;
 
+            ok = Builtins.Functions.TryGetValue(identifier.Value, out value);
+            if (ok) return value;
+
             return new Error(string.Format(LocalizationTexts.UndefinedIdentifier.Localize(), identifier.Value));
         }
 
@@ -364,13 +367,19 @@ namespace Tsumugi.Script.Evaluating
         /// <returns></returns>
         public IObject ApplyFunction(IObject obj, List<IObject> args)
         {
-            var fn = obj as FunctionObject;
-            if (fn == null) return new Error(string.Format(LocalizationTexts.NotFunction.Localize(), obj.GetType()));
+            switch(obj)
+            {
+                case FunctionObject fn:
+                    var extendedEnviroment = ExtendEnviroment(fn, args);
+                    var evaluated = EvalBlockStatement(fn.Body, extendedEnviroment);
+                    return UnwrapReturnValue(evaluated);
 
-            var extendedEnviroment = ExtendEnviroment(fn, args);
-            var evaluated = EvalBlockStatement(fn.Body, extendedEnviroment);
+                case BuiltinObject builtinObject:
+                    return builtinObject.Function(args);
 
-            return UnwrapReturnValue(evaluated);
+                default:
+                    return new Error(string.Format(LocalizationTexts.NotFunction.Localize(), obj.GetType()));
+            }
         }
         
         /// <summary>

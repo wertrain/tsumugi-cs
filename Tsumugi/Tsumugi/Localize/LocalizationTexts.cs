@@ -20,5 +20,6 @@ namespace Tsumugi.Localize
         public static readonly string UndefinedIdentifier = "Undefined identifier {0}.";
         public static readonly string NotFunction = "{0} is not a function.";
         public static readonly string NumberOfArgumentsDoesNotMatch = "Number of arguments to the function {0} does not match.";
+        public static readonly string DoesNotSupportArgumentsOfType = "{0} does not support arguments of type {1}.";
     }
 }

@@ -12,6 +12,7 @@
   <StringItem id="Unknown operator : {0} {1} {2}" context="" translation="未知の演算子：{0} {1} {2}" />
   <StringItem id="Type mismatch : {0} {1} {2}" context="" translation="型のミスマッチ：{0} {1} {2}" />
   <StringItem id="Undefined identifier {0}." context="" translation="未定義の識別子 {0} です。" />
-  <StringItem id="{0} is not a function." context="" translation="{0} は関数ではありません。" />  
+  <StringItem id="{0} is not a function." context="" translation="{0} は関数ではありません。" />
   <StringItem id="Number of arguments to the function {0} does not match." context="" translation="関数 {0} の引数の数が一致しません。" />
+  <StringItem id="{0} does not support arguments of type {1}." context="" translation="{0} では {1} の型の引数をサポートしません。" />
 </StringLocalizationTable>
