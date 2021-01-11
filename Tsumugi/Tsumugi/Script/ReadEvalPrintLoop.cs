@@ -1,8 +1,4 @@
 ﻿using System;
-using Tsumugi.Script.Evaluating;
-using Tsumugi.Script.Lexing;
-using Tsumugi.Script.Objects;
-using Tsumugi.Script.Parsing;
 
 namespace Tsumugi.Script
 {
@@ -12,9 +8,10 @@ namespace Tsumugi.Script
 
         public void Start()
         {
-            var enviroment = new Enviroment();
-
             Console.WriteLine("Hello Tsumugi Script!");
+
+            var enviroment = new Objects.Enviroment();
+
             while (true)
             {
                 Console.Write(PROMPT);
@@ -22,8 +19,8 @@ namespace Tsumugi.Script
                 var input = Console.ReadLine();
                 if (string.IsNullOrEmpty(input)) return;
 
-                var lexer = new Lexer(input);
-                var parser = new Tsumugi.Script.Parsing.Parser(lexer);
+                var lexer = new Lexing.Lexer(input);
+                var parser = new Parsing.Parser(lexer);
                 var root = parser.ParseProgram();
 
                 if (parser.Logger.Count() > 0)
@@ -35,7 +32,7 @@ namespace Tsumugi.Script
                     continue;
                 }
 
-                var evaluator = new Evaluator();
+                var evaluator = new Evaluating.Evaluator();
 
                 var evaluated = evaluator.Eval(root, enviroment);
                 if (evaluated != null)

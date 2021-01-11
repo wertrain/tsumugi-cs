@@ -255,6 +255,8 @@ namespace Tsumugi.Script.Evaluating
                 case "/": return new IntegerObject(leftValue / rightValue);
                 case "<": return ToBooleanObject(leftValue < rightValue);
                 case ">": return ToBooleanObject(leftValue > rightValue);
+                case "<=": return ToBooleanObject(leftValue <= rightValue);
+                case ">=": return ToBooleanObject(leftValue >= rightValue);
                 case "==": return ToBooleanObject(leftValue == rightValue);
                 case "!=": return ToBooleanObject(leftValue != rightValue);
             }
@@ -276,6 +278,8 @@ namespace Tsumugi.Script.Evaluating
             switch (op)
             {
                 case "+": return new StringObject(leftValue + rightValue);
+                case "==": return ToBooleanObject(leftValue.CompareTo(rightValue) == 0);
+                case "!=": return ToBooleanObject(leftValue.CompareTo(rightValue) != 0);
             }
             return Null;
         }

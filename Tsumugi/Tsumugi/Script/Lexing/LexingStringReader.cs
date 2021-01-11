@@ -7,21 +7,36 @@ using System.Threading.Tasks;
 namespace Tsumugi.Script.Lexing
 {
     /// <summary>
-    /// Tsumugi 用の StringReader クラス
+    /// 字句解析用の StringReader クラス
     /// 通常の StringReader との違いは、Seek が使用できること
     /// </summary>
-    class TsumugiStringReader : TextReader
+    public class LexingStringReader : TextReader
     {
         /// <summary>
         /// シーク位置
         /// </summary>
         public int Position { get; private set; }
 
-        public TsumugiStringReader(string text)
+        /// <summary>
+        /// 解析行
+        /// </summary>
+        public int Lines { get; set; }
+
+        /// <summary>
+        /// 解析列
+        /// </summary>
+        public int Columns { get; set; }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="text"></param>
+        public LexingStringReader(string text)
         {
             _disposed = false;
             _string = new StringBuilder(text);
             Position = 0;
+            Lines = Columns = 0;
         }
 
         public override void Close()
@@ -58,6 +73,7 @@ namespace Tsumugi.Script.Lexing
         {
             if (_string.Length > Position)
             {
+                CheckNewLine();
                 return _string[Position++];
             }
             return -1;
@@ -75,6 +91,8 @@ namespace Tsumugi.Script.Lexing
 
         public int Seek(int offset, SeekOrigin origin)
         {
+            // TODO: 行数、列数の再計算
+
             switch (origin)
             {
                 case SeekOrigin.Begin:
@@ -151,6 +169,41 @@ namespace Tsumugi.Script.Lexing
                 }
 
                 _disposed = true;
+            }
+        }
+
+        /// <summary>
+        /// 解析位置を取得
+        /// </summary>
+        /// <returns>解析位置</returns>
+        public LexingPosition GetLexingPosition()
+        {
+            return new LexingPosition()
+            {
+                Position = Position,
+                Lines = Lines,
+                Columns = Columns
+            };
+        }
+
+        /// <summary>
+        /// 改行のチェック
+        /// </summary>
+        private void CheckNewLine()
+        {
+            var newline = string.Empty;
+            for (int p = Position; p < _string.Length && p < Position + System.Environment.NewLine.Length; ++p)
+            {
+                newline += _string[p];
+            }
+            if (newline.CompareTo(System.Environment.NewLine) == 0)
+            {
+                ++Lines;
+                Columns = 0;
+            }
+            else
+            {
+                ++Columns;
             }
         }
 

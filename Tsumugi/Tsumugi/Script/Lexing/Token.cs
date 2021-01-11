@@ -20,6 +20,11 @@ namespace Tsumugi.Script.Lexing
         public string Literal { get; set; }
 
         /// <summary>
+        /// 解析位置
+        /// </summary>
+        public LexingPosition Position { get; private set; }
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="type"></param>
@@ -28,6 +33,20 @@ namespace Tsumugi.Script.Lexing
         {
             Type = type;
             Literal = literal;
+            Position = new LexingPosition();
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="literal"></param>
+        /// <param name="position"></param>
+        public Token(TokenType type, string literal, LexingPosition position)
+        {
+            Type = type;
+            Literal = literal;
+            Position = position;
         }
 
         /// <summary>

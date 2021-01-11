@@ -1,10 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace Tsumugi.Script.Lexing
 {
+    /// <summary>
+    /// 解析位置
+    /// </summary>
+    public class LexingPosition
+    {
+        /// <summary>
+        /// 文字位置
+        /// </summary>
+        public int Position { get; set; }
+
+        /// <summary>
+        /// 行
+        /// </summary>
+        public int Lines { get; set; }
+
+        /// <summary>
+        /// 列
+        /// </summary>
+        public int Columns { get; set; }
+    }
+
     /// <summary>
     /// 字句解析
     /// </summary>
@@ -13,7 +32,7 @@ namespace Tsumugi.Script.Lexing
         /// <summary>
         /// 字句解析用の文字列リーダー
         /// </summary>
-        private TsumugiStringReader Reader { get; set; }
+        private LexingStringReader Reader { get; set; }
 
         /// <summary>
         /// コンストラクタ
@@ -21,7 +40,7 @@ namespace Tsumugi.Script.Lexing
         /// <param name="script"></param>
         public Lexer(string script)
         {
-            Reader = new TsumugiStringReader(script);
+            Reader = new LexingStringReader(script);
         }
 
         /// <summary>
@@ -38,7 +57,7 @@ namespace Tsumugi.Script.Lexing
 
             if (next < 0)
             {
-                token = new Token(TokenType.EOF, string.Empty);
+                token = CreateToken(TokenType.EOF, string.Empty);
             }
             else
             {
@@ -51,103 +70,102 @@ namespace Tsumugi.Script.Lexing
                         if (Reader.PeekChar(1) == '=')
                         {
                             // = が二回続けば比較演算子
-                            token = new Token(TokenType.Equal, "==");
+                            token = CreateToken(TokenType.Equal, "==");
                             Reader.ReadChar();
                         }
                         // そうでなければ代入演算子
                         else
                         {
-                            token = new Token(TokenType.Assign, c.ToString());
+                            token = CreateToken(TokenType.Assign, c.ToString());
                         }
                         break;
 
                     case '+':
-                        token = new Token(TokenType.Plus, c.ToString());
+                        token = CreateToken(TokenType.Plus, c.ToString());
                         break;
 
                     case '-':
-                        token = new Token(TokenType.Minus, c.ToString());
+                        token = CreateToken(TokenType.Minus, c.ToString());
                         break;
 
                     case '*':
-                        token = new Token(TokenType.Asterisk, c.ToString());
+                        token = CreateToken(TokenType.Asterisk, c.ToString());
                         break;
 
                     case '/':
-                        token = new Token(TokenType.Slash, c.ToString());
+                        token = CreateToken(TokenType.Slash, c.ToString());
                         break;
 
                     case '!':
                         if (Reader.PeekChar(1) == '=')
                         {
-                            token = new Token(TokenType.NotEqual, "!=");
+                            token = CreateToken(TokenType.NotEqual, "!=");
                             Reader.ReadChar();
                         }
                         else
                         {
-                            token = new Token(TokenType.Bang, c.ToString());
+                            token = CreateToken(TokenType.Bang, c.ToString());
                         }
                         break;
 
                     case '>':
                         if (Reader.PeekChar(1) == '=')
                         {
-                            token = new Token(TokenType.GreaterThanOrEqual, ">=");
+                            token = CreateToken(TokenType.GreaterThanOrEqual, ">=");
                             Reader.ReadChar();
                         }
                         else
                         {
-                            token = new Token(TokenType.GreaterThan, c.ToString());
+                            token = CreateToken(TokenType.GreaterThan, c.ToString());
                         }
                         break;
 
                     case '<':
                         if (Reader.PeekChar(1) == '=')
                         {
-                            token = new Token(TokenType.LessThanOrEqual, "<=");
+                            token = CreateToken(TokenType.LessThanOrEqual, "<=");
                             Reader.ReadChar();
                         }
                         else
                         {
-                            token = new Token(TokenType.LessThan, c.ToString());
+                            token = CreateToken(TokenType.LessThan, c.ToString());
                         }
                         break;
 
                     case ',':
-                        token = new Token(TokenType.Comma, c.ToString());
+                        token = CreateToken(TokenType.Comma, c.ToString());
                         break;
 
                     case ';':
-                        token = new Token(TokenType.Semicolon, c.ToString());
+                        token = CreateToken(TokenType.Semicolon, c.ToString());
                         break;
 
                     case '(':
-                        token = new Token(TokenType.LeftParenthesis, c.ToString());
+                        token = CreateToken(TokenType.LeftParenthesis, c.ToString());
                         break;
 
                     case ')':
-                        token = new Token(TokenType.RightParenthesis, c.ToString());
+                        token = CreateToken(TokenType.RightParenthesis, c.ToString());
                         break;
 
                     case '{':
-                        token = new Token(TokenType.LeftBraces, c.ToString());
+                        token = CreateToken(TokenType.LeftBraces, c.ToString());
                         break;
 
                     case '}':
-                        token = new Token(TokenType.RightBraces, c.ToString());
+                        token = CreateToken(TokenType.RightBraces, c.ToString());
                         break;
 
                     case '[':
-                        token = new Token(TokenType.LeftBrackets, c.ToString());
+                        token = CreateToken(TokenType.LeftBrackets, c.ToString());
                         break;
 
                     case ']':
-                        token = new Token(TokenType.RightBrackets, c.ToString());
+                        token = CreateToken(TokenType.RightBrackets, c.ToString());
                         break;
 
                     case '"':
-                        var str = ReadString();
-                        token = new Token(TokenType.String, str);
+                        token = TryReadStringToken();
                         break;
 
                     default:
@@ -155,16 +173,16 @@ namespace Tsumugi.Script.Lexing
                         {
                             var identifier = ReadIdentifier();
                             var type = Token.LookupIdentifier(identifier);
-                            token = new Token(type, identifier);
+                            token = CreateToken(type, identifier);
                         }
                         else if (IsDigit(c))
                         {
                             var number = ReadNumber();
-                            token = new Token(TokenType.Integer32, number);
+                            token = CreateToken(TokenType.Integer32, number);
                         }
                         else
                         {
-                            token = new Token(TokenType.Illegal, c.ToString());
+                            token = CreateToken(TokenType.Illegal, c.ToString());
                         }
                         break;
                 }
@@ -176,21 +194,32 @@ namespace Tsumugi.Script.Lexing
         }
 
         /// <summary>
+        /// トークン作成
+        /// </summary>
+        /// <param name="type">トークンのタイプ</param>
+        /// <param name="literal">トークンのリテラル</param>
+        /// <returns>トークン</returns>
+        private Token CreateToken(TokenType type, string literal)
+        {
+            return new Token(type, literal, Reader.GetLexingPosition());
+        }
+
+        /// <summary>
         /// 文字列が連続する間、数字として読み出す
         /// </summary>
         /// <returns>読みだした数字</returns>
         private string ReadNumber()
         {
-            var number = Reader.ReadChar().ToString();
+            var number = new StringBuilder(Reader.ReadChar().ToString());
 
             while (IsDigit(Reader.PeekChar()))
             {
-                number += Reader.ReadChar();
+                number.Append(Reader.ReadChar());
             }
 
             Reader.Seek(-1, SeekOrigin.Current);
 
-            return number;
+            return number.ToString();
         }
 
         /// <summary>
@@ -199,35 +228,47 @@ namespace Tsumugi.Script.Lexing
         /// <returns>読みだした識別子</returns>
         private string ReadIdentifier()
         {
-            var identifier = Reader.ReadChar().ToString();
+            var identifier = new StringBuilder(Reader.ReadChar().ToString());
 
             while (IsLetter(Reader.PeekChar()))
             {
-                identifier += Reader.ReadChar();
+                identifier.Append(Reader.ReadChar());
             }
 
             Reader.Seek(-1, SeekOrigin.Current);
 
-            return identifier;
+            return identifier.ToString();
         }
 
         /// <summary>
         /// ダブルクォーテーションまで、文字列として読み出す
         /// </summary>
         /// <returns></returns>
-        private string ReadString()
+        private Token TryReadStringToken()
         {
-            // ダブルクォーテーションを読み飛ばす
-            Reader.ReadChar();
+            var str = new StringBuilder();
 
-            var str = Reader.ReadChar().ToString();
+            // 最初のダブルクォーテーションを読み飛ばす（ついでに c を初期化）
+            char c = Reader.ReadChar();
 
-            while ('"' != (Reader.PeekChar()))
+            while ((c = Reader.PeekChar()) != '"')
             {
-                str += Reader.ReadChar();
+                // エスケープシーケンス
+                if (c == '\\')
+                {
+                    // 読み飛ばす
+                    Reader.ReadChar();
+                }
+                // 改行または終端が先に見つかった場合は、不正なトークン
+                else if (c == '\r' || c == '\n' || c == char.MaxValue)
+                {
+                    return CreateToken(TokenType.Illegal, c.ToString());
+                }
+
+                str.Append(Reader.ReadChar());
             }
 
-            return str;
+            return CreateToken(TokenType.String, str.ToString());
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace Tsumugi.Script.Parsing
     {
         Lowest = 1,
         Equals,      /// ==
-        Lessgreater, /// >, <
+        Lessgreater, /// >, <, >=, <=
         Sum,         /// +
         Product,     /// *
         Prefix,      /// -x, !x
@@ -76,6 +76,8 @@ namespace Tsumugi.Script.Parsing
             { TokenType.NotEqual, Precedence.Equals },
             { TokenType.LessThan, Precedence.Lessgreater },
             { TokenType.GreaterThan, Precedence.Lessgreater },
+            { TokenType.LessThanOrEqual, Precedence.Lessgreater },
+            { TokenType.GreaterThanOrEqual, Precedence.Lessgreater },
             { TokenType.Plus, Precedence.Sum },
             { TokenType.Minus, Precedence.Sum },
             { TokenType.Slash, Precedence.Product },
@@ -232,7 +234,7 @@ namespace Tsumugi.Script.Parsing
             PrefixParseFunctions.TryGetValue(CurrentToken.Type, out var prefix);
             if (prefix == null)
             {
-                Logger.Logging(Logger.Categories.Error, string.Format(LocalizationTexts.NoAssociatedWith.Localize(), CurrentToken.Type.ToString(), "Prefix Parse Function"));
+                Error(CurrentToken, string.Format(LocalizationTexts.NoAssociatedWith.Localize(), CurrentToken.Type.ToString(), "Prefix Parse Function"));
                 return null;
             }
 
@@ -283,7 +285,7 @@ namespace Tsumugi.Script.Parsing
                 return true;
             }
 
-            Logger.Logging(Logger.Categories.Error, string.Format(LocalizationTexts.ThisTokenMustBe.Localize(), type.ToString(), NextToken.Type.ToString()));
+            Error(NextToken, string.Format(LocalizationTexts.ThisTokenMustBe.Localize(), type.ToString(), NextToken.Type.ToString()));
 
             return false;
         }
@@ -338,6 +340,8 @@ namespace Tsumugi.Script.Parsing
             InfixParseFunctions.Add(TokenType.NotEqual, ParseInfixExpression);
             InfixParseFunctions.Add(TokenType.LessThan, ParseInfixExpression);
             InfixParseFunctions.Add(TokenType.GreaterThan, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.LessThanOrEqual, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.GreaterThanOrEqual, ParseInfixExpression);
             InfixParseFunctions.Add(TokenType.LeftParenthesis, ParseCallExpression);
         }
 
@@ -365,7 +369,7 @@ namespace Tsumugi.Script.Parsing
                 };
             }
 
-            Logger.Logging(Logger.Categories.Error, string.Format(LocalizationTexts.CannotConvertInteger.Localize(), CurrentToken.Literal));
+            Error(CurrentToken, string.Format(LocalizationTexts.CannotConvertInteger.Localize(), CurrentToken.Literal));
 
             return null;
         }
@@ -634,6 +638,16 @@ namespace Tsumugi.Script.Parsing
                 Token = CurrentToken,
                 Value = CurrentToken.Literal
             };
+        }
+
+        /// <summary>
+        /// エラー発生
+        /// </summary>
+        /// <param name="token">エラーが発生したトークン</param>
+        /// <param name="message">エラーメッセージ</param>
+        private void Error(Token token, string message)
+        {
+            Logger.Logging(Logger.Categories.Error, message);
         }
     }
 }
