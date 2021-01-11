@@ -9,427 +9,201 @@ namespace Tsumugi.Text.Lexing
 {
     public class Lexer
     {
-        public CommandQueue CommandQueue { get; }
-
-        public Script.Logger Logger { get; set; }
-
-        public Lexer()
-        {
-            CommandQueue = new CommandQueue();
-            Logger = new Script.Logger();
-            TemporaryVariables = new Dictionary<string, string>();
-            Labels = new Dictionary<string, Label>();
-            _enableIndent = false;
-        }
+        /// <summary>
+        /// 字句解析用の文字列リーダー
+        /// </summary>
+        private Script.Lexing.LexingStringReader Reader { get; set; }
 
         /// <summary>
-        /// パース
+        /// コンストラクタ
         /// </summary>
         /// <param name="script"></param>
-        public int Parse(string script)
+        public Lexer(string script)
         {
-            var progressingText = new StringBuilder();
-
-            using (var reader = new StringReader(script))
-            {
-                int c = -1;
-                while ((c = reader.Read()) >= 0)
-                {
-                    switch (c)
-                    {
-                        case TsumugiKeyword.LabelPrefix:
-                            processLabel(reader, progressingText);
-                            break;
-
-                        case TsumugiKeyword.TagStart:
-                            processTag(reader, progressingText);
-                            break;
-
-                        case TsumugiKeyword.TagLineStart:
-                            processTag(reader, progressingText);
-                            break;
-
-                        default:
-                            progressingText.Append((char)c);
-                            break;
-                    }
-                }
-
-                if (progressingText.Length > 0)
-                {
-                    addPrintTextCommand(progressingText.ToString(), false);
-                    progressingText.Clear();
-                }
-            }
-
-            return 0;
+            Reader = new Script.Lexing.LexingStringReader(script);
         }
 
         /// <summary>
-        /// ラベルの処理
+        /// 次のトークンを取り出す
         /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="progressingText"></param>
-        private void processLabel(StringReader reader, StringBuilder progressingText)
+        /// <returns></returns>
+        public Token NextToken()
         {
-            var label = new StringBuilder();
+            SkipNewLine();
 
-            int c = -1;
-            while ((c = reader.Read()) >= 0)
+            Token token = null;
+
+            int next = Reader.Peek();
+
+            if (next < 0)
             {
-                if (checkNameTerminated(c))
-                {
-                    if (Labels.ContainsKey(label.ToString()))
-                    {
-                        error(string.Format(LocalizationTexts.AlreadyUsedLabelName.Localize(), label.ToString()));
-                    }
-                    else
-                    {
-                        var headline = string.Empty;
-                        Labels.Add(label.ToString(), new Label()
-                        {
-                            Name = label.ToString(),
-                            Headline = headline
-                        });
-                        CommandQueue.Enqueue(new Commanding.Commands.LabelCommand(label.ToString(), headline));
-                    }
-                    progressingText.Clear();
-                    return;
-                }
+                token = CreateToken(TokenType.EOF, string.Empty);
+            }
+            else
+            {
+                char c = (char)next;
 
                 switch (c)
                 {
-                    case TsumugiKeyword.HeadlineSeparator:
-                        if (Labels.ContainsKey(label.ToString()))
-                        {
-                            error(string.Format(LocalizationTexts.AlreadyUsedLabelName.Localize(), label.ToString()));
-                        }
-                        else
-                        {
-                            var headline = parseLabelHeadline(reader);
-                            Labels.Add(label.ToString(), new Label()
-                            {
-                                Name = label.ToString(),
-                                Headline = headline
-                            });
-                            CommandQueue.Enqueue(new Commanding.Commands.LabelCommand(label.ToString(), headline));
-                        }
-                        progressingText.Clear();
-                        return;
+                    case ':':
+                        var label = ReadLabelText();
+                        token = CreateToken(TokenType.Label, label);
+                        break;
+
+                    case '[':
+                        token = ReadTag();
+                        break;
+
+                    case '@':
+                        token = ReadTagLine();
+                        break;
 
                     default:
-                        label.Append((char)c);
+                        token = ReadText();
                         break;
                 }
             }
+
+            Reader.Read();
+
+            return token;
         }
 
         /// <summary>
-        /// ラベル見出しのパース
+        /// トークン作成
         /// </summary>
-        /// <param name="reader"></param>
-        /// <returns></returns>
-        private string parseLabelHeadline(StringReader reader)
+        /// <param name="type">トークンのタイプ</param>
+        /// <param name="literal">トークンのリテラル</param>
+        /// <returns>トークン</returns>
+        private Token CreateToken(TokenType type, string literal)
         {
-            var headline = new StringBuilder();
+            return new Token(type, literal, Reader.GetLexingPosition());
+        }
 
-            int c = -1;
-            while ((c = reader.Peek()) >= 0)
+        /// <summary>
+        /// ラベルの読み込み
+        /// </summary>
+        /// <returns></returns>
+        private string ReadLabelText()
+        {
+            Reader.ReadChar();
+
+            var label = new StringBuilder();
+
+            while (!IsWhiteSpace(Reader.PeekChar()))
             {
-                if (checkNameTerminated(c))
-                {
-                    break;
-                }
-                else
-                {
-                    headline.Append((char)c);
-                    reader.Read();
-                }
+                label.Append(Reader.ReadChar());
             }
 
-            return headline.ToString();
+            Reader.Seek(-1, SeekOrigin.Current);
+
+            return label.ToString();
         }
 
         /// <summary>
-        /// タグをパース
-        /// タグの仕様としては [ で開始し、] で終了
-        /// [ の次には一文字以上の命令があり、さらに 0 個以上の命令に関する属性が含まれる
-        /// Ex. [命令 属性1=属性1の値 ...]
+        /// タグの読み込み
         /// </summary>
-        /// <param name="reader"></param>
         /// <returns></returns>
-        private Tag parseTag(StringReader reader)
+        private Token ReadTag()
         {
             var tag = new StringBuilder();
 
-            int c = -1;
-            while ((c = reader.Read()) >= 0)
+            // 最初の [ を読み飛ばす（ついでに c を初期化）
+            char c = Reader.ReadChar();
+
+            while ((c = Reader.PeekChar()) != ']')
             {
-                switch (c)
+                // 改行または終端が先に見つかった場合は、不正なトークン
+                if (c == '\r' || c == '\n' || c == char.MaxValue)
                 {
-                    case TsumugiKeyword.TagEnd:
-                        return new Tag()
-                        {
-                            Name = tag.ToString(),
-                            Attributes = new List<Tag.Attribute>()
-                        };
-
-                    case TsumugiKeyword.TagAttributeSeparator:
-                        return new Tag()
-                        {
-                            Name = tag.ToString(),
-                            Attributes = parseTagAttributes(reader)
-                        };
-
-                    default:
-                        tag.Append((char)c);
-                        break;
+                    return CreateToken(TokenType.Illegal, c.ToString());
                 }
+
+                tag.Append(Reader.ReadChar());
             }
 
-            return null;
+            return CreateToken(TokenType.Tag, tag.ToString());
         }
 
         /// <summary>
-        /// 属性をパース
+        /// タグの読み込み
         /// </summary>
-        /// <param name="reader"></param>
         /// <returns></returns>
-        private List<Tag.Attribute> parseTagAttributes(StringReader reader)
+        private Token ReadTagLine()
         {
-            var name = new StringBuilder();
-            var attributes = new List<Tag.Attribute>();
+            var tag = new StringBuilder();
 
-            int c = -1;
-            while ((c = reader.Read()) >= 0)
+            // 最初の @ を読み飛ばす（ついでに c を初期化）
+            char c = Reader.ReadChar();
+
+            while ((c = Reader.PeekChar()) != char.MaxValue)
             {
-                switch (c)
+                // 改行または終端が先に見つかった場合は終了
+                if (c == '\r' || c == '\n')
                 {
-                    case TsumugiKeyword.TagEnd:
-                        if (name.Length > 0)
-                        {
-                            attributes.Add(new Tag.Attribute()
-                            {
-                                Name = name.ToString(),
-                                Value = string.Empty
-                            });
-                        }
-                        return attributes;
-
-                    case TsumugiKeyword.Assignment:
-                        attributes.Add(new Tag.Attribute()
-                        {
-                            Name = name.ToString(),
-                            Value = parseAttributeValue(reader)
-                        });
-                        name.Clear();
-                        break;
-
-                    default:
-                        name.Append((char)c);
-                        break;
+                    break;
                 }
+
+                tag.Append(Reader.ReadChar());
             }
 
-            return attributes;
-
+            return CreateToken(TokenType.Tag, tag.ToString());
         }
 
         /// <summary>
-        /// 属性の値をパース
+        /// テキストとして読み込み
         /// </summary>
-        /// <param name="reader"></param>
         /// <returns></returns>
-        private string parseAttributeValue(StringReader reader)
+        private Token ReadText()
         {
-            var value = new StringBuilder();
+            var text = new StringBuilder();
 
-            int c = -1;
-            while ((c = reader.Peek()) >= 0)
+            char c = char.MinValue;
+
+            while ((c = Reader.PeekChar()) != char.MaxValue)
             {
-                switch (c)
+                // エスケープシーケンス
+                if (c == '\\' && Reader.PeekChar(1) == '[')
                 {
-                    case TsumugiKeyword.TagEnd:
-                        return value.ToString();
-
-                    case TsumugiKeyword.TagAttributeSeparator:
-                        reader.Read();
-                        return value.ToString();
-
-                    default:
-                        value.Append((char)c);
-                        break;
+                    // 読み飛ばす
+                    Reader.ReadChar();
                 }
-                reader.Read();
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// タグの処理
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="progressingText"></param>
-        /// <returns></returns>
-        private bool processTag(StringReader reader, StringBuilder progressingText)
-        {
-            var tag = parseTag(reader);
-
-            switch (tag.Name)
-            {
-                case TsumugiTag.WaitKey:
-                    addPrintTextCommand(progressingText.ToString(), false);
-                    progressingText.Clear();
-                    CommandQueue.Enqueue(new Commanding.Commands.WaitKeyCommand());
-                    break;
-
-                case TsumugiTag.NewLine:
-                    addPrintTextCommand(progressingText.ToString(), false);
-                    progressingText.Clear();
-                    CommandQueue.Enqueue(new Commanding.Commands.NewLineCommand());
-                    break;
-
-                case TsumugiTag.NewPage:
-                    CommandQueue.Enqueue(new Commanding.Commands.NewPageCommand());
-                    break;
-
-                case TsumugiTag.WaitTime:
-                    {
-                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "time");
-                        int time = 0;
-                        if (!int.TryParse(attr?.Value, out time))
-                        {
-                            time = 1000;
-                            if (attr != null && TemporaryVariables.ContainsKey(attr?.Value))
-                            {
-                                var value = TemporaryVariables[attr?.Value];
-                                int.TryParse(value, out time);
-                            }
-                            else
-                            {
-                                error(string.Format(LocalizationTexts.NotDefined.Localize(), attr?.Value));
-                            }
-                        }
-                        addPrintTextCommand(progressingText.ToString(), true);
-                        progressingText.Clear();
-                        CommandQueue.Enqueue(new Commanding.Commands.WaitTimeCommand(time));
-                    }
-                    break;
-
-                case TsumugiTag.DefineVariable:
-                    foreach (var attr in tag.Attributes)
-                    {
-                        if (TemporaryVariables.ContainsKey(attr.Name))
-                        {
-                            TemporaryVariables[attr.Name] = attr.Value;
-                        }
-                        else
-                        {
-                            TemporaryVariables.Add(attr.Name, attr.Value);
-                        }
-                    }
-                    break;
-
-                case TsumugiTag.IndentStart:
-                    addPrintTextCommand(progressingText.ToString(), true);
-                    progressingText.Clear();
-                    _enableIndent = true;
-                    break;
-
-                case TsumugiTag.IndentEnd:
-                    addPrintTextCommand(progressingText.ToString(), true);
-                    progressingText.Clear();
-                    _enableIndent = false;
-                    break;
-
-                case TsumugiTag.Jump:
-                    {
-                        addPrintTextCommand(progressingText.ToString(), true);
-                        progressingText.Clear();
-                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "target");
-
-                        if (attr == null)
-                        {
-                            error(string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "target", TsumugiTag.Jump));
-                        }
-                        else if (Labels.ContainsKey(attr?.Value))
-                        {
-                            CommandQueue.Enqueue(new Commanding.Commands.JumpCommand(Labels[attr?.Value].Name));
-                        }
-                        else
-                        {
-                            error(string.Format(LocalizationTexts.CannotFindJumpTarget.Localize(), attr?.Value));
-                        }
-                    }
-                    break;
-
-                default:
-                    return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// PrintTextCommand 設定ユーティリティ
-        /// </summary>
-        /// <param name="text">設定するテキスト</param>
-        /// <param name="fromCommand">コマンドによる文字出力かどうか</param>
-        private void addPrintTextCommand(string text, bool fromCommand)
-        {
-            if (text.Length > 0)
-            {
-                if (fromCommand && _enableIndent)
+                else if (c == '[')
                 {
-                    CommandQueue.Enqueue(new Commanding.Commands.InsertIndentCommand() { });
+                    break;
                 }
 
-                CommandQueue.Enqueue(new Commanding.Commands.PrintTextCommand() { Text = text });
+                text.Append(Reader.ReadChar());
+
+                SkipNewLine();
             }
+
+            return CreateToken(TokenType.Text, text.ToString());
         }
 
         /// <summary>
-        /// ラベル名などの終端を判定
+        /// 空白文字・改行文字かを判定
         /// </summary>
         /// <param name="c"></param>
         /// <returns></returns>
-        private bool checkNameTerminated(int c)
+        private bool IsWhiteSpace(char c)
         {
-            switch (c)
+            return (c == ' ' || c == '\t' || c == '\r'|| c == '\n');
+        }
+
+        /// <summary>
+        /// 改行の間、リーダーを進める
+        /// </summary>
+        private void SkipNewLine()
+        {
+            var next = Reader.PeekChar();
+
+            while (next == '\r'
+                || next == '\n')
             {
-                case ' ':
-                case '[':
-                case '\n':
-                case '\r':
-                case '\t':
-                    return true;
+                Reader.ReadChar();
+                next = Reader.PeekChar();
             }
-            return false;
         }
-
-        /// <summary>
-        /// エラー出力
-        /// </summary>
-        /// <param name="message"></param>
-        private void error(string message)
-        {
-            Logger.Log(Script.Logger.Categories.Error, message);
-        }
-
-        /// <summary>
-        /// 一時変数の辞書
-        /// </summary>
-        private Dictionary<string, string> TemporaryVariables;
-
-        /// <summary>
-        /// ラベルの辞書
-        /// </summary>
-        private Dictionary<string, Label> Labels;
-
-        /// <summary>
-        /// インデントの有効
-        /// </summary>
-        private bool _enableIndent;
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Tsumugi.Text.Lexing
+﻿namespace Tsumugi.Text.Parsing
 {
     /// <summary>
     /// Tsumugi がシステムで利用するキーワード

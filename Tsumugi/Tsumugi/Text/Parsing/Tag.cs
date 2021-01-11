@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Tsumugi.Text.Lexing
+namespace Tsumugi.Text.Parsing
 {
     /// <summary>
     /// タグ

@@ -1,4 +1,4 @@
-﻿namespace Tsumugi.Text.Lexing
+﻿namespace Tsumugi.Text.Parsing
 {
     public class Label
     {

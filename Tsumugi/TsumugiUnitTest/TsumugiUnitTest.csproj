@@ -51,7 +51,7 @@
   <ItemGroup>
     <Compile Include="EvaluatorUnitTest.cs" />
     <Compile Include="LexingStringReaderUnitTest.cs" />
-    <Compile Include="TsumugiParserUnitTest.cs" />
+    <Compile Include="TsumugiUnitTest.cs" />
     <Compile Include="ParserUnitTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LexerUnitTest.cs" />
