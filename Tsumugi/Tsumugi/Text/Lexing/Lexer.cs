@@ -10,6 +10,32 @@ namespace Tsumugi.Text.Lexing
     public class Lexer
     {
         /// <summary>
+        /// コントロール文字の定義
+        /// </summary>
+        class ControlCharacter
+        {
+            /// <summary>
+            /// ラベルの開始文字
+            /// </summary>
+            public const char Label = ':';
+
+            /// <summary>
+            /// タグの開始文字
+            /// </summary>
+            public const char TagStart = '[';
+
+            /// <summary>
+            /// タグの終了文字
+            /// </summary>
+            public const char TagEnd = ']';
+
+            /// <summary>
+            /// タグ行の開始
+            /// </summary>
+            public const char TagLine = '@';
+        }
+
+        /// <summary>
         /// 字句解析用の文字列リーダー
         /// </summary>
         private Script.Lexing.LexingStringReader Reader { get; set; }
@@ -45,16 +71,16 @@ namespace Tsumugi.Text.Lexing
 
                 switch (c)
                 {
-                    case ':':
+                    case ControlCharacter.Label:
                         var label = ReadLabelText();
                         token = CreateToken(TokenType.Label, label);
                         break;
 
-                    case '[':
+                    case ControlCharacter.TagStart:
                         token = ReadTag();
                         break;
 
-                    case '@':
+                    case ControlCharacter.TagLine:
                         token = ReadTagLine();
                         break;
 
@@ -111,7 +137,7 @@ namespace Tsumugi.Text.Lexing
             // 最初の [ を読み飛ばす（ついでに c を初期化）
             char c = Reader.ReadChar();
 
-            while ((c = Reader.PeekChar()) != ']')
+            while ((c = Reader.PeekChar()) != ControlCharacter.TagEnd)
             {
                 // 改行または終端が先に見つかった場合は、不正なトークン
                 if (c == '\r' || c == '\n' || c == char.MaxValue)
@@ -163,12 +189,12 @@ namespace Tsumugi.Text.Lexing
             while ((c = Reader.PeekChar()) != char.MaxValue)
             {
                 // エスケープシーケンス
-                if (c == '\\' && Reader.PeekChar(1) == '[')
+                if (c == '\\' && Reader.PeekChar(1) == ControlCharacter.TagStart)
                 {
                     // 読み飛ばす
                     Reader.ReadChar();
                 }
-                else if (c == '[')
+                else if (c == ControlCharacter.TagStart)
                 {
                     break;
                 }
@@ -198,8 +224,7 @@ namespace Tsumugi.Text.Lexing
         {
             var next = Reader.PeekChar();
 
-            while (next == '\r'
-                || next == '\n')
+            while (next == '\r' || next == '\n')
             {
                 Reader.ReadChar();
                 next = Reader.PeekChar();
