@@ -71,18 +71,38 @@ namespace Tsumugi.Text.Lexing
         EOF,
 
         /// <summary>
-        /// テキスト
+        /// 文字列リテラル
         /// </summary>
-        Text,
+        String,
 
         /// <summary>
-        /// タグ
+        /// = 演算子
         /// </summary>
-        Tag,
+        Assign,
 
         /// <summary>
-        /// ラベル
+        /// [ 左角括弧
         /// </summary>
-        Label,
+        LeftBrackets,
+
+        /// <summary>
+        /// ] 右角括弧
+        /// </summary>
+        RightBrackets,
+
+        /// <summary>
+        /// | セパレーター
+        /// </summary>
+        Separator,
+
+        /// <summary>
+        /// : コロン
+        /// </summary>
+        Colon,
+
+        /// <summary>
+        /// @ アットマーク
+        /// </summary>
+        AtSign
     }
 }

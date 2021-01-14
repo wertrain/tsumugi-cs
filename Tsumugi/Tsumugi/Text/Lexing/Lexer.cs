@@ -10,32 +10,6 @@ namespace Tsumugi.Text.Lexing
     public class Lexer
     {
         /// <summary>
-        /// コントロール文字の定義
-        /// </summary>
-        class ControlCharacter
-        {
-            /// <summary>
-            /// ラベルの開始文字
-            /// </summary>
-            public const char Label = ':';
-
-            /// <summary>
-            /// タグの開始文字
-            /// </summary>
-            public const char TagStart = '[';
-
-            /// <summary>
-            /// タグの終了文字
-            /// </summary>
-            public const char TagEnd = ']';
-
-            /// <summary>
-            /// タグ行の開始
-            /// </summary>
-            public const char TagLine = '@';
-        }
-
-        /// <summary>
         /// 字句解析用の文字列リーダー
         /// </summary>
         private Script.Lexing.LexingStringReader Reader { get; set; }
@@ -71,17 +45,24 @@ namespace Tsumugi.Text.Lexing
 
                 switch (c)
                 {
-                    case ControlCharacter.Label:
-                        var label = ReadLabelText();
-                        token = CreateToken(TokenType.Label, label);
+                    case ':':
+                        token = CreateToken(TokenType.Colon, c.ToString());
                         break;
 
-                    case ControlCharacter.TagStart:
-                        token = ReadTag();
+                    case '[':
+                        token = CreateToken(TokenType.LeftBrackets, c.ToString());
                         break;
 
-                    case ControlCharacter.TagLine:
-                        token = ReadTagLine();
+                    case ']':
+                        token = CreateToken(TokenType.RightBrackets, c.ToString());
+                        break;
+
+                    case '@':
+                        token = CreateToken(TokenType.AtSign, c.ToString());
+                        break;
+
+                    case '|':
+                        token = CreateToken(TokenType.Separator, c.ToString());
                         break;
 
                     default:
@@ -107,76 +88,6 @@ namespace Tsumugi.Text.Lexing
         }
 
         /// <summary>
-        /// ラベルの読み込み
-        /// </summary>
-        /// <returns></returns>
-        private string ReadLabelText()
-        {
-            Reader.ReadChar();
-
-            var label = new StringBuilder();
-
-            while (!IsWhiteSpace(Reader.PeekChar()))
-            {
-                label.Append(Reader.ReadChar());
-            }
-
-            Reader.Seek(-1, SeekOrigin.Current);
-
-            return label.ToString();
-        }
-
-        /// <summary>
-        /// タグの読み込み
-        /// </summary>
-        /// <returns></returns>
-        private Token ReadTag()
-        {
-            var tag = new StringBuilder();
-
-            // 最初の [ を読み飛ばす（ついでに c を初期化）
-            char c = Reader.ReadChar();
-
-            while ((c = Reader.PeekChar()) != ControlCharacter.TagEnd)
-            {
-                // 改行または終端が先に見つかった場合は、不正なトークン
-                if (c == '\r' || c == '\n' || c == char.MaxValue)
-                {
-                    return CreateToken(TokenType.Illegal, c.ToString());
-                }
-
-                tag.Append(Reader.ReadChar());
-            }
-
-            return CreateToken(TokenType.Tag, tag.ToString());
-        }
-
-        /// <summary>
-        /// タグの読み込み
-        /// </summary>
-        /// <returns></returns>
-        private Token ReadTagLine()
-        {
-            var tag = new StringBuilder();
-
-            // 最初の @ を読み飛ばす（ついでに c を初期化）
-            char c = Reader.ReadChar();
-
-            while ((c = Reader.PeekChar()) != char.MaxValue)
-            {
-                // 改行または終端が先に見つかった場合は終了
-                if (c == '\r' || c == '\n')
-                {
-                    break;
-                }
-
-                tag.Append(Reader.ReadChar());
-            }
-
-            return CreateToken(TokenType.Tag, tag.ToString());
-        }
-
-        /// <summary>
         /// テキストとして読み込み
         /// </summary>
         /// <returns></returns>
@@ -189,12 +100,12 @@ namespace Tsumugi.Text.Lexing
             while ((c = Reader.PeekChar()) != char.MaxValue)
             {
                 // エスケープシーケンス
-                if (c == '\\' && Reader.PeekChar(1) == ControlCharacter.TagStart)
+                if (c == '\\' && (Reader.PeekChar(1) == '[' || Reader.PeekChar(1) == '|'))
                 {
                     // 読み飛ばす
                     Reader.ReadChar();
                 }
-                else if (c == ControlCharacter.TagStart)
+                else if (c == '[' || c == '|')
                 {
                     break;
                 }
@@ -204,7 +115,7 @@ namespace Tsumugi.Text.Lexing
                 SkipNewLine();
             }
 
-            return CreateToken(TokenType.Text, text.ToString());
+            return CreateToken(TokenType.String, text.ToString());
         }
 
         /// <summary>

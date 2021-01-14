@@ -91,18 +91,10 @@ namespace Tsumugi.Text.Parsing
         {
             switch (CurrentToken.Type)
             {
-                case TokenType.Label:
-                    return ParseLabel();
 
-                case TokenType.Tag:
-                    return ParseTag();
-
-                case TokenType.Text:
-                    return ParseText();
-
-                default:
-                    return ParseExpressionStatement();
             }
+
+            return null;
         }
 
         /// <summary>
@@ -122,107 +114,6 @@ namespace Tsumugi.Text.Parsing
             }
 
             return new Commanding.Commands.LabelCommand(labelName, headline);
-        }
-
-        /// <summary>
-        /// タグのパース
-        /// </summary>
-        /// <returns></returns>
-        private Commanding.CommandBase ParseTag()
-        {
-            var splited = CurrentToken.Literal.Split(ControlCharacter.TagAttributeSeparator);
-
-            if (splited.Length == 0)
-            {
-                return new Commanding.Commands.NewLineCommand();
-            }
-
-            var tagName = splited[0];
-            switch (tagName)
-            {
-                case TsumugiTag.WaitKey:
-                    return new Commanding.Commands.WaitKeyCommand();
-
-                case TsumugiTag.NewLine:
-                    addPrintTextCommand(progressingText.ToString(), false);
-                    progressingText.Clear();
-                    CommandQueue.Enqueue(new Commanding.Commands.NewLineCommand());
-                    break;
-
-                case TsumugiTag.NewPage:
-                    CommandQueue.Enqueue(new Commanding.Commands.NewPageCommand());
-                    break;
-
-                case TsumugiTag.WaitTime:
-                    {
-                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "time");
-                        int time = 0;
-                        if (!int.TryParse(attr?.Value, out time))
-                        {
-                            time = 1000;
-                            if (attr != null && TemporaryVariables.ContainsKey(attr?.Value))
-                            {
-                                var value = TemporaryVariables[attr?.Value];
-                                int.TryParse(value, out time);
-                            }
-                            else
-                            {
-                                error(string.Format(LocalizationTexts.NotDefined.Localize(), attr?.Value));
-                            }
-                        }
-                        addPrintTextCommand(progressingText.ToString(), true);
-                        progressingText.Clear();
-                        CommandQueue.Enqueue(new Commanding.Commands.WaitTimeCommand(time));
-                    }
-                    break;
-
-                case TsumugiTag.DefineVariable:
-                    foreach (var attr in tag.Attributes)
-                    {
-                        if (TemporaryVariables.ContainsKey(attr.Name))
-                        {
-                            TemporaryVariables[attr.Name] = attr.Value;
-                        }
-                        else
-                        {
-                            TemporaryVariables.Add(attr.Name, attr.Value);
-                        }
-                    }
-                    break;
-
-                case TsumugiTag.IndentStart:
-                    addPrintTextCommand(progressingText.ToString(), true);
-                    progressingText.Clear();
-                    _enableIndent = true;
-                    break;
-
-                case TsumugiTag.IndentEnd:
-                    addPrintTextCommand(progressingText.ToString(), true);
-                    progressingText.Clear();
-                    _enableIndent = false;
-                    break;
-
-                case TsumugiTag.Jump:
-                    {
-                        addPrintTextCommand(progressingText.ToString(), true);
-                        progressingText.Clear();
-                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "target");
-
-                        if (attr == null)
-                        {
-                            error(string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "target", TsumugiTag.Jump));
-                        }
-                        else if (Labels.ContainsKey(attr?.Value))
-                        {
-                            CommandQueue.Enqueue(new Commanding.Commands.JumpCommand(Labels[attr?.Value].Name));
-                        }
-                        else
-                        {
-                            error(string.Format(LocalizationTexts.CannotFindJumpTarget.Localize(), attr?.Value));
-                        }
-                    }
-                    break;
-            }
         }
 
         /// <summary>
