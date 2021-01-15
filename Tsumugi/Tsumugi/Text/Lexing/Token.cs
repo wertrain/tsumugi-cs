@@ -71,38 +71,43 @@ namespace Tsumugi.Text.Lexing
         EOF,
 
         /// <summary>
-        /// 文字列リテラル
+        /// テキスト
         /// </summary>
-        String,
+        Text,
 
         /// <summary>
-        /// = 演算子
+        /// タグ
         /// </summary>
-        Assign,
+        Tag,
 
         /// <summary>
-        /// [ 左角括弧
+        /// タグ終了
         /// </summary>
-        LeftBrackets,
+        TagEnd,
 
         /// <summary>
-        /// ] 右角括弧
+        /// タグの属性名
         /// </summary>
-        RightBrackets,
+        TagAttributeName,
 
         /// <summary>
-        /// | セパレーター
+        /// タグの属性値
         /// </summary>
-        Separator,
+        TagAttributeValue,
 
         /// <summary>
-        /// : コロン
+        /// ラベル
         /// </summary>
-        Colon,
+        Label,
 
         /// <summary>
-        /// @ アットマーク
+        /// ラベルの見出し
         /// </summary>
-        AtSign
+        LabelHeadline,
+
+        /// <summary>
+        /// 代入文字
+        /// </summary>
+        Assign
     }
 }

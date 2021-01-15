@@ -10,6 +10,47 @@ namespace Tsumugi.Text.Lexing
     public class Lexer
     {
         /// <summary>
+        /// コントロール文字の定義
+        /// </summary>
+        class ControlCharacter
+        {
+            /// <summary>
+            /// ラベルの開始文字
+            /// </summary>
+            public const char Label = ':';
+
+            /// <summary>
+            /// タグの開始文字
+            /// </summary>
+            public const char TagStart = '[';
+
+            /// <summary>
+            /// タグの終了文字
+            /// </summary>
+            public const char TagEnd = ']';
+
+            /// <summary>
+            /// タグ行の開始
+            /// </summary>
+            public const char TagLine = '@';
+
+            /// <summary>
+            /// ラベルと見出しの分けるセパレータ
+            /// </summary>
+            public const char HeadlineSeparator = '|';
+
+            /// <summary>
+            /// タグと属性のセパレータ
+            /// </summary>
+            public const char TagAttributeSeparator = ' ';
+
+            /// <summary>
+            /// 割り当て記号
+            /// </summary>
+            public const char Assignment = '=';
+        }
+
+        /// <summary>
         /// 字句解析用の文字列リーダー
         /// </summary>
         private Script.Lexing.LexingStringReader Reader { get; set; }
@@ -45,36 +86,44 @@ namespace Tsumugi.Text.Lexing
 
                 switch (c)
                 {
-                    case ':':
-                        token = CreateToken(TokenType.Colon, c.ToString());
+                    case ControlCharacter.Label:
+                        var label = ReadLabelText();
+                        token = CreateToken(TokenType.Label, label);
                         break;
 
-                    case '[':
-                        token = CreateToken(TokenType.LeftBrackets, c.ToString());
+                    case ControlCharacter.HeadlineSeparator:
+                        if (PrevToken?.Type != TokenType.Label) goto default;
+                        var headline = ReadTextToWhiteSpace();
+                        token = CreateToken(TokenType.LabelHeadline, headline);
                         break;
 
-                    case ']':
-                        token = CreateToken(TokenType.RightBrackets, c.ToString());
+                    case ControlCharacter.TagStart:
+                        token = ReadTag();
                         break;
 
-                    case '@':
-                        token = CreateToken(TokenType.AtSign, c.ToString());
+                    case ControlCharacter.TagEnd:
+                        token = CreateToken(TokenType.TagEnd, string.Empty);
                         break;
 
-                    case '|':
-                        token = CreateToken(TokenType.Separator, c.ToString());
+                    case ControlCharacter.TagLine:
+                        token = ReadTagLine();
                         break;
 
                     default:
-                        token = ReadText();
+                        token = ReadOthers();
                         break;
                 }
             }
 
             Reader.Read();
 
-            return token;
+            return PrevToken = token;
         }
+
+        /// <summary>
+        /// 前回のトークン
+        /// </summary>
+        private Token PrevToken { get; set; }
 
         /// <summary>
         /// トークン作成
@@ -85,6 +134,156 @@ namespace Tsumugi.Text.Lexing
         private Token CreateToken(TokenType type, string literal)
         {
             return new Token(type, literal, Reader.GetLexingPosition());
+        }
+
+        /// <summary>
+        /// ラベルの読み込み
+        /// </summary>
+        /// <returns></returns>
+        private string ReadLabelText()
+        {
+            Reader.ReadChar();
+
+            var label = new StringBuilder();
+
+            while (!IsWhiteSpace(Reader.PeekChar()) && Reader.PeekChar() != ControlCharacter.HeadlineSeparator)
+            {
+                label.Append(Reader.ReadChar());
+            }
+
+            Reader.Seek(-1, SeekOrigin.Current);
+
+            return label.ToString();
+        }
+
+        /// <summary>
+        /// 空白文字まで文字列として読み込み
+        /// </summary>
+        /// <returns></returns>
+        private string ReadTextToWhiteSpace()
+        {
+            Reader.ReadChar();
+
+            var label = new StringBuilder();
+
+            while (!IsWhiteSpace(Reader.PeekChar()))
+            {
+                label.Append(Reader.ReadChar());
+            }
+
+            Reader.Seek(-1, SeekOrigin.Current);
+
+            return label.ToString();
+        }
+
+        /// <summary>
+        /// タグの読み込み
+        /// </summary>
+        /// <returns></returns>
+        private Token ReadTag()
+        {
+            var tag = new StringBuilder();
+
+            // 最初の [ を読み飛ばす（ついでに c を初期化）
+            char c = Reader.ReadChar();
+
+            while ((c = Reader.PeekChar()) != ControlCharacter.TagEnd)
+            {
+                // 改行または終端が先に見つかった場合は、不正なトークン
+                if (c == '\r' || c == '\n' || c == char.MaxValue)
+                {
+                    return CreateToken(TokenType.Illegal, c.ToString());
+                }
+                // 属性が見つかれば終了
+                else if (c == ControlCharacter.TagAttributeSeparator)
+                {
+                    break;
+                }
+                tag.Append(Reader.ReadChar());
+            }
+
+            return CreateToken(TokenType.Tag, tag.ToString());
+        }
+
+        /// <summary>
+        /// タグの読み込み
+        /// </summary>
+        /// <returns></returns>
+        private Token ReadTagLine()
+        {
+            var tag = new StringBuilder();
+
+            // 最初の @ を読み飛ばす（ついでに c を初期化）
+            char c = Reader.ReadChar();
+
+            while ((c = Reader.PeekChar()) != char.MaxValue)
+            {
+                // 改行または終端が先に見つかった場合は終了
+                if (c == '\r' || c == '\n')
+                {
+                    break;
+                }
+
+                tag.Append(Reader.ReadChar());
+            }
+
+            return CreateToken(TokenType.Tag, tag.ToString());
+        }
+
+        /// <summary>
+        /// タグ属性名として読み込み
+        /// </summary>
+        /// <returns></returns>
+        private Token ReadTagAttributeName()
+        {
+            var text = new StringBuilder();
+
+            char c = char.MaxValue;
+            while ((c = Reader.PeekChar()) != ControlCharacter.TagEnd)
+            {
+                // 改行または終端が先に見つかった場合は、不正なトークン
+                if (c == '\r' || c == '\n' || c == char.MaxValue)
+                {
+                    return CreateToken(TokenType.Illegal, c.ToString());
+                }
+                // 代入記号が見つかれば終了
+                else if (c == ControlCharacter.Assignment)
+                {
+                    break;
+                }
+
+                text.Append(Reader.ReadChar());
+            }
+
+            return CreateToken(TokenType.TagAttributeName, text.ToString());
+        }
+
+        /// <summary>
+        /// タグ属性値として読み込み
+        /// </summary>
+        /// <returns></returns>
+        private Token ReadTagAttributeValue()
+        {
+            var text = new StringBuilder();
+
+            char c = char.MaxValue;
+            while ((c = Reader.PeekChar()) != ControlCharacter.TagEnd)
+            {
+                // 改行または終端が先に見つかった場合は、不正なトークン
+                if (c == '\r' || c == '\n' || c == char.MaxValue)
+                {
+                    return CreateToken(TokenType.Illegal, c.ToString());
+                }
+                // 属性が見つかれば終了
+                else if (c == ControlCharacter.TagAttributeSeparator)
+                {
+                    break;
+                }
+                
+                text.Append(Reader.ReadChar());
+            }
+
+            return CreateToken(TokenType.TagAttributeValue, text.ToString());
         }
 
         /// <summary>
@@ -100,12 +299,12 @@ namespace Tsumugi.Text.Lexing
             while ((c = Reader.PeekChar()) != char.MaxValue)
             {
                 // エスケープシーケンス
-                if (c == '\\' && (Reader.PeekChar(1) == '[' || Reader.PeekChar(1) == '|'))
+                if (c == '\\' && Reader.PeekChar(1) == ControlCharacter.TagStart)
                 {
                     // 読み飛ばす
                     Reader.ReadChar();
                 }
-                else if (c == '[' || c == '|')
+                else if (c == ControlCharacter.TagStart)
                 {
                     break;
                 }
@@ -115,8 +314,29 @@ namespace Tsumugi.Text.Lexing
                 SkipNewLine();
             }
 
-            return CreateToken(TokenType.String, text.ToString());
+            return CreateToken(TokenType.Text, text.ToString());
         }
+
+        /// <summary>
+        /// その他として読み込み
+        /// </summary>
+        /// <returns></returns>
+        private Token ReadOthers()
+        {
+            if (PrevToken?.Type == TokenType.Tag || PrevToken?.Type == TokenType.TagAttributeValue)
+            {
+                return ReadTagAttributeName();
+            }
+            else if (PrevToken?.Type == TokenType.TagAttributeName)
+            {
+                return ReadTagAttributeValue();
+            }
+            else
+            {
+                return ReadText();
+            }
+        }
+
 
         /// <summary>
         /// 空白文字・改行文字かを判定
@@ -125,7 +345,7 @@ namespace Tsumugi.Text.Lexing
         /// <returns></returns>
         private bool IsWhiteSpace(char c)
         {
-            return (c == ' ' || c == '\t' || c == '\r'|| c == '\n');
+            return (c == ' ' || c == '\t' || c == '\r' || c == '\n');
         }
 
         /// <summary>
