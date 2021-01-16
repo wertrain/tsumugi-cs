@@ -22,5 +22,8 @@ namespace Tsumugi.Localize
         public static readonly string NumberOfArgumentsDoesNotMatch = "Number of arguments to the function {0} does not match.";
         public static readonly string DoesNotSupportArgumentsOfType = "{0} does not support arguments of type {1}.";
         public static readonly string AssigningValuesNotAllowed = "Assigning values to other than identifiers is not allowed.";
+        public static readonly string NoValueFoundForAttribute = "No value found for attribute {1} in {0} tag.";
+
+        
     }
 }

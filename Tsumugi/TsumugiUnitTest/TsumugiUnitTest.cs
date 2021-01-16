@@ -11,23 +11,49 @@ namespace TsumugiUnitTest
         [TestMethod]
         public void TestMethodLexerBasic()
         {
-            /*
             var tokens = new List<Token>();
             tokens.Add(new Token(TokenType.Label, "label"));
-            tokens.Add(new Token(TokenType.Tag, "tag attr1=0 attr2=0"));
+            tokens.Add(new Token(TokenType.Tag, "tag"));
+            tokens.Add(new Token(TokenType.TagAttributeName, "attr1"));
+            tokens.Add(new Token(TokenType.TagAttributeValue, "0"));
+            tokens.Add(new Token(TokenType.TagAttributeName, "attr2"));
+            tokens.Add(new Token(TokenType.TagAttributeValue, "test"));
+            tokens.Add(new Token(TokenType.TagEnd, string.Empty));
+            tokens.Add(new Token(TokenType.Tag, "tag2"));
+            tokens.Add(new Token(TokenType.TagAttributeName, "attr3"));
+            tokens.Add(new Token(TokenType.TagAttributeValue, "aaa"));
+            tokens.Add(new Token(TokenType.TagEnd, string.Empty));
             tokens.Add(new Token(TokenType.Text, "テキスト"));
+            tokens.Add(new Token(TokenType.Label, "label2"));
+            tokens.Add(new Token(TokenType.LabelHeadline, "見出し"));
+            tokens.Add(new Token(TokenType.Tag, "tag3"));
+            tokens.Add(new Token(TokenType.TagAttributeName, "attr4"));
+            tokens.Add(new Token(TokenType.TagAttributeValue, "ok"));
+            tokens.Add(new Token(TokenType.Text, "これはテキストになります。改行は無効でタグを使わない場合は [ エスケープします。タグも"));
+            tokens.Add(new Token(TokenType.Tag, "nw"));
+            tokens.Add(new Token(TokenType.TagEnd, string.Empty));
+            tokens.Add(new Token(TokenType.Text, "使えます。タグを置くとテキストが分割します。"));
+            tokens.Add(new Token(TokenType.EOF, string.Empty));
+
 
             var lexer = new Lexer(
                 ":label" + Environment.NewLine +
-                "[tag attr1=0 attr2=0]" + Environment.NewLine +
+                "[tag attr1=0 attr2=test]" + Environment.NewLine +
+                "[tag2    attr3   =  aaa]" + Environment.NewLine +
                 "テキスト" + Environment.NewLine +
+                ":label2|見出し" + Environment.NewLine + 
+                "@tag3 attr4=ok" + Environment.NewLine +
+                "これはテキストになります。" + Environment.NewLine +
+               @"改行は無効でタグを使わない場合は \[ エスケープします。" + Environment.NewLine +
+                "タグも[nw]使えます。" + Environment.NewLine +
+                "タグを置くとテキストが分割します。" + Environment.NewLine +
             "");
             foreach (var testToken in tokens)
             {
                 var token = lexer.NextToken();
                 Assert.AreEqual(testToken.Type, token.Type, string.Format("{0} token type is wrong.", testToken.Type.ToString()));
                 Assert.AreEqual(testToken.Literal, token.Literal, string.Format("{0} literal is wrong.", testToken.Literal));
-            }*/
+            }
         }
 
         [TestMethod]

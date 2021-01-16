@@ -29,27 +29,6 @@ namespace Tsumugi.Text.Parsing
         public Script.Logger Logger { get; set; }
 
         /// <summary>
-        /// コントロール文字の定義
-        /// </summary>
-        class ControlCharacter
-        {
-            /// <summary>
-            /// ラベルと見出しの分けるセパレータ
-            /// </summary>
-            public const char HeadlineSeparator = '|';
-
-            /// <summary>
-            /// タグと属性のセパレータ
-            /// </summary>
-            public const char TagAttributeSeparator = ' ';
-
-            /// <summary>
-            /// 割り当て記号
-            /// </summary>
-            public const char Assignment = '=';
-        }
-
-        /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="lexer"></param>
@@ -91,6 +70,17 @@ namespace Tsumugi.Text.Parsing
         {
             switch (CurrentToken.Type)
             {
+                case TokenType.Text:
+                    return new Commanding.Commands.PrintTextCommand(CurrentToken.Literal);
+
+                case TokenType.Label:
+                    string headline = string.Empty;
+                    if (NextToken.Type == TokenType.LabelHeadline)
+                        headline = NextToken.Literal;
+                    return new Commanding.Commands.LabelCommand(CurrentToken.Literal, headline);
+
+                case TokenType.Tag:
+                    return CreateTagCommand(ParseTag(CurrentToken.Literal));
 
             }
 
@@ -98,22 +88,62 @@ namespace Tsumugi.Text.Parsing
         }
 
         /// <summary>
-        /// ラベルのパース
+        /// 
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public Commanding.CommandBase CreateTagCommand(Tag tag)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// 
         /// </summary>
         /// <returns></returns>
-        private Commanding.Commands.LabelCommand ParseLabel()
+        public Tag ParseTag(string tagName)
         {
-            var labelName = CurrentToken.Literal;
-            var headline = string.Empty;
+            var attributes = new List<Tag.Attribute>();
 
-            var index = labelName.IndexOf(ControlCharacter.HeadlineSeparator);
-            if (index >= 0)
+            if (NextToken.Type == TokenType.TagEnd)
             {
-                headline = labelName.Substring(index);
-                labelName = labelName.Substring(0, index);
+                return new Tag() { Name = tagName, Attributes = attributes };
             }
 
-            return new Commanding.Commands.LabelCommand(labelName, headline);
+            ReadToken();
+
+            while (NextToken.Type != TokenType.EOF)
+            {
+                switch (NextToken.Type)
+                {
+                    case TokenType.TagEnd:
+                        return new Tag()
+                        {
+                            Name = tagName,
+                            Attributes = attributes
+                        };
+                }
+
+                switch (CurrentToken.Type)
+                {
+                    case TokenType.TagAttributeName:
+                        var value = string.Empty;
+                        if (NextToken.Type == TokenType.TagAttributeValue)
+                        {
+                            value = NextToken.Literal;
+                        }
+
+                        attributes.Add(new Tag.Attribute()
+                        {
+                            Name = CurrentToken.Literal,
+                            Value = value
+                        });
+                        break;
+                }
+
+                ReadToken();
+            }
+
         }
 
         /// <summary>
