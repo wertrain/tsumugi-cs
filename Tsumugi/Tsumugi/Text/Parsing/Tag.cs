@@ -46,6 +46,27 @@ namespace Tsumugi.Text.Parsing
         /// ジャンプ
         /// </summary>
         public const string Jump = "jump";
+
+        /// <summary>
+        /// If 
+        /// </summary>
+        public const string If = "if";
+
+        /// <summary>
+        /// Else 
+        /// </summary>
+        public const string Else = "else";
+
+        /// <summary>
+        /// Else If
+        /// </summary>
+        public const string Elif = "elif";
+
+        /// <summary>
+        /// EndIf 
+        /// </summary>
+        public const string Endif = "endif";
+
     }
 
     /// <summary>

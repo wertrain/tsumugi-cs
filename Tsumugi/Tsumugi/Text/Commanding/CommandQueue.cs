@@ -86,6 +86,25 @@ namespace Tsumugi.Text.Commanding
         }
 
         /// <summary>
+        /// 次の指定のコマンドを取得
+        /// </summary>
+        /// <typeparam name="T">取得するコマンドの型</typeparam>
+        /// <returns>見つかったコマンド</returns>
+        public T FindNext<T>() where T : CommandBase
+        {
+            for (var index = _queueIndex; index < _queue.Count; ++index)
+            {
+                var command = _queue.ElementAtOrDefault(index);
+
+                if (command.GetType().Equals(typeof(T)))
+                {
+                    return (T)command;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
         /// 指定されたコマンドの位置に移動する
         /// </summary>
         /// <param name="command"></param>

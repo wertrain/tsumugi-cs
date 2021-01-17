@@ -128,6 +128,28 @@ namespace Tsumugi.Text.Parsing
                             Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "target", TagName.Jump));
                         return new Commanding.Commands.JumpCommand(attr.Value);
                     }
+
+                case TagName.If:
+                    {
+                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
+                        if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
+                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.If));
+                        return new Commanding.Commands.IfCommand(attr.Value);
+                    }
+
+                case TagName.Else:
+                        return new Commanding.Commands.ElseCommand();
+
+                case TagName.Elif:
+                    {
+                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
+                        if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
+                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.If));
+                        return new Commanding.Commands.ElifCommand(attr.Value);
+                    }
+
+                case TagName.Endif:
+                    return new Commanding.Commands.EndIfCommand();
             }
 
             return null;

@@ -108,6 +108,10 @@ namespace Tsumugi
                         queue.Seek(label);
                         break;
 
+                    case Text.Commanding.Commands.IfCommand cmd:
+                        var evaluated = Eval(cmd.Expression);
+                        break;
+
                 }
             }
 
@@ -115,7 +119,20 @@ namespace Tsumugi
         }
 
         /// <summary>
-        /// 変数参照型の参照を解決する
+        /// Tsumugi スクリプトの評価
+        /// </summary>
+        /// <param name="script"></param>
+        /// <returns></returns>
+        private Script.Objects.IObject Eval(string script)
+        {
+            var lexer = new Script.Lexing.Lexer(script);
+            var parser = new Script.Parsing.Parser(lexer);
+            var root = parser.ParseProgram();
+            return Evaluator.Eval(root, Enviroment);
+        }
+
+        /// <summary>
+        /// 変数参照型の参照を解決
         /// </summary>
         /// <typeparam name="T">期待する変数の型</typeparam>
         /// <param name="variable">参照を解決する変数参照型</param>
