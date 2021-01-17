@@ -8,36 +8,31 @@ namespace ConsoleSample
         /// <summary>
         /// Tsumugi コマンド実行クラスのコンソール版
         /// </summary>
-        private class CommandExecutor : Tsumugi.Text.Executing.CommandExecutor
+        private class CommandExecutor : Tsumugi.Text.Executing.ICommandExecutor
         {
-            public override void PrintText(string text)
+            public void PrintText(string text)
             {
                 Console.Write("{0}", text);
             }
 
-            public override void StartNewLine()
+            public void StartNewLine()
             {
                 Console.WriteLine();
             }
 
-            public override void WaitAnyKey()
+            public void WaitAnyKey()
             {
                 Console.ReadKey(true);
             }
 
-            public override void StartNewPage()
+            public void StartNewPage()
             {
                 Console.Clear();
             }
 
-            public override void WaitTime(int millisec)
+            public void WaitTime(int millisec)
             {
                 Task.Delay(millisec).Wait();
-            }
-
-            public override void Indent(int count)
-            {
-                Console.Write("\t");
             }
 
             public void DebugPring(Tsumugi.Text.Commanding.CommandQueue queue)

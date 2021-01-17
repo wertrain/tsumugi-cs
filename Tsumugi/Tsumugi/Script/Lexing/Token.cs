@@ -102,14 +102,14 @@ namespace Tsumugi.Script.Lexing
         Identifier,
 
         /// <summary>
-        /// 32 bit 整数
+        /// 整数
         /// </summary>
-        Integer32,
+        Integer,
 
         /// <summary>
-        /// 変数リテラル
+        /// 倍精度浮動小数点数
         /// </summary>
-        Variable,
+        Double,
 
         /// <summary>
         /// 文字列リテラル

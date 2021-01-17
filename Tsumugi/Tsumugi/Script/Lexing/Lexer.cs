@@ -177,8 +177,7 @@ namespace Tsumugi.Script.Lexing
                         }
                         else if (IsDigit(c))
                         {
-                            var number = ReadNumber();
-                            token = CreateToken(TokenType.Integer32, number);
+                            token = ReadNumberToken();
                         }
                         else
                         {
@@ -238,6 +237,41 @@ namespace Tsumugi.Script.Lexing
             Reader.Seek(-1, SeekOrigin.Current);
 
             return identifier.ToString();
+        }
+
+        /// <summary>
+        /// 数値として読み出す
+        /// </summary>
+        /// <returns></returns>
+        private Token ReadNumberToken()
+        {
+            var numberBuffer = new StringBuilder(Reader.ReadChar().ToString());
+
+            while (IsDigit(Reader.PeekChar()) || '.' == Reader.PeekChar())
+            {
+                numberBuffer.Append(Reader.ReadChar());
+            }
+
+            Reader.Seek(-1, SeekOrigin.Current);
+
+            var number = numberBuffer.ToString();
+
+            if (number.IndexOf('.') > 0)
+            {
+                if (double.TryParse(number, out var result))
+                {
+                    return new Token(TokenType.Double, number);
+                }
+            }
+            else
+            {
+                if (int.TryParse(number, out var result))
+                {
+                    return new Token(TokenType.Integer, number);
+                }
+            }
+
+            return CreateToken(TokenType.Illegal, number);
         }
 
         /// <summary>

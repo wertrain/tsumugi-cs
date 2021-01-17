@@ -12,7 +12,7 @@ namespace Tsumugi.Localize
         public static readonly string CannotFindAttributeRequiredTag = "Cannot find attribute {0} which is required for tag {1}. ";
 
         public static readonly string ThisTokenMustBe = "In this token, it must be {0}, not {1}.";
-        public static readonly string CannotConvertInteger = "Cannot convert {0} to an integer.";
+        public static readonly string CannotConvertNumber = "Cannot convert {0} to an {1}.";
         public static readonly string NoAssociatedWith = "There is no {1} associated with {0}.";
         public static readonly string UnknownOperatorPrefix = "Unknown operator : {0}{1}";
         public static readonly string UnknownOperatorInfix = "Unknown operator : {0} {1} {2}";

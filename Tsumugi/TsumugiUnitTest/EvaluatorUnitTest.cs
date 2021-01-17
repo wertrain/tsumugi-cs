@@ -37,6 +37,31 @@ namespace TsumugiUnitTest
             }
         }
 
+        [TestMethod]
+        public void TestEvalDoubleExpression()
+        {
+            var tests = new (string, double)[]
+            {
+                ("1.0", 1.0),
+                ("12.0", 12.0),
+                ("-1.0", -1.0),
+                ("-12.0", -12.0),
+                ("1.0 + 2.0 - 3.0", 0.0),
+                ("1.0 + 2.0 * 3.0", 7.0),
+                ("3.0 * 4.0 / 2.0 + 10.0 - 8.0", 8.0),
+                ("(1.0 + 2.0) * 3.0 - -1.0", 10.0),
+                ("-1.0 * -1.0", 1.0),
+                ("-10.0 + -1.0 * 2.0", -12.0),
+                ("(10.0 + 20.0) / (10.0 - 0.0)", 3.0),
+            };
+
+            foreach (var (input, expected) in tests)
+            {
+                var evaluated = testEval(input);
+                testDoubleObject(evaluated, expected);
+            }
+        }
+
         private IObject testEval(string input)
         {
             var lexer = new Lexer(input);
@@ -53,6 +78,17 @@ namespace TsumugiUnitTest
             if (result == null)
             {
                 Assert.Fail("object が Integer ではありません。");
+            }
+
+            Assert.AreEqual(expected, result.Value);
+        }
+
+        private void testDoubleObject(IObject obj, double expected)
+        {
+            var result = obj as DoubleObject;
+            if (result == null)
+            {
+                Assert.Fail("object が Double ではありません。");
             }
 
             Assert.AreEqual(expected, result.Value);

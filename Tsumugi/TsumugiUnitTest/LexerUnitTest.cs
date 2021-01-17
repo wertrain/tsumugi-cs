@@ -39,12 +39,17 @@ namespace TsumugiUnitTest
             tokens.Add(new Token(TokenType.Let, "let"));
             tokens.Add(new Token(TokenType.Identifier, "five"));
             tokens.Add(new Token(TokenType.Assign, "="));
-            tokens.Add(new Token(TokenType.Integer32, "5"));
+            tokens.Add(new Token(TokenType.Integer, "5"));
             tokens.Add(new Token(TokenType.Semicolon, ";"));
             tokens.Add(new Token(TokenType.Let, "let"));
             tokens.Add(new Token(TokenType.Identifier, "ten"));
             tokens.Add(new Token(TokenType.Assign, "="));
-            tokens.Add(new Token(TokenType.Integer32, "10"));
+            tokens.Add(new Token(TokenType.Integer, "10"));
+            tokens.Add(new Token(TokenType.Semicolon, ";"));
+            tokens.Add(new Token(TokenType.Let, "let"));
+            tokens.Add(new Token(TokenType.Identifier, "float"));
+            tokens.Add(new Token(TokenType.Assign, "="));
+            tokens.Add(new Token(TokenType.Double, "10.0"));
             tokens.Add(new Token(TokenType.Semicolon, ";"));
             // let add = function(x, y) { x + y; };
             tokens.Add(new Token(TokenType.Let, "let"));
@@ -79,6 +84,7 @@ namespace TsumugiUnitTest
             var script = "" +
                         "let five = 5;" +
                         "let ten = 10;" +
+                        "let float = 10.0;" +
                         "" +
                         "let add = function(x, y) {" +
                         "    x + y;" +
@@ -101,9 +107,9 @@ namespace TsumugiUnitTest
             var tokens = new List<Token>();
             tokens.Add(new Token(TokenType.If, "if"));
             tokens.Add(new Token(TokenType.LeftParenthesis, "("));
-            tokens.Add(new Token(TokenType.Integer32, "5"));
+            tokens.Add(new Token(TokenType.Integer, "5"));
             tokens.Add(new Token(TokenType.LessThan, "<"));
-            tokens.Add(new Token(TokenType.Integer32, "10"));
+            tokens.Add(new Token(TokenType.Integer, "10"));
             tokens.Add(new Token(TokenType.RightParenthesis, ")"));
             tokens.Add(new Token(TokenType.LeftBraces, "{"));
             tokens.Add(new Token(TokenType.Return, "return"));

@@ -33,6 +33,11 @@ namespace Tsumugi.Script.Objects
         Integer,
 
         /// <summary>
+        /// 倍精度浮動小数点数値
+        /// </summary>
+        Double,
+
+        /// <summary>
         /// 真偽値
         /// </summary>
         Boolean,

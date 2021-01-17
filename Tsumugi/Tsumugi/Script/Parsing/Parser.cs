@@ -317,7 +317,8 @@ namespace Tsumugi.Script.Parsing
         {
             PrefixParseFunctions = new Dictionary<TokenType, PrefixParseFunction>();
             PrefixParseFunctions.Add(TokenType.Identifier, ParseIdentifier);
-            PrefixParseFunctions.Add(TokenType.Integer32, ParseIntegerLiteral);
+            PrefixParseFunctions.Add(TokenType.Integer, ParseIntegerLiteral);
+            PrefixParseFunctions.Add(TokenType.Double, ParseDoubleLiteral);
             PrefixParseFunctions.Add(TokenType.Bang, ParsePrefixExpression);
             PrefixParseFunctions.Add(TokenType.Minus, ParsePrefixExpression);
             PrefixParseFunctions.Add(TokenType.True, ParseBooleanLiteral);
@@ -363,7 +364,7 @@ namespace Tsumugi.Script.Parsing
         /// <returns></returns>
         public IExpression ParseIntegerLiteral()
         {
-            if (int.TryParse(CurrentToken.Literal, out int result))
+            if (int.TryParse(CurrentToken.Literal, out var result))
             {
                 return new IntegerLiteral()
                 {
@@ -372,7 +373,27 @@ namespace Tsumugi.Script.Parsing
                 };
             }
 
-            Error(CurrentToken, string.Format(LocalizationTexts.CannotConvertInteger.Localize(), CurrentToken.Literal));
+            Error(CurrentToken, string.Format(LocalizationTexts.CannotConvertNumber.Localize(), CurrentToken.Literal, "Integer"));
+
+            return null;
+        }
+
+        /// <summary>
+        /// 倍精度浮動小数点数式のパース
+        /// </summary>
+        /// <returns></returns>
+        public IExpression ParseDoubleLiteral()
+        {
+            if (double.TryParse(CurrentToken.Literal, out var result))
+            {
+                return new DoubleLiteral()
+                {
+                    Token = CurrentToken,
+                    Value = result,
+                };
+            }
+
+            Error(CurrentToken, string.Format(LocalizationTexts.CannotConvertNumber.Localize(), CurrentToken.Literal, "Double"));
 
             return null;
         }

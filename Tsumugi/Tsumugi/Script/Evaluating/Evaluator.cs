@@ -47,6 +47,8 @@ namespace Tsumugi.Script.Evaluating
                     return EvalAssignExpression(assignExpression, enviroment);
                 case IntegerLiteral integerLiteral:
                     return new IntegerObject(integerLiteral.Value);
+                case DoubleLiteral doubleLiteral:
+                    return new DoubleObject(doubleLiteral.Value);
                 case StringLiteral stringLiteral:
                     return new StringObject(stringLiteral.Value);
                 case BooleanLiteral booleanLiteral:
@@ -222,10 +224,14 @@ namespace Tsumugi.Script.Evaluating
         /// <returns>評価後のオブジェクト</returns>
         public IObject EvalMinusPrefixOperatorExpression(IObject right)
         {
-            if (right.Type() != ObjectType.Integer) return new Error(string.Format(LocalizationTexts.UnknownOperatorPrefix.Localize(), "-", right.Type()));
-
-            var value = (right as IntegerObject).Value;
-            return new IntegerObject(-value);
+            switch (right)
+            {
+                case IntegerObject value:
+                    return new IntegerObject(-value.Value);
+                case DoubleObject value:
+                    return new DoubleObject(-value.Value);
+            }
+            return new Error(string.Format(LocalizationTexts.UnknownOperatorPrefix.Localize(), "-", right.Type()));
         }
 
         /// <summary>
@@ -240,6 +246,10 @@ namespace Tsumugi.Script.Evaluating
             if (left is IntegerObject leftIntegerObject && right is IntegerObject rightIntegerObject)
             {
                 return EvalIntegerInfixExpression(op, leftIntegerObject, rightIntegerObject);
+            }
+            else if (left is DoubleObject leftDoubleObject && right is DoubleObject rightDoubleObject)
+            {
+                return EvalDoubleInfixExpression(op, leftDoubleObject, rightDoubleObject);
             }
             else if (left is StringObject leftStringObject && right is StringObject rightStringObject)
             {
@@ -279,6 +289,34 @@ namespace Tsumugi.Script.Evaluating
                 case "-": return new IntegerObject(leftValue - rightValue);
                 case "*": return new IntegerObject(leftValue * rightValue);
                 case "/": return new IntegerObject(leftValue / rightValue);
+                case "<": return ToBooleanObject(leftValue < rightValue);
+                case ">": return ToBooleanObject(leftValue > rightValue);
+                case "<=": return ToBooleanObject(leftValue <= rightValue);
+                case ">=": return ToBooleanObject(leftValue >= rightValue);
+                case "==": return ToBooleanObject(leftValue == rightValue);
+                case "!=": return ToBooleanObject(leftValue != rightValue);
+            }
+            return Null;
+        }
+
+        /// <summary>
+        /// 倍精度浮動小数点数値の中置演算子式の評価
+        /// </summary>
+        /// <param name="op">演算子</param>
+        /// <param name="left">左辺</param>
+        /// <param name="right">右辺</param>
+        /// <returns>評価後のオブジェクト</returns>
+        public IObject EvalDoubleInfixExpression(string op, DoubleObject left, DoubleObject right)
+        {
+            var leftValue = left.Value;
+            var rightValue = right.Value;
+
+            switch (op)
+            {
+                case "+": return new DoubleObject(leftValue + rightValue);
+                case "-": return new DoubleObject(leftValue - rightValue);
+                case "*": return new DoubleObject(leftValue * rightValue);
+                case "/": return new DoubleObject(leftValue / rightValue);
                 case "<": return ToBooleanObject(leftValue < rightValue);
                 case ">": return ToBooleanObject(leftValue > rightValue);
                 case "<=": return ToBooleanObject(leftValue <= rightValue);

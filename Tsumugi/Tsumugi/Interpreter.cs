@@ -84,7 +84,7 @@ namespace Tsumugi
                             var let = new Script.AbstractSyntaxTree.Statements.LetStatement()
                             {
                                 Name = new Script.AbstractSyntaxTree.Expressions.Identifier(
-                                    new Script.Lexing.Token(Script.Lexing.TokenType.Integer32, variable.Name), variable.Name
+                                    new Script.Lexing.Token(Script.Lexing.TokenType.Integer, variable.Name), variable.Name
                                 ),
                                 Value = new Script.AbstractSyntaxTree.Expressions.IntegerLiteral()
                                 {
@@ -100,10 +100,6 @@ namespace Tsumugi
                         {
                             Executor.WaitTime(cmd.Time.GetValueOrNull().Value);
                         }
-                        break;
-
-                    case Text.Commanding.Commands.InsertIndentCommand cmd:
-                        //Executor.Indent(Environment.Indentation);
                         break;
 
                     case Text.Commanding.Commands.JumpCommand cmd:

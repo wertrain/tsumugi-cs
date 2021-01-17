@@ -6,7 +6,7 @@
   <StringItem id="Cannot find attribute {0} which is required for tag {1}. " context="" translation="{1} のタグに必須となる属性の {0} が見つかりません。" />
 
   <StringItem id="In this token, it must be {0}, not {1}." context="" translation="このトークンでは {1} ではなく {0} である必要があります。" />
-  <StringItem id="Cannot convert {0} to an integer." context="" translation="{0} を整数に変換できません。" />
+  <StringItem id="Cannot convert {0} to an {1}." context="" translation="{0} を {1} に変換できません。" />
   <StringItem id="There is no {1} associated with {0}." context="" translation="{0} に関連付けられた {1} が存在しません。" />
   <StringItem id="Unknown operator : {0}{1}" context="" translation="未知の演算子：{0}{1}" />
   <StringItem id="Unknown operator : {0} {1} {2}" context="" translation="未知の演算子：{0} {1} {2}" />

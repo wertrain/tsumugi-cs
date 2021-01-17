@@ -30,11 +30,5 @@
         /// 指定時間の待ち
         /// </summary>
         void WaitTime(int millisec);
-
-        /// <summary>
-        /// インデント
-        /// </summary>
-        /// <param name="size"></param>
-        void Indent(int count);
     }
 }
