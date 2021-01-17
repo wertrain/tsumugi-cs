@@ -49,7 +49,16 @@ namespace ConsoleSample
 
         static void Main(string[] args)
         {
-
+            var script = "" +
+            ":start|開始位置" +
+            "[var wtime=1000][jump target=notfound]" +
+            "こんにちは[r]" +
+            "これは Tsumugi のテスト[wait time=wtime]です。[l][cm]" +
+            "ページをクリアしました。[l][r][cm][jump target=start]" +
+            "[l]";
+            var interpreter = new Tsumugi.Interpreter();
+            interpreter.Executor = new CommandExecutor();
+            interpreter.Execute(script);
         }
     }
 }

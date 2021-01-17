@@ -94,7 +94,8 @@ namespace Tsumugi.Text.Lexing
 
                     case ControlCharacter.HeadlineSeparator:
                         if (PrevToken?.Type != TokenType.Label) goto default;
-                        var headline = ReadTextToWhiteSpace();
+                        Reader.ReadChar();
+                        var headline = ReadLabelHeadlineText();
                         token = CreateToken(TokenType.LabelHeadline, headline);
                         break;
 
@@ -160,6 +161,24 @@ namespace Tsumugi.Text.Lexing
             var label = new StringBuilder();
 
             while (!IsWhiteSpace(Reader.PeekChar()) && Reader.PeekChar() != ControlCharacter.HeadlineSeparator)
+            {
+                label.Append(Reader.ReadChar());
+            }
+
+            Reader.Seek(-1, SeekOrigin.Current);
+
+            return label.ToString();
+        }
+
+        /// <summary>
+        /// ラベルの見出し読み込み
+        /// </summary>
+        /// <returns></returns>
+        private string ReadLabelHeadlineText()
+        {
+            var label = new StringBuilder();
+
+            while (!IsWhiteSpace(Reader.PeekChar()) && !IsControlCharacter(Reader.PeekChar()))
             {
                 label.Append(Reader.ReadChar());
             }
@@ -333,12 +352,12 @@ namespace Tsumugi.Text.Lexing
             {
                 var next = Reader.PeekChar(1);
                 // エスケープシーケンス
-                if (c == '\\' && (next == ControlCharacter.TagStart || next == ControlCharacter.Label))
+                if (c == '\\' && IsControlCharacter(next))
                 {
                     // 読み飛ばす
                     Reader.ReadChar();
                 }
-                else if (c == ControlCharacter.TagStart || c == ControlCharacter.Label)
+                else if (IsControlCharacter(c))
                 {
                     Reader.Seek(-1, SeekOrigin.Current);
                     break;
@@ -350,6 +369,16 @@ namespace Tsumugi.Text.Lexing
             }
 
             return CreateToken(TokenType.Text, text.ToString());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        private bool IsControlCharacter(char c)
+        {
+            return (c == ControlCharacter.TagStart || c == ControlCharacter.Label);
         }
 
         /// <summary>

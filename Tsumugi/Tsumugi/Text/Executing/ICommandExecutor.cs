@@ -6,15 +6,35 @@
     public interface ICommandExecutor
     {
         /// <summary>
-        /// 環境設定
+        /// 文字列の表示
         /// </summary>
-        Environment Environment { get; }
+        /// <param name="text"></param>
+        void PrintText(string text);
 
         /// <summary>
-        /// コマンドの実行
+        /// 改行
         /// </summary>
-        /// <param name="queue">実行するコマンドキュー</param>
-        /// <returns></returns>
-        int Execute(Commanding.CommandQueue queue);
+        void StartNewLine();
+
+        /// <summary>
+        /// キー入力待ち
+        /// </summary>
+        void WaitAnyKey();
+
+        /// <summary>
+        /// 改ページ
+        /// </summary>
+        void StartNewPage();
+
+        /// <summary>
+        /// 指定時間の待ち
+        /// </summary>
+        void WaitTime(int millisec);
+
+        /// <summary>
+        /// インデント
+        /// </summary>
+        /// <param name="size"></param>
+        void Indent(int count);
     }
 }

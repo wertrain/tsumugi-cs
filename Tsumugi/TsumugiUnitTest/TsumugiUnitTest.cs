@@ -57,29 +57,60 @@ namespace TsumugiUnitTest
         }
 
         [TestMethod]
-        public void TestMethodParsingBasic()
+        public void TestMethodParsing()
         {
-            var parser = new Tsumugi.Text.Parsing.DParser();
-            parser.Parse("Hello, Tsumugi!");
+            var lexer = new Lexer(
+                ":start|開始位置" + Environment.NewLine +
+                "[var wtime=1000][jump target=notfound]" + Environment.NewLine +
+                "こんにちは[r]" + Environment.NewLine +
+                "これは Tsumugi のテスト[wait time=notdefine]です。[l][cm]" + Environment.NewLine +
+                "ページをクリアしました。[l][r][cm][jump target=start]" + Environment.NewLine +
+            "");
 
-            Assert.AreNotEqual(parser.CommandQueue.Dequeue(), null);
-        }
+            var parser = new Tsumugi.Text.Parsing.Parser(lexer);
+            var commandQueue = parser.ParseProgram();
 
-        [TestMethod]
-        public void TestMethodParsingError()
-        {
-            var parser = new Tsumugi.Text.Parsing.DParser();
+            var commands = new List<Tsumugi.Text.Commanding.CommandBase>();
+            commands.Add(new Tsumugi.Text.Commanding.Commands.LabelCommand("start", "開始位置"));
+            commands.Add(new Tsumugi.Text.Commanding.Commands.DefineVariablesCommand()
+            {
+                Variables = new List<Tsumugi.Text.Commanding.Commands.DefineVariablesCommand.Variable>()
+                {
+                    new Tsumugi.Text.Commanding.Commands.DefineVariablesCommand.Variable()
+                    {
+                        Name = "wtime",
+                        Value = "1000"
+                    }
+                }
+            });
+            commands.Add(new Tsumugi.Text.Commanding.Commands.JumpCommand("notfound"));
+            commands.Add(new Tsumugi.Text.Commanding.Commands.PrintTextCommand("こんにちは"));
+            commands.Add(new Tsumugi.Text.Commanding.Commands.NewLineCommand());
+            commands.Add(new Tsumugi.Text.Commanding.Commands.PrintTextCommand("これは Tsumugi のテスト"));
+            commands.Add(new Tsumugi.Text.Commanding.Commands.WaitTimeCommand("notdefine"));
+            commands.Add(new Tsumugi.Text.Commanding.Commands.PrintTextCommand("です。"));
+            commands.Add(new Tsumugi.Text.Commanding.Commands.WaitKeyCommand());
+            commands.Add(new Tsumugi.Text.Commanding.Commands.NewPageCommand());
+            commands.Add(new Tsumugi.Text.Commanding.Commands.PrintTextCommand("ページをクリアしました。"));
+            commands.Add(new Tsumugi.Text.Commanding.Commands.WaitKeyCommand());
+            commands.Add(new Tsumugi.Text.Commanding.Commands.NewLineCommand());
+            commands.Add(new Tsumugi.Text.Commanding.Commands.NewPageCommand());
+            commands.Add(new Tsumugi.Text.Commanding.Commands.JumpCommand("start"));
 
-            var script = "" +
-                ":start|開始位置" +
-                "[var wtime=1000][jump target=notfound]" +
-                "こんにちは[r]" +
-                "これは Tsumugi のテスト[wait time=notdefine]です。[l][cm]" +
-                "ページをクリアしました。[l][r][cm][jump target=start]" +
-                "[l]";
-            parser.Parse(script);
-
-            Assert.IsTrue(parser.Logger.Count(Tsumugi.Script.Logger.Categories.Error) == 2);
+            foreach (var command in commands)
+            {
+                var test = commandQueue.dequeue();
+                Assert.AreEqual(test.GetType(), command.GetType());
+                switch (test)
+                {
+                    case Tsumugi.Text.Commanding.Commands.LabelCommand label:
+                        var labelCommand = (Tsumugi.Text.Commanding.Commands.LabelCommand)command;
+                        Assert.AreEqual(label.Name, labelCommand.Name);
+                        Assert.AreEqual(label.Headline, labelCommand.Headline);
+                        break;
+                }
+            }
+            
         }
     }
 }

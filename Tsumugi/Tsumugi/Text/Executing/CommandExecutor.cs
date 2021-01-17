@@ -47,7 +47,8 @@ namespace Tsumugi.Text.Executing
                         break;
 
                     case Commanding.Commands.WaitTimeCommand cmd:
-                        WaitTime(cmd.Time);
+                        ///WaitTime(cmd.Time.GetValueOrNull().Value);
+                        WaitTime(1000);
                         break;
 
                     case Commanding.Commands.InsertIndentCommand cmd:
