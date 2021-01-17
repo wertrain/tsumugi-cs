@@ -1,5 +1,8 @@
 ﻿namespace Tsumugi.Text.Commanding.Commands
 {
+    /// <summary>
+    /// ラベルコマンド
+    /// </summary>
     public class LabelCommand : CommandBase
     {
         /// <summary>

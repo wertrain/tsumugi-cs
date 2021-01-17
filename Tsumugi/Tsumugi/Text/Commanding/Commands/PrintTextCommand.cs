@@ -1,5 +1,8 @@
 ﻿namespace Tsumugi.Text.Commanding.Commands
 {
+    /// <summary>
+    /// テキスト表示コマンド
+    /// </summary>
     public class PrintTextCommand : CommandBase
     {
         /// <summary>
@@ -11,9 +14,6 @@
         /// コンストラクタ
         /// </summary>
         /// <param name="text"></param>
-        public PrintTextCommand(string text)
-        {
-            Text = text;
-        }
+        public PrintTextCommand(string text) => Text = text;
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 namespace Tsumugi.Text.Commanding
 {
     /// <summary>
-    /// 変数を参照を表す型
+    /// 変数の参照を表す型
     /// </summary>
     public class ReferenceVariable<T> where T : struct
     { 
@@ -57,10 +57,7 @@ namespace Tsumugi.Text.Commanding
         /// コンストラクタ
         /// </summary>
         /// <param name="value"></param>
-        public ReferenceVariable(T value)
-        {
-            SetValue(value);
-        }
+        public ReferenceVariable(T value) => SetValue(value);
 
         /// <summary>
         /// 変数

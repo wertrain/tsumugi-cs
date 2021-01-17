@@ -118,7 +118,7 @@ namespace Tsumugi.Text.Parsing
                         var variables = new List<Commanding.Commands.DefineVariablesCommand.Variable>();
                         foreach (var attr in tag.Attributes)
                             variables.Add(new Commanding.Commands.DefineVariablesCommand.Variable() { Name = attr.Name, Value = attr.Value });
-                        return new Commanding.Commands.DefineVariablesCommand() { Variables = variables };
+                        return new Commanding.Commands.DefineVariablesCommand(variables);
                     }
 
                 case TagName.Jump:

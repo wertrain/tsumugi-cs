@@ -72,17 +72,16 @@ namespace TsumugiUnitTest
 
             var commands = new List<Tsumugi.Text.Commanding.CommandBase>();
             commands.Add(new Tsumugi.Text.Commanding.Commands.LabelCommand("start", "開始位置"));
-            commands.Add(new Tsumugi.Text.Commanding.Commands.DefineVariablesCommand()
-            {
-                Variables = new List<Tsumugi.Text.Commanding.Commands.DefineVariablesCommand.Variable>()
+            commands.Add(new Tsumugi.Text.Commanding.Commands.DefineVariablesCommand(
+                new List<Tsumugi.Text.Commanding.Commands.DefineVariablesCommand.Variable>()
                 {
                     new Tsumugi.Text.Commanding.Commands.DefineVariablesCommand.Variable()
                     {
                         Name = "wtime",
                         Value = "1000"
                     }
-                }
-            });
+                })
+            );
             commands.Add(new Tsumugi.Text.Commanding.Commands.JumpCommand("notfound"));
             commands.Add(new Tsumugi.Text.Commanding.Commands.PrintTextCommand("こんにちは"));
             commands.Add(new Tsumugi.Text.Commanding.Commands.NewLineCommand());
