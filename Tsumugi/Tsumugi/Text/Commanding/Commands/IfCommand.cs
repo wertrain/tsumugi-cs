@@ -1,12 +1,20 @@
 ﻿namespace Tsumugi.Text.Commanding.Commands
 {
     /// <summary>
+    /// If 分岐に関するコマンドの基底クラス
+    /// </summary>
+    public class IfBranchCommandBase : CommandBase
+    {
+
+    }
+
+    /// <summary>
     /// If コマンド
     /// </summary>
-    public class IfCommand : CommandBase
+    public class IfCommand : IfBranchCommandBase
     {
         /// <summary>
-        /// 式
+        /// 条件式
         /// </summary>
         public string Expression { get; set; }
 
@@ -20,17 +28,17 @@
     /// <summary>
     /// Else コマンド
     /// </summary>
-    public class ElseCommand : CommandBase
+    public class ElseCommand : IfBranchCommandBase
     {
     }
 
     /// <summary>
     /// Elif コマンド
     /// </summary>
-    public class ElifCommand : CommandBase
+    public class ElifCommand : IfBranchCommandBase
     {
         /// <summary>
-        /// 式
+        /// 条件式
         /// </summary>
         public string Expression { get; set; }
 
@@ -44,7 +52,29 @@
     /// <summary>
     /// EndIf コマンド
     /// </summary>
-    public class EndIfCommand : CommandBase
+    public class EndIfCommand : IfBranchCommandBase
     {
     }
+
+    /// <summary>
+    /// コマンドユーティリティ
+    /// </summary>
+    public static class IfCommandUtility
+    {
+        public static T GetPairCommand<T>(IfBranchCommandBase command, CommandQueue queue) where T : IfBranchCommandBase
+        {
+            switch (command)
+            {
+                case IfCommand ifCommand:
+
+                    break;
+            }
+        }
+
+        private static T RecursiveGetPair<T>(CommandQueue queue)
+        {
+
+        }
+    }
+
 }

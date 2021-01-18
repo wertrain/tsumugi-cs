@@ -110,6 +110,10 @@ namespace Tsumugi
 
                     case Text.Commanding.Commands.IfCommand cmd:
                         var evaluated = Eval(cmd.Expression);
+                        if (evaluated is Script.Objects.BooleanObject)
+                        {
+
+                        }
                         break;
 
                 }
