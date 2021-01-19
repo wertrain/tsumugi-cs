@@ -8,15 +8,39 @@ namespace Tsumugi.Text.Commanding
     /// <summary>
     /// コマンドをキューで管理するクラス
     /// </summary>
-    public class CommandQueue
+    public class CommandQueue : ICloneable
     {
+        /// <summary>
+        /// キューのインデックス
+        /// </summary>
+        public int Index { get; set; }
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public CommandQueue()
         {
             _queue = new Queue<CommandBase>();
-            _queueIndex = 0;
+            Index = 0;
+        }
+
+        /// <summary>
+        /// コピーコンストラクタ
+        /// </summary>
+        /// <param name="other"></param>
+        protected CommandQueue(CommandQueue other)
+        {
+            _queue = other._queue;
+            Index = other.Index;
+        }
+
+        /// <summary>
+        /// 複製
+        /// </summary>
+        /// <returns></returns>
+        public virtual object Clone()
+        {
+            return new CommandQueue(this);
         }
 
         /// <summary>
@@ -48,12 +72,12 @@ namespace Tsumugi.Text.Commanding
         /// <returns></returns>
         public CommandBase Dequeue()
         {
-            if (_queue.Count <= _queueIndex)
+            if (_queue.Count <= Index)
             {
                 return null;
             }
 
-            return _queue.ElementAtOrDefault(_queueIndex++);
+            return _queue.ElementAtOrDefault(Index++);
         }
 
         /// <summary>
@@ -66,6 +90,15 @@ namespace Tsumugi.Text.Commanding
             {
                 action(index, command);
             }
+        }
+
+        /// <summary>
+        /// インデックスを取得
+        /// </summary>
+        /// <returns></returns>
+        public int IndexOf(CommandBase command)
+        {
+            return _queue.ToArray().ToList().IndexOf(command);
         }
 
         /// <summary>
@@ -92,7 +125,7 @@ namespace Tsumugi.Text.Commanding
         /// <returns>見つかったコマンド</returns>
         public T FindNext<T>() where T : CommandBase
         {
-            for (var index = _queueIndex; index < _queue.Count; ++index)
+            for (var index = Index; index < _queue.Count; ++index)
             {
                 var command = _queue.ElementAtOrDefault(index);
 
@@ -115,7 +148,7 @@ namespace Tsumugi.Text.Commanding
             {
                 if (command == target)
                 {
-                    _queueIndex = index;
+                    Index = index;
                     return true;
                 }
             }
@@ -123,13 +156,23 @@ namespace Tsumugi.Text.Commanding
         }
 
         /// <summary>
+        /// 指定インデックスのコマンドを取得
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public CommandBase GetCommand(int index)
+        {
+            if (_queue.Count <= index)
+            {
+                return null;
+            }
+
+            return _queue.ElementAt(index);
+        }
+
+        /// <summary>
         /// コマンドキュー
         /// </summary>
         private Queue<CommandBase> _queue;
-
-        /// <summary>
-        /// キューのインデックス
-        /// </summary>
-        private int _queueIndex;
     }
 }

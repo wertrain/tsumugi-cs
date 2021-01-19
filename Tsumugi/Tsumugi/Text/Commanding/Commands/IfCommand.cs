@@ -1,4 +1,6 @@
-﻿namespace Tsumugi.Text.Commanding.Commands
+﻿using System.Collections.Generic;
+
+namespace Tsumugi.Text.Commanding.Commands
 {
     /// <summary>
     /// If 分岐に関するコマンドの基底クラス
@@ -17,6 +19,11 @@
         /// 条件式
         /// </summary>
         public string Expression { get; set; }
+
+        /// <summary>
+        /// 関連するコマンド（if/elif/else/endif）
+        /// </summary>
+        public List<IfBranchCommandBase> RelatedCommands { get; set; }
 
         /// <summary>
         /// コンストラクタ
@@ -61,19 +68,46 @@
     /// </summary>
     public static class IfCommandUtility
     {
-        public static T GetPairCommand<T>(IfBranchCommandBase command, CommandQueue queue) where T : IfBranchCommandBase
+        public static bool RelateCommand(IfCommand command, CommandQueue queue)
         {
-            switch (command)
-            {
-                case IfCommand ifCommand:
+            command.RelatedCommands.Clear();
 
-                    break;
+            if (RecursiveRelateCommand(command, queue, queue.IndexOf(command) + 1))
+            {
+                return true;
             }
+
+            return false;
         }
 
-        private static T RecursiveGetPair<T>(CommandQueue queue)
+        private static bool RecursiveRelateCommand(IfCommand command, CommandQueue queue, int index)
         {
+            var current = queue.GetCommand(index);
 
+            switch (current)
+            {
+                case IfCommand ifCommand:
+                    ifCommand.RelatedCommands.Clear();
+                    if (!RecursiveRelateCommand(ifCommand, queue, ++index))
+                        return false;
+                    break;
+
+                case ElseCommand elseCommand:
+                    command.RelatedCommands.Add(elseCommand);
+                    RecursiveRelateCommand(command, queue, ++index);
+                    break;
+
+                case ElifCommand elifCommand:
+                    command.RelatedCommands.Add(elifCommand);
+                    RecursiveRelateCommand(command, queue, ++index);
+                    break;
+
+                case EndIfCommand endIfCommand:
+                    command.RelatedCommands.Add(endIfCommand);
+                    return true;
+            }
+
+            return false;
         }
     }
 

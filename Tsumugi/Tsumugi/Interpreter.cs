@@ -109,10 +109,11 @@ namespace Tsumugi
                         break;
 
                     case Text.Commanding.Commands.IfCommand cmd:
+                        Text.Commanding.Commands.IfCommandUtility.RelateCommand(cmd, queue);
                         var evaluated = Eval(cmd.Expression);
                         if (evaluated is Script.Objects.BooleanObject)
                         {
-
+                            //FindNext<()
                         }
                         break;
 

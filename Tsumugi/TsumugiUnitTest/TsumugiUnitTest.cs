@@ -65,6 +65,7 @@ namespace TsumugiUnitTest
                 "こんにちは[r]" + Environment.NewLine +
                 "これは Tsumugi のテスト[wait time=notdefine]です。[l][cm]" + Environment.NewLine +
                 "ページをクリアしました。[l][r][cm][jump target=start]" + Environment.NewLine +
+                "[if exp=wtime==1000]" + Environment.NewLine +
             "");
 
             var parser = new Tsumugi.Text.Parsing.Parser(lexer);
