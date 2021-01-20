@@ -144,7 +144,7 @@ namespace Tsumugi.Text.Parsing
                     {
                         var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
                         if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
-                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.If));
+                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.Elif));
                         return new Commanding.Commands.ElifCommand(attr.Value);
                     }
 
