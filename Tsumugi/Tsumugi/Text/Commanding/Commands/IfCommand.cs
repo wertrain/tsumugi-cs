@@ -23,7 +23,7 @@ namespace Tsumugi.Text.Commanding.Commands
         /// <summary>
         /// 関連するコマンド（if/elif/else/endif）
         /// </summary>
-        public List<IfBranchCommandBase> RelatedCommands { get; set; }
+        public List<IfBranchCommandBase> RelatedCommands { get; set; } = new List<IfBranchCommandBase>();
 
         /// <summary>
         /// コンストラクタ
@@ -64,15 +64,22 @@ namespace Tsumugi.Text.Commanding.Commands
     }
 
     /// <summary>
-    /// コマンドユーティリティ
+    /// If コマンドユーティリティ
     /// </summary>
     public static class IfCommandUtility
     {
-        public static bool RelateCommand(IfCommand command, CommandQueue queue)
+        /// <summary>
+        /// If コマンドの並びをチェック
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="queue"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public static bool InspectSequence(IfCommand command, CommandQueue queue, out IfCommand error)
         {
             command.RelatedCommands.Clear();
 
-            if (RecursiveRelateCommand(command, queue, queue.IndexOf(command) + 1))
+            if ((error = RecursiveSequenceCommands(command, queue, queue.IndexOf(command) + 1)) == null)
             {
                 return true;
             }
@@ -80,34 +87,79 @@ namespace Tsumugi.Text.Commanding.Commands
             return false;
         }
 
-        private static bool RecursiveRelateCommand(IfCommand command, CommandQueue queue, int index)
+        /// <summary>
+        /// If コマンドの対応が正しいかチェック
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public static bool InspectRelated(IfCommand command)
+        {
+            if (command.RelatedCommands.Count == 0)
+            {
+                return false;
+            }
+
+            int elseCount = 0;
+            int lastIndex = command.RelatedCommands.Count - 1;
+
+            for (int index = 0; index < command.RelatedCommands.Count; ++index)
+            {
+                if (command.RelatedCommands[index] is ElseCommand)
+                {
+                    // else は一つしかない
+                    if (++elseCount > 1)
+                    {
+                        return false;
+                    }
+                    // else が置かれるのは endif の一つ前だけ
+                    if (index != lastIndex - 1)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return command.RelatedCommands[lastIndex] is EndIfCommand;
+        }
+
+        /// <summary>
+        /// If コマンドの並びを再帰的にチェック
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="queue"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        private static IfCommand RecursiveSequenceCommands(IfCommand command, CommandQueue queue, int index)
         {
             var current = queue.GetCommand(index);
 
-            switch (current)
+            while (current != null)
             {
-                case IfCommand ifCommand:
-                    ifCommand.RelatedCommands.Clear();
-                    if (!RecursiveRelateCommand(ifCommand, queue, ++index))
-                        return false;
-                    break;
+                switch (current)
+                {
+                    case IfCommand ifCommand:
+                        ifCommand.RelatedCommands.Clear();
+                        if (RecursiveSequenceCommands(ifCommand, queue, ++index) != null)
+                            return ifCommand;
+                        break;
 
-                case ElseCommand elseCommand:
-                    command.RelatedCommands.Add(elseCommand);
-                    RecursiveRelateCommand(command, queue, ++index);
-                    break;
+                    case ElseCommand elseCommand:
+                        command.RelatedCommands.Add(elseCommand);
+                        break;
 
-                case ElifCommand elifCommand:
-                    command.RelatedCommands.Add(elifCommand);
-                    RecursiveRelateCommand(command, queue, ++index);
-                    break;
+                    case ElifCommand elifCommand:
+                        command.RelatedCommands.Add(elifCommand);
+                        break;
 
-                case EndIfCommand endIfCommand:
-                    command.RelatedCommands.Add(endIfCommand);
-                    return true;
+                    case EndIfCommand endIfCommand:
+                        command.RelatedCommands.Add(endIfCommand);
+                        return null;
+                }
+
+                current = queue.GetCommand(++index);
             }
 
-            return false;
+            return command;
         }
     }
 

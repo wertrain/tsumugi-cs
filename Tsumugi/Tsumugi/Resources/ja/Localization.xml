@@ -16,5 +16,8 @@
   <StringItem id="Number of arguments to the function {0} does not match." context="" translation="関数 {0} の引数の数が一致しません。" />
   <StringItem id="{0} does not support arguments of type {1}." context="" translation="{0} では {1} の型の引数をサポートしません。" />
   <StringItem id="Assigning values to other than identifiers is not allowed." context="" translation="識別子以外への値の代入はできません。" />
-  <StringItem id="No value found for attribute {1} in {0} tag." context="" translation="{0} タグの属性 {1} の値が見つかりません。" />
+  <StringItem id="Syntax error." context="" translation="構文のエラーです。" />
+  <StringItem id="Error in the structure of the if tag." context="" translation="If タグの構造に誤りがあります。" />
+
+  <StringItem id="Lines: {0} Columns: {1} Position: {2}" context="" translation="行: {0} 列: {1} 文字位置: {2}" />
 </StringLocalizationTable>

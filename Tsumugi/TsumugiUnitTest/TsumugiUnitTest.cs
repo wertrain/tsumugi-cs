@@ -66,6 +66,7 @@ namespace TsumugiUnitTest
                 "これは Tsumugi のテスト[wait time=notdefine]です。[l][cm]" + Environment.NewLine +
                 "ページをクリアしました。[l][r][cm][jump target=start]" + Environment.NewLine +
                 "[if exp=wtime==1000]" + Environment.NewLine +
+                "[endif]" + Environment.NewLine +
             "");
 
             var parser = new Tsumugi.Text.Parsing.Parser(lexer);
@@ -111,6 +112,36 @@ namespace TsumugiUnitTest
                 }
             }
             
+        }
+
+
+        [TestMethod]
+        public void TestMethodParsingIf()
+        {
+            var lexer = new Lexer(
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                "[endif]" + Environment.NewLine +
+            "");
+
+            var parser = new Tsumugi.Text.Parsing.Parser(lexer);
+            var commandQueue = parser.ParseProgram();
+
+            var commands = new List<Tsumugi.Text.Commanding.CommandBase>();
+            commands.Add(new Tsumugi.Text.Commanding.Commands.IfCommand("wtime==1000"));
+
+            foreach (var command in commands)
+            {
+                var test = commandQueue.dequeue();
+                Assert.AreEqual(test.GetType(), command.GetType());
+                switch (test)
+                {
+                    case Tsumugi.Text.Commanding.Commands.IfCommand cmd:
+                        var ifCommand = (Tsumugi.Text.Commanding.Commands.IfCommand)command;
+                        Assert.AreEqual(cmd.Expression, ifCommand.Expression);
+                        break;
+                }
+            }
+
         }
     }
 }

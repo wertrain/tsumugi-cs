@@ -44,16 +44,29 @@ namespace ConsoleSample
 
         static void Main(string[] args)
         {
+            // var script = "" +
+            // ":start|開始位置" +
+            // "[var wtime=1000][jump target=notfound]" +
+            // "こんにちは[r]" +
+            // "これは Tsumugi のテスト[wait time=wtime]です。[l][cm]" +
+            // "ページをクリアしました。[l][r][cm][jump target=start]" +
+            // "[l]";
             var script = "" +
-            ":start|開始位置" +
-            "[var wtime=1000][jump target=notfound]" +
-            "こんにちは[r]" +
-            "これは Tsumugi のテスト[wait time=wtime]です。[l][cm]" +
-            "ページをクリアしました。[l][r][cm][jump target=start]" +
-            "[l]";
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                    "[if exp=wtime==0]" + Environment.NewLine +
+                    "[else]" + Environment.NewLine +
+                "[elif exp=(wtime==100)]" + Environment.NewLine +
+                "[endif]" + Environment.NewLine +
+            "";
             var interpreter = new Tsumugi.Interpreter();
+            interpreter.OnPrintError += Interpreter_OnPrintError;
             interpreter.Executor = new CommandExecutor();
             interpreter.Execute(script);
+        }
+
+        private static void Interpreter_OnPrintError(object sender, string error)
+        {
+            Console.WriteLine("{0}", error);
         }
     }
 }

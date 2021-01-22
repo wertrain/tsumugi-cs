@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Tsumugi.Localize;
 using Tsumugi.Text.Lexing;
 
@@ -41,6 +39,7 @@ namespace Tsumugi.Text.Parsing
             NextToken = Lexer.NextToken();
 
             Logger = new Script.Logger();
+            CommandsTokenDictionary = new Dictionary<Commanding.CommandBase, Token>();
         }
 
         /// <summary>
@@ -56,10 +55,14 @@ namespace Tsumugi.Text.Parsing
                 var command = ParseCommand();
                 if (command != null)
                 {
+                    CommandsTokenDictionary.Add(command, CurrentToken);
                     commandQueue.Enqueue(command);
                 }
                 ReadToken();
             }
+
+            PostProcessCommands(commandQueue);
+
             return commandQueue;
         }
 
@@ -235,13 +238,51 @@ namespace Tsumugi.Text.Parsing
         }
 
         /// <summary>
+        /// コマンドに対する後処理
+        /// </summary>
+        /// <param name="queue">後処理するコマンド</param>
+        /// <returns></returns>
+        private bool PostProcessCommands(Commanding.CommandQueue queue)
+        {
+            Commanding.CommandBase command = null;
+
+            while ((command = queue.Dequeue()) != null)
+            {
+                switch (command)
+                {
+                    case Commanding.Commands.IfCommand cmd:
+                        if (!Commanding.Commands.IfCommandUtility.InspectSequence(cmd, queue, out var error))
+                        {
+                            Error(CommandsTokenDictionary[error], LocalizationTexts.ErrorInStructureIfTag.Localize());
+                            return false;
+                        }
+                        if (!Commanding.Commands.IfCommandUtility.InspectRelated(cmd))
+                        {
+                            Error(CommandsTokenDictionary[cmd], LocalizationTexts.ErrorInStructureIfTag.Localize());
+                            return false;
+                        }
+                        break;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// エラー発生
         /// </summary>
         /// <param name="token">エラーが発生したトークン</param>
         /// <param name="message">エラーメッセージ</param>
         private void Error(Token token, string message)
         {
-            Logger.Logging(Script.Logger.Categories.Error, message);
+            Logger.Logging(Script.Logger.Categories.Error, string.Format("{1} [{0}]",
+                string.Format(LocalizationTexts.LexingPosition.Localize(),
+                token.Position.Lines, token.Position.Columns, token.Position.Position), message));
         }
+
+        /// <summary>
+        /// コマンドとトークンの辞書（エラー処理用）
+        /// </summary>
+        private Dictionary<Commanding.CommandBase, Token> CommandsTokenDictionary { get; set; }
     }
 }

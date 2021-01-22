@@ -15,6 +15,16 @@ namespace Tsumugi
         public Text.Executing.ICommandExecutor Executor { get; set; }
 
         /// <summary>
+        /// 警告表示イベント
+        /// </summary>
+        public event EventHandler<string> OnPrintWarning;
+
+        /// <summary>
+        /// エラー表示イベント
+        /// </summary>
+        public event EventHandler<string> OnPrintError;
+
+        /// <summary>
         /// 実行環境
         /// </summary>
         private Script.Evaluating.Enviroment Enviroment { get; set; }
@@ -44,6 +54,20 @@ namespace Tsumugi
             var parser = new Text.Parsing.Parser(lexer);
 
             var commandQueue = parser.ParseProgram();
+
+            if (parser.Logger.Count() > 0)
+            {
+                foreach (var warning in parser.Logger.GetHistories(Script.Logger.Categories.Warning))
+                {
+                    OnPrintWarning(this, warning);
+                }
+                foreach (var error in parser.Logger.GetHistories(Script.Logger.Categories.Error))
+                {
+                    OnPrintError(this, error);
+                }
+                return false;
+            }
+
             ExecuteCommands(commandQueue);
 
             return true;
@@ -109,11 +133,14 @@ namespace Tsumugi
                         break;
 
                     case Text.Commanding.Commands.IfCommand cmd:
-                        Text.Commanding.Commands.IfCommandUtility.RelateCommand(cmd, queue);
                         var evaluated = Eval(cmd.Expression);
                         if (evaluated is Script.Objects.BooleanObject)
                         {
-                            //FindNext<()
+
+                        }
+                        else
+                        {
+                            queue.Seek(cmd.RelatedCommands[0]);
                         }
                         break;
 
