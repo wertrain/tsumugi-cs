@@ -113,7 +113,7 @@ namespace Tsumugi.Text.Parsing
                         var attr = tag.Attributes.FirstOrDefault(s => s.Name == "time");
                         if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
                             Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "time", TagName.WaitTime));
-                        return new Commanding.Commands.WaitTimeCommand(attr.Value);
+                        return new Commanding.Commands.WaitTimeCommand(attr?.Value);
                     }
 
                 case TagName.DefineVariable:
@@ -129,7 +129,7 @@ namespace Tsumugi.Text.Parsing
                         var attr = tag.Attributes.FirstOrDefault(s => s.Name == "target");
                         if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
                             Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "target", TagName.Jump));
-                        return new Commanding.Commands.JumpCommand(attr.Value);
+                        return new Commanding.Commands.JumpCommand(attr?.Value);
                     }
 
                 case TagName.If:
@@ -137,7 +137,7 @@ namespace Tsumugi.Text.Parsing
                         var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
                         if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
                             Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.If));
-                        return new Commanding.Commands.IfCommand(attr.Value);
+                        return new Commanding.Commands.IfCommand(attr?.Value);
                     }
 
                 case TagName.Else:
@@ -148,7 +148,7 @@ namespace Tsumugi.Text.Parsing
                         var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
                         if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
                             Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.Elif));
-                        return new Commanding.Commands.ElifCommand(attr.Value);
+                        return new Commanding.Commands.ElifCommand(attr?.Value);
                     }
 
                 case TagName.Endif:

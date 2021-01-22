@@ -118,28 +118,92 @@ namespace TsumugiUnitTest
         [TestMethod]
         public void TestMethodParsingIf()
         {
-            var lexer = new Lexer(
-                "[if exp=wtime==1000]" + Environment.NewLine +
-                "[endif]" + Environment.NewLine +
-            "");
-
-            var parser = new Tsumugi.Text.Parsing.Parser(lexer);
-            var commandQueue = parser.ParseProgram();
-
-            var commands = new List<Tsumugi.Text.Commanding.CommandBase>();
-            commands.Add(new Tsumugi.Text.Commanding.Commands.IfCommand("wtime==1000"));
-
-            foreach (var command in commands)
+            var scripts = new string[]
             {
-                var test = commandQueue.dequeue();
-                Assert.AreEqual(test.GetType(), command.GetType());
-                switch (test)
-                {
-                    case Tsumugi.Text.Commanding.Commands.IfCommand cmd:
-                        var ifCommand = (Tsumugi.Text.Commanding.Commands.IfCommand)command;
-                        Assert.AreEqual(cmd.Expression, ifCommand.Expression);
-                        break;
-                }
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                "[endif]",
+
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                "[elif exp=wtime==1000]" + Environment.NewLine +
+                "[endif]",
+
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                "[else]" + Environment.NewLine +
+                "[endif]",
+
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                "[elif exp=wtime==1000]" + Environment.NewLine +
+                "[else]" + Environment.NewLine +
+                "[endif]",
+
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                    "[if exp=wtime==1000]" + Environment.NewLine +
+                    "[endif]" + Environment.NewLine +
+                "[endif]",
+
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                    "[if exp=wtime==1000]" + Environment.NewLine +
+                        "[if exp=wtime==1000]" + Environment.NewLine +
+                        "[endif]" + Environment.NewLine +
+                    "[endif]" + Environment.NewLine +
+                "[endif]",
+
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                    "[if exp=wtime==1000]" + Environment.NewLine +
+                        "[if exp=wtime==1000]" + Environment.NewLine +
+                        "[else]" + Environment.NewLine +
+                        "[endif]" + Environment.NewLine +
+                    "[endif]" + Environment.NewLine +
+                "[endif]"
+            };
+
+            foreach (var script in scripts)
+            {
+                var lexer = new Lexer(script);
+
+                var parser = new Tsumugi.Text.Parsing.Parser(lexer);
+                var commandQueue = parser.ParseProgram();
+                Assert.IsTrue(parser.Logger.Count() == 0);
+            }
+
+        }
+
+        [TestMethod]
+        public void TestMethodParsingIfError()
+        {
+            var scripts = new string[]
+            {
+                // endif なし
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                "[else]",
+                // endif なし
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                "[elif]" + Environment.NewLine +
+                "[else]",
+                // else のあとに elif
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                "[else]" + Environment.NewLine +
+                "[elif]" + Environment.NewLine +
+                "[endif]",
+                // else 複数
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                "[else]" + Environment.NewLine +
+                "[else]" + Environment.NewLine +
+                "[endif]",
+                // 入れ子内の不正
+                "[if exp=wtime==1000]" + Environment.NewLine +
+                    "[if exp=wtime==1000]" + Environment.NewLine +
+                    "[else]" + Environment.NewLine +
+                "[endif]"
+            };
+
+            foreach (var script in scripts)
+            {
+                var lexer = new Lexer(script);
+
+                var parser = new Tsumugi.Text.Parsing.Parser(lexer);
+                var commandQueue = parser.ParseProgram();
+                Assert.IsTrue(parser.Logger.Count() > 0);
             }
 
         }

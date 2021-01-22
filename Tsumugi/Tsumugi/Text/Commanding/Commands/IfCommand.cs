@@ -3,17 +3,9 @@
 namespace Tsumugi.Text.Commanding.Commands
 {
     /// <summary>
-    /// If 分岐に関するコマンドの基底クラス
-    /// </summary>
-    public class IfBranchCommandBase : CommandBase
-    {
-
-    }
-
-    /// <summary>
     /// If コマンド
     /// </summary>
-    public class IfCommand : IfBranchCommandBase
+    public class IfCommand : CommandBase
     {
         /// <summary>
         /// 条件式
@@ -33,10 +25,27 @@ namespace Tsumugi.Text.Commanding.Commands
     }
 
     /// <summary>
+    /// If 分岐に関するコマンドの基底クラス
+    /// </summary>
+    public class IfBranchCommandBase : CommandBase
+    {
+        /// <summary>
+        /// 紐づく If コマンド
+        /// </summary>
+        public IfCommand IfCommand { get; set; }
+
+        /// <summary>
+        /// If コマンドを保持しているか
+        /// </summary>
+        public bool HasIfCommand { get { return IfCommand != null; } }
+    }
+
+    /// <summary>
     /// Else コマンド
     /// </summary>
     public class ElseCommand : IfBranchCommandBase
     {
+
     }
 
     /// <summary>
@@ -77,7 +86,11 @@ namespace Tsumugi.Text.Commanding.Commands
         /// <returns></returns>
         public static bool InspectSequence(IfCommand command, CommandQueue queue, out IfCommand error)
         {
-            command.RelatedCommands.Clear();
+            if (command.RelatedCommands.Count > 0)
+            {
+                error = null;
+                return true;
+            }
 
             if ((error = RecursiveSequenceCommands(command, queue, queue.IndexOf(command) + 1)) == null)
             {
@@ -144,14 +157,20 @@ namespace Tsumugi.Text.Commanding.Commands
                         break;
 
                     case ElseCommand elseCommand:
+                        if (elseCommand.HasIfCommand) break;
+                        elseCommand.IfCommand = command;
                         command.RelatedCommands.Add(elseCommand);
                         break;
 
                     case ElifCommand elifCommand:
+                        if (elifCommand.HasIfCommand) break;
+                        elifCommand.IfCommand = command;
                         command.RelatedCommands.Add(elifCommand);
                         break;
 
                     case EndIfCommand endIfCommand:
+                        if (endIfCommand.HasIfCommand) break;
+                        endIfCommand.IfCommand = command;
                         command.RelatedCommands.Add(endIfCommand);
                         return null;
                 }
