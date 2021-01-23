@@ -108,20 +108,7 @@ namespace Tsumugi
                         break;
 
                     case Text.Commanding.Commands.DefineVariablesCommand cmd:
-                        foreach(var variable in cmd.Variables)
-                        {
-                            var let = new Script.AbstractSyntaxTree.Statements.LetStatement()
-                            {
-                                Name = new Script.AbstractSyntaxTree.Expressions.Identifier(
-                                    new Script.Lexing.Token(Script.Lexing.TokenType.Integer, variable.Name), variable.Name
-                                ),
-                                Value = new Script.AbstractSyntaxTree.Expressions.IntegerLiteral()
-                                {
-                                    Value = int.Parse(variable.Value)
-                                }
-                            };
-                            Evaluator.Eval(let, Enviroment);
-                        }
+                        DefineVariables(cmd);
                         break;
 
                     case Text.Commanding.Commands.WaitTimeCommand cmd:
@@ -233,6 +220,41 @@ namespace Tsumugi
         }
 
         /// <summary>
+        /// 自動型判定変数定義
+        /// </summary>
+        /// <param name="command"></param>
+        private void DefineVariables(Text.Commanding.Commands.DefineVariablesCommand command)
+        {
+            foreach (var variable in command.Variables)
+            {
+                Script.AbstractSyntaxTree.IExpression right = null;
+
+                if (variable.Value.IndexOf(".") >= 0 && double.TryParse(variable.Value, out var d))
+                {
+                    right = new Script.AbstractSyntaxTree.Expressions.DoubleLiteral() { Value = d };
+                }
+                else if (int.TryParse(variable.Value, out var n))
+                {
+                    right = new Script.AbstractSyntaxTree.Expressions.IntegerLiteral() { Value = n };
+                }
+                else
+                {
+                    right = new Script.AbstractSyntaxTree.Expressions.StringLiteral() { Value = variable.Value };
+                }
+
+                var let = new Script.AbstractSyntaxTree.Statements.LetStatement()
+                {
+                    Name = new Script.AbstractSyntaxTree.Expressions.Identifier(
+                        new Script.Lexing.Token(Script.Lexing.TokenType.Integer, variable.Name), variable.Name
+                    ),
+                    Value = right
+                };
+
+                Evaluator.Eval(let, Enviroment);
+            }
+        }
+
+        /// <summary>
         /// 変数参照型の参照を解決
         /// </summary>
         /// <typeparam name="T">期待する変数の型</typeparam>
@@ -284,7 +306,7 @@ namespace Tsumugi
         }
 
         /// <summary>
-        /// 
+        /// 条件付きシーク用のパラメータ
         /// </summary>
         private class ConditionalSeekParameter
         {

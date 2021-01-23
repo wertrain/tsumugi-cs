@@ -132,6 +132,31 @@ namespace Tsumugi.Script.Lexing
                         }
                         break;
 
+                    case '&':
+                        if (Reader.PeekChar(1) == '&')
+                        {
+                            token = CreateToken(TokenType.And, "&&");
+                            Reader.ReadChar();
+                        }
+                        else
+                        {
+                            token = CreateToken(TokenType.LogicalConjunction, c.ToString());
+                        }
+                        break;
+
+
+                    case '|':
+                        if (Reader.PeekChar(1) == '|')
+                        {
+                            token = CreateToken(TokenType.Or, "||");
+                            Reader.ReadChar();
+                        }
+                        else
+                        {
+                            token = CreateToken(TokenType.LogicalDisjunction, c.ToString());
+                        }
+                        break;
+
                     case ',':
                         token = CreateToken(TokenType.Comma, c.ToString());
                         break;

@@ -259,6 +259,10 @@ namespace Tsumugi.Script.Evaluating
             {
                 return EvalStringIntegerInfixExpression(op, stringObject, integerObject);
             }
+            else if (left is BooleanObject leftBooleanObject && right is BooleanObject rightBooleanObject)
+            {
+                return EvalBooleanInfixExpression(op, leftBooleanObject, rightBooleanObject);
+            }
 
             switch (op)
             {
@@ -372,6 +376,26 @@ namespace Tsumugi.Script.Evaluating
                         }
                         return new StringObject(result.ToString());
                     }
+            }
+            return Null;
+        }
+
+        /// <summary>
+        /// 真偽値と真偽値の中置演算子式の評価
+        /// </summary>
+        /// <param name="op">演算子</param>
+        /// <param name="left">左辺</param>
+        /// <param name="right">右辺</param>
+        /// <returns>評価後のオブジェクト</returns>
+        public IObject EvalBooleanInfixExpression(string op, BooleanObject left, BooleanObject right)
+        {
+            var leftValue = left.Value;
+            var rightValue = right.Value;
+
+            switch (op)
+            {
+                case "&&": return ToBooleanObject(left.Value && right.Value);
+                case "||": return ToBooleanObject(left.Value || right.Value);
             }
             return Null;
         }

@@ -178,6 +178,26 @@ namespace Tsumugi.Script.Lexing
         /// </summary>
         NotEqual,
 
+        /// <summary>
+        /// | 論理和
+        /// </summary>
+        LogicalDisjunction,
+
+        /// <summary>
+        /// & 論理積
+        /// </summary>
+        LogicalConjunction,
+
+        /// <summary>
+        /// && 「かつ」結合
+        /// </summary>
+        And,
+
+        /// <summary>
+        /// || 「または」結合
+        /// </summary>
+        Or,
+
         /// --------- デリミタ --------- 
         /// 
         /// <summary>

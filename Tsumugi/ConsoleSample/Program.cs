@@ -52,8 +52,8 @@ namespace ConsoleSample
             // "ページをクリアしました。[l][r][cm][jump target=start]" +
             // "[l]";
             var script = "" +
-                "[var wtime=1000 ltime=1]" + Environment.NewLine +
-                "[if exp=wtime==1000]" + Environment.NewLine +
+                "[var wtime=1000 ltime=2]" + Environment.NewLine +
+                "[if exp=wtime==1000&&ltime==1]" + Environment.NewLine +
                     "wtime は 1000 です[r]" + Environment.NewLine +
                     "[if exp=(ltime==0)]" + Environment.NewLine +
                         "wtime は 1000 です ltime は 0 です[r]" + Environment.NewLine +

@@ -25,6 +25,7 @@ namespace Tsumugi.Script.Parsing
     {
         Lowest = 1,
         Assign,      /// =
+        AndOr,       /// &&, ||
         Equals,      /// ==
         Lessgreater, /// >, <, >=, <=
         Sum,         /// +
@@ -83,6 +84,8 @@ namespace Tsumugi.Script.Parsing
             { TokenType.Minus, Precedence.Sum },
             { TokenType.Slash, Precedence.Product },
             { TokenType.Asterisk, Precedence.Product },
+            { TokenType.And, Precedence.AndOr },
+            { TokenType.Or, Precedence.AndOr },
             { TokenType.LeftParenthesis, Precedence.Call },
             { TokenType.Assign, Precedence.Assign },
         };
@@ -345,6 +348,8 @@ namespace Tsumugi.Script.Parsing
             InfixParseFunctions.Add(TokenType.GreaterThan, ParseInfixExpression);
             InfixParseFunctions.Add(TokenType.LessThanOrEqual, ParseInfixExpression);
             InfixParseFunctions.Add(TokenType.GreaterThanOrEqual, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.And, ParseInfixExpression);
+            InfixParseFunctions.Add(TokenType.Or, ParseInfixExpression);
             InfixParseFunctions.Add(TokenType.LeftParenthesis, ParseCallExpression);
             InfixParseFunctions.Add(TokenType.Assign, ParseAssignExpression);
         }
