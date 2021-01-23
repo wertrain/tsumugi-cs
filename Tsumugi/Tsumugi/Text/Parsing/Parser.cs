@@ -265,6 +265,8 @@ namespace Tsumugi.Text.Parsing
                 }
             }
 
+            queue.Index = 0;
+
             return true;
         }
 

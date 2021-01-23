@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Tsumugi
 {
@@ -41,6 +40,7 @@ namespace Tsumugi
         {
             Enviroment = new Script.Evaluating.Enviroment();
             Evaluator = new Script.Evaluating.Evaluator();
+            ConditionalSeekStack = new Stack<ConditionalSeekParameter>();
         }
 
         /// <summary>
@@ -61,11 +61,14 @@ namespace Tsumugi
                 {
                     OnPrintWarning(this, warning);
                 }
+
+                bool hasError = true;
                 foreach (var error in parser.Logger.GetHistories(Script.Logger.Categories.Error))
                 {
                     OnPrintError(this, error);
+                    hasError = true;
                 }
-                return false;
+                if (hasError) return false;
             }
 
             ExecuteCommands(commandQueue);
@@ -84,6 +87,8 @@ namespace Tsumugi
 
             while ((command = queue.Dequeue()) != null)
             {
+                if (ConditionalCommandSeek(queue, command)) continue;
+
                 switch (command)
                 {
                     case Text.Commanding.Commands.PrintTextCommand cmd:
@@ -133,17 +138,81 @@ namespace Tsumugi
                         break;
 
                     case Text.Commanding.Commands.IfCommand cmd:
-                        var evaluated = Eval(cmd.Expression);
-                        if (evaluated is Script.Objects.BooleanObject)
+                        if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(cmd.Expression)))
                         {
-
+                            var endIfCommand = cmd.RelatedCommands[cmd.RelatedCommands.Count - 1];
+                            ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.RelatedCommands, endIfCommand));
                         }
                         else
                         {
-                            queue.Seek(cmd.RelatedCommands[0]);
+                            for (int index = 0; index < cmd.RelatedCommands.Count; ++index)
+                            {
+                                var next = cmd.RelatedCommands[index];
+                                switch (next)
+                                {
+                                    case Text.Commanding.Commands.ElifCommand elifCmd:
+                                        if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(elifCmd.Expression)))
+                                        {
+                                            var endIfCommand = cmd.RelatedCommands[cmd.RelatedCommands.Count - 1];
+                                            ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.RelatedCommands, endIfCommand));
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            continue;
+                                        }
+
+                                    case Text.Commanding.Commands.ElseCommand elseCmd:
+                                        {
+                                            var endIfCommand = cmd.RelatedCommands[cmd.RelatedCommands.Count - 1];
+                                            ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.RelatedCommands, endIfCommand));
+                                        }
+                                        break;
+                                }
+
+                                if (queue.Seek(next))
+                                {
+                                    queue.Dequeue();
+                                }
+                                break;
+                            }
                         }
                         break;
 
+                    case Text.Commanding.Commands.ElifCommand cmd:
+                        if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(cmd.Expression)))
+                        {
+                            var siblings = cmd.IfCommand.RelatedCommands;
+                            var endIfCommand = siblings[siblings.Count - 1];
+                            ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.IfCommand.RelatedCommands, endIfCommand));
+                        }
+                        else
+                        {
+                            var siblings = cmd.IfCommand.RelatedCommands;
+                            var next = siblings[siblings.IndexOf(cmd) + 1];
+                            switch (next)
+                            {
+                                case Text.Commanding.Commands.ElifCommand elifCmd:
+                                    if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(elifCmd.Expression)))
+                                    {
+                                        var endIfCommand = siblings[siblings.Count - 1];
+                                        ConditionalSeekStack.Push(new ConditionalSeekParameter(siblings, endIfCommand));
+                                    }
+                                    break;
+
+                                case Text.Commanding.Commands.ElseCommand elseCmd:
+                                    {
+                                        var endIfCommand = siblings[siblings.Count - 1];
+                                        ConditionalSeekStack.Push(new ConditionalSeekParameter(siblings, endIfCommand));
+                                    }
+                                    break;
+                            }
+                            queue.Seek(next);
+                        }
+                        break;
+
+                    case Text.Commanding.Commands.EndIfCommand cmd:
+                        break;
                 }
             }
 
@@ -189,5 +258,61 @@ namespace Tsumugi
 
             return false;
         }
+
+        /// <summary>
+        /// 条件付きシーク
+        /// </summary>
+        /// <param name="queue"></param>
+        /// <returns></returns>
+        private bool ConditionalCommandSeek(Text.Commanding.CommandQueue queue, Text.Commanding.CommandBase command)
+        {
+            if (ConditionalSeekStack.Count == 0) return false;
+
+            var seek = ConditionalSeekStack.Peek();
+
+            foreach (var targetCommand in seek?.TargetCommands)
+            {
+                if (targetCommand == command)
+                {
+                    ConditionalSeekStack.Pop();
+
+                    return queue.Seek(seek?.JumpCommand);
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private class ConditionalSeekParameter
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            public List<Text.Commanding.Commands.IfBranchCommandBase> TargetCommands;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public Text.Commanding.CommandBase JumpCommand;
+
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            /// <param name="commands"></param>
+            /// <param name="command"></param>
+            public ConditionalSeekParameter(List<Text.Commanding.Commands.IfBranchCommandBase> commands, Text.Commanding.CommandBase command)
+            {
+                TargetCommands = commands;
+                JumpCommand = command;
+            }
+        }
+
+        /// <summary>
+        /// 条件付きシークを保持するスタック
+        /// </summary>
+        private Stack<ConditionalSeekParameter> ConditionalSeekStack;
     }
 }

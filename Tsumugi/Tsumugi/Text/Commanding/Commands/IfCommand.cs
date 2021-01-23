@@ -38,6 +38,17 @@ namespace Tsumugi.Text.Commanding.Commands
         /// If コマンドを保持しているか
         /// </summary>
         public bool HasIfCommand { get { return IfCommand != null; } }
+
+        /// <summary>
+        /// 次の分岐コマンドを取得
+        /// </summary>
+        /// <returns></returns>
+        public IfBranchCommandBase GetNextCommand()
+        {
+            int nextIndex = IfCommand.RelatedCommands.IndexOf(this) + 1;
+            if (nextIndex >= IfCommand.RelatedCommands.Count) return null;
+            return IfCommand.RelatedCommands[nextIndex];
+        }
     }
 
     /// <summary>
@@ -77,6 +88,24 @@ namespace Tsumugi.Text.Commanding.Commands
     /// </summary>
     public static class IfCommandUtility
     {
+        /// <summary>
+        /// 評価オブジェクトの真偽を判定
+        /// </summary>
+        /// <param name="evaluated"></param>
+        /// <returns></returns>
+        public static bool IsTrue(Script.Objects.IObject evaluated)
+        {
+            // BooleanObject 以外はすべて Flase
+            // Null や 0 などの扱いは検討すべき
+
+            if (evaluated is Script.Objects.BooleanObject)
+            {
+                return (evaluated as Script.Objects.BooleanObject).Value;
+
+            }
+            return false;
+        }
+
         /// <summary>
         /// If コマンドの並びをチェック
         /// </summary>
