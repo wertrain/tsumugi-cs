@@ -3,19 +3,19 @@
 namespace Tsumugi.Script.AbstractSyntaxTree.Expressions
 {
     /// <summary>
-    /// 真偽式
+    /// 文字列式
     /// </summary>
-    public class BooleanLiteral : IExpression
+    public class StringLiteral : IExpression
     {
         /// <summary>
-        /// 真偽式のトークン
+        /// 文字列式のトークン
         /// </summary>
         public Token Token { get; set; }
 
         /// <summary>
-        /// 真偽式の値
+        ///文字列式の値
         /// </summary>
-        public bool Value { get; set; }
+        public string Value { get; set; }
 
         /// <summary>
         /// リテラル
@@ -27,6 +27,6 @@ namespace Tsumugi.Script.AbstractSyntaxTree.Expressions
         /// コードに変換
         /// </summary>
         /// <returns>コード</returns>
-        public string ToCode() => Token.Literal;
+        public string ToCode() => string.Format("\"{0}\"", Value);
     }
 }
