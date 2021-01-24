@@ -397,7 +397,7 @@ namespace Tsumugi.Script.Evaluating
                 case "&&": return ToBooleanObject(left.Value && right.Value);
                 case "||": return ToBooleanObject(left.Value || right.Value);
             }
-            return Null;
+            return new Error(string.Format(LocalizationTexts.UnknownOperatorInfix.Localize(), left.Type(), op, right.Type()));
         }
 
         /// <summary>
