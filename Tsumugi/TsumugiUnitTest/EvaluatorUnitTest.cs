@@ -62,6 +62,24 @@ namespace TsumugiUnitTest
             }
         }
 
+        [TestMethod]
+        public void TestEvalStringExpression()
+        {
+            var tests = new (string, string)[]
+            {
+                ("\"str\"", "str"),
+                ("\"str\" + \"str\"", "strstr"),
+                ("\"str\" * 2", "strstr"),
+                ("\"str\" * 4", "strstrstrstr"),
+            };
+
+            foreach (var (input, expected) in tests)
+            {
+                var evaluated = testEval(input);
+                testStringObject(evaluated, expected);
+            }
+        }
+
         private IObject testEval(string input)
         {
             var lexer = new Lexer(input);
@@ -89,6 +107,17 @@ namespace TsumugiUnitTest
             if (result == null)
             {
                 Assert.Fail("object が Double ではありません。");
+            }
+
+            Assert.AreEqual(expected, result.Value);
+        }
+
+        private void testStringObject(IObject obj, string expected)
+        {
+            var result = obj as StringObject;
+            if (result == null)
+            {
+                Assert.Fail("object が String ではありません。");
             }
 
             Assert.AreEqual(expected, result.Value);

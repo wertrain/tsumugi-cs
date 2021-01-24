@@ -18,6 +18,10 @@ namespace TsumugiUnitTest
             tokens.Add(new Token(TokenType.TagAttributeValue, "0"));
             tokens.Add(new Token(TokenType.TagAttributeName, "attr2"));
             tokens.Add(new Token(TokenType.TagAttributeValue, "test"));
+            tokens.Add(new Token(TokenType.TagAttributeName, "attr3"));
+            tokens.Add(new Token(TokenType.TagAttributeValue, "test"));
+            tokens.Add(new Token(TokenType.TagAttributeName, "attr4"));
+            tokens.Add(new Token(TokenType.TagAttributeValue, "test test"));
             tokens.Add(new Token(TokenType.TagEnd, string.Empty));
             tokens.Add(new Token(TokenType.Tag, "tag2"));
             tokens.Add(new Token(TokenType.TagAttributeName, "attr3"));
@@ -38,7 +42,7 @@ namespace TsumugiUnitTest
 
             var lexer = new Lexer(
                 ":label" + Environment.NewLine +
-                "[tag attr1=0 attr2=test]" + Environment.NewLine +
+                "[tag attr1=0 attr2=test attr3=\"test\" attr4=\"test test\"]" + Environment.NewLine +
                 "[tag2    attr3   =  aaa]" + Environment.NewLine +
                 "テキスト" + Environment.NewLine +
                 ":label2|見出し" + Environment.NewLine + 

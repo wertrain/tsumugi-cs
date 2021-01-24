@@ -316,20 +316,42 @@ namespace Tsumugi.Text.Lexing
 
             var text = new StringBuilder();
 
+            // 属性値が " で始まるかチェックする
+            bool isStringValue = false;
+            if (isStringValue = (Reader.PeekChar() == '"'))
+            {
+                // 読み飛ばす
+                Reader.ReadChar();
+            }
+
             char c = char.MaxValue;
             while ((c = Reader.PeekChar()) != ControlCharacter.TagEnd)
             {
+                // エスケープシーケンス
+                char next = Reader.PeekChar(1);
+                if (c == '\\' && (IsControlCharacter(next) || next == '"'))
+                {
+                    // 読み飛ばす
+                    Reader.ReadChar();
+                }
                 if (c == '\r' || c == '\n' || c == char.MaxValue) 
                 {
                     // 改行または終端が先に見つかった時 Tag の場合はエラーとしたい規則だが、TagLine の場合は許可される
                     break;
                 }
-                // 属性が見つかれば終了
-                if (c == ControlCharacter.TagAttributeSeparator)
+                // 文字列の終了記号で終了
+                if (isStringValue)
                 {
-                    break;
+                    if (c == '"')
+                    {
+                        // 読み飛ばす
+                        Reader.ReadChar();
+                        break;
+                    }
                 }
-                
+                // 属性が見つかれば終了
+                else if (c == ControlCharacter.TagAttributeSeparator) break;
+
                 text.Append(Reader.ReadChar());
             }
 
