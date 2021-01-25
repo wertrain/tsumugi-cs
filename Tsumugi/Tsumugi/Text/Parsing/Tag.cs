@@ -67,6 +67,11 @@ namespace Tsumugi.Text.Parsing
         /// </summary>
         public const string Endif = "endif";
 
+        /// <summary>
+        /// 評価
+        /// </summary>
+        public const string Eval = "eval";
+
     }
 
     /// <summary>

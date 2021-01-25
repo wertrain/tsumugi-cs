@@ -200,6 +200,10 @@ namespace Tsumugi
 
                     case Text.Commanding.Commands.EndIfCommand cmd:
                         break;
+
+                    case Text.Commanding.Commands.EvalCommand cmd:
+                        Eval(cmd.Expression);
+                        break;
                 }
             }
 

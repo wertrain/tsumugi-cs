@@ -153,6 +153,14 @@ namespace Tsumugi.Text.Parsing
 
                 case TagName.Endif:
                     return new Commanding.Commands.EndIfCommand();
+
+                case TagName.Eval:
+                    {
+                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
+                        if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
+                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.Eval));
+                        return new Commanding.Commands.EvalCommand(attr?.Value);
+                    }
             }
 
             return null;
