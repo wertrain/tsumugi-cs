@@ -272,14 +272,28 @@ namespace Tsumugi
             switch (variable)
             {
                 case Text.Commanding.ReferenceVariable<int> refv:
-                    var (obj, ok) = Enviroment.Get(refv.Name);
-                    if (ok && (obj is Script.Objects.IntegerObject))
                     {
-                        var var = obj as Script.Objects.IntegerObject;
-                        refv.SetValue(var.Value);
-                        return true;
+                        var (obj, ok) = Enviroment.Get(refv.Name);
+                        if (ok && (obj is Script.Objects.IntegerObject))
+                        {
+                            var var = obj as Script.Objects.IntegerObject;
+                            refv.SetValue(var.Value);
+                            return true;
+                        }
+                        break;
                     }
-                    break;
+
+                case Text.Commanding.ReferenceVariable<double> refv:
+                    {
+                        var (obj, ok) = Enviroment.Get(refv.Name);
+                        if (ok && (obj is Script.Objects.DoubleObject))
+                        {
+                            var var = obj as Script.Objects.DoubleObject;
+                            refv.SetValue(var.Value);
+                            return true;
+                        }
+                        break;
+                    }
             }
 
             return false;
