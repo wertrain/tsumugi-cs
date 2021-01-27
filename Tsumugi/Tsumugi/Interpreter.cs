@@ -283,7 +283,7 @@ namespace Tsumugi
                         break;
                     }
 
-                case Text.Commanding.ReferenceVariable<double> refv:
+                case Text.Commanding.ReferenceVariable<string> refv:
                     {
                         var (obj, ok) = Enviroment.Get(refv.Name);
                         if (ok && (obj is Script.Objects.DoubleObject))
