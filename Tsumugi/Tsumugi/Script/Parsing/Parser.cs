@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Tsumugi.Localize;
+using Tsumugi.Log;
 using Tsumugi.Script.AbstractSyntaxTree;
 using Tsumugi.Script.AbstractSyntaxTree.Expressions;
 using Tsumugi.Script.AbstractSyntaxTree.Statements;

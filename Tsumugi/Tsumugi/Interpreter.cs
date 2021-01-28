@@ -34,12 +34,18 @@ namespace Tsumugi
         private Script.Evaluating.Evaluator Evaluator { get; set; }
 
         /// <summary>
+        /// ロガー
+        /// </summary>
+        private Log.Logger Logger { get; set; }
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         public Interpreter()
         {
             Enviroment = new Script.Evaluating.Enviroment();
             Evaluator = new Script.Evaluating.Evaluator();
+            Logger = new Log.Logger();
             ConditionalSeekStack = new Stack<ConditionalSeekParameter>();
         }
 
@@ -52,18 +58,19 @@ namespace Tsumugi
         {
             var lexer = new Text.Lexing.Lexer(script);
             var parser = new Text.Parsing.Parser(lexer);
+            parser.Logger = Logger;
 
             var commandQueue = parser.ParseProgram();
 
-            if (parser.Logger.Count() > 0)
+            if (Logger.Count() > 0)
             {
-                foreach (var warning in parser.Logger.GetHistories(Script.Logger.Categories.Warning))
+                foreach (var warning in parser.Logger.GetHistories(Log.Logger.Categories.Warning))
                 {
                     OnPrintWarning(this, warning);
                 }
 
                 bool hasError = true;
-                foreach (var error in parser.Logger.GetHistories(Script.Logger.Categories.Error))
+                foreach (var error in parser.Logger.GetHistories(Log.Logger.Categories.Error))
                 {
                     OnPrintError(this, error);
                     hasError = true;
@@ -114,7 +121,7 @@ namespace Tsumugi
                     case Text.Commanding.Commands.WaitTimeCommand cmd:
                         if (ResolveVariableReferences<int>(cmd.Time))
                         {
-                            Executor.WaitTime(cmd.Time.GetValueOrNull().Value);
+                            Executor.WaitTime(cmd.Time.GetValueOrDefault());
                         }
                         break;
 
@@ -219,6 +226,7 @@ namespace Tsumugi
         {
             var lexer = new Script.Lexing.Lexer(script);
             var parser = new Script.Parsing.Parser(lexer);
+            parser.Logger = Logger;
             var root = parser.ParseProgram();
             return Evaluator.Eval(root, Enviroment);
         }
@@ -266,7 +274,7 @@ namespace Tsumugi
         /// <returns>参照を解決できれば true</returns>
         private bool ResolveVariableReferences<T>(object variable) where T : struct
         {
-            if ((variable as Text.Commanding.ReferenceVariable<T>).GetValueOrNull().HasValue)
+            if ((variable as Text.Commanding.ReferenceVariable<T>).HasValue)
                 return true;
 
             switch (variable)
@@ -283,12 +291,24 @@ namespace Tsumugi
                         break;
                     }
 
-                case Text.Commanding.ReferenceVariable<string> refv:
+                case Text.Commanding.ReferenceVariable<double> refv:
                     {
                         var (obj, ok) = Enviroment.Get(refv.Name);
                         if (ok && (obj is Script.Objects.DoubleObject))
                         {
                             var var = obj as Script.Objects.DoubleObject;
+                            refv.SetValue(var.Value);
+                            return true;
+                        }
+                        break;
+                    }
+
+                case Text.Commanding.ReferenceVariable<string> refv:
+                    {
+                        var (obj, ok) = Enviroment.Get(refv.Name);
+                        if (ok && (obj is Script.Objects.StringObject))
+                        {
+                            var var = obj as Script.Objects.StringObject;
                             refv.SetValue(var.Value);
                             return true;
                         }

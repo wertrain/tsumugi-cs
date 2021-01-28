@@ -7,6 +7,7 @@ using Tsumugi.Script.Lexing;
 using Tsumugi.Script.Parsing;
 using System.Collections.Generic;
 using Tsumugi.Script.AbstractSyntaxTree.Expressions;
+using Tsumugi.Log;
 
 namespace TsumugiUnitTest
 {
@@ -652,6 +653,7 @@ namespace TsumugiUnitTest
             var input = "add(1, 2 * 3, 4 + 5);";
             var lexer = new Lexer(input);
             var parser = new Parser(lexer);
+            parser.Logger = new Logger();
             var root = parser.ParseProgram();
             checkParserErrors(parser);
 

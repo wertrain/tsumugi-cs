@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Tsumugi.Localize;
+using Tsumugi.Log;
 using Tsumugi.Text.Lexing;
 
 namespace Tsumugi.Text.Parsing
@@ -25,7 +26,7 @@ namespace Tsumugi.Text.Parsing
         /// <summary>
         /// ログ
         /// </summary>
-        public Script.Logger Logger { get; set; }
+        public Logger Logger { get; set; }
 
         /// <summary>
         /// コンストラクタ
@@ -38,7 +39,7 @@ namespace Tsumugi.Text.Parsing
             CurrentToken = Lexer.NextToken();
             NextToken = Lexer.NextToken();
 
-            Logger = new Script.Logger();
+            Logger = new Logger();
             CommandsTokenDictionary = new Dictionary<Commanding.CommandBase, Token>();
         }
 
@@ -285,7 +286,7 @@ namespace Tsumugi.Text.Parsing
         /// <param name="message">エラーメッセージ</param>
         private void Error(Token token, string message)
         {
-            Logger.Logging(Script.Logger.Categories.Error, string.Format("{1} [{0}]",
+            Logger.Logging(Logger.Categories.Error, string.Format("{1} [{0}]",
                 string.Format(LocalizationTexts.LexingPosition.Localize(),
                 token.Position.Lines, token.Position.Columns, token.Position.Position), message));
         }

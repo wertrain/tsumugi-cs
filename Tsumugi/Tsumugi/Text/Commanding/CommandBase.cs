@@ -7,7 +7,7 @@ namespace Tsumugi.Text.Commanding
     /// <summary>
     /// 変数の参照を表す型
     /// </summary>
-    public class ReferenceVariable<T> where T : struct
+    public class ReferenceVariable<T>
     { 
         /// <summary>
         /// 変数名
@@ -18,14 +18,35 @@ namespace Tsumugi.Text.Commanding
         /// 値の取得
         /// </summary>
         /// <returns></returns>
-        public T? GetValueOrNull()
+        public T GetValueOrDefault()
         {
             if (Referenced)
             {
-                return new T?(_value);
+                return _value;
             }
-            return null;
+            return default(T);
         }
+
+        /// <summary>
+        /// 値の取得
+        /// </summary>
+        /// <returns></returns>
+        public bool TryGetValue(out T value)
+        {
+            if (Referenced)
+            {
+                value = _value;
+                return true;
+            }
+            value = default(T);
+
+            return false;
+        }
+
+        /// <summary>
+        /// 値を持っているか（変数の参照が解決しているか）
+        /// </summary>
+        public bool HasValue => Referenced;
 
         /// <summary>
         /// 値の設定
@@ -41,7 +62,6 @@ namespace Tsumugi.Text.Commanding
         /// 参照済みかどうか
         /// </summary>
         private bool Referenced { get; set; }
-
 
         /// <summary>
         /// コンストラクタ

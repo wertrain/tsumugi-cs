@@ -252,6 +252,7 @@ namespace TsumugiUnitTest
                 ("foo", "未定義の識別子 foo です。"),
             };
 
+            var logger = new Tsumugi.Log.Logger();
             foreach (var (input, expected) in tests)
             {
                 var evaluated = this.testEval(input);
@@ -261,7 +262,7 @@ namespace TsumugiUnitTest
                     Assert.Fail($"エラーオブジェクトではありません。({evaluated.GetType()})");
                 }
 
-                Assert.AreEqual(error.Message, expected);
+                Assert.AreEqual(expected, error.Message);
             }
         }
 
