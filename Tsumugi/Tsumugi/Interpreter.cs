@@ -211,6 +211,10 @@ namespace Tsumugi
                     case Text.Commanding.Commands.EvalCommand cmd:
                         Eval(cmd.Expression);
                         break;
+
+                    case Text.Commanding.Commands.EmbedCommand cmd:
+                        Executor.PrintText(Eval(cmd.Expression).Inspect());
+                        break;
                 }
             }
 

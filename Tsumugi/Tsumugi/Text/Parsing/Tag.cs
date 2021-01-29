@@ -72,6 +72,11 @@ namespace Tsumugi.Text.Parsing
         /// </summary>
         public const string Eval = "eval";
 
+        /// <summary>
+        /// 評価結果の埋め込み
+        /// </summary>
+        public const string Embed = "embed";
+
     }
 
     /// <summary>

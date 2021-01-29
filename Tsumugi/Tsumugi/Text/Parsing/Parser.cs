@@ -162,6 +162,14 @@ namespace Tsumugi.Text.Parsing
                             Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.Eval));
                         return new Commanding.Commands.EvalCommand(attr?.Value);
                     }
+
+                case TagName.Embed:
+                    {
+                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
+                        if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
+                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.Embed));
+                        return new Commanding.Commands.EmbedCommand(attr?.Value);
+                    }
             }
 
             return null;
