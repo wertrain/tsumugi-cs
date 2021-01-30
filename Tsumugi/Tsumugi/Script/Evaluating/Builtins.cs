@@ -51,6 +51,9 @@ namespace Tsumugi.Script.Evaluating
                 case IntegerObject integerObject:
                     return new StringObject(integerObject.Value.ToString());
 
+                case DoubleObject doubleObject:
+                    return new StringObject(doubleObject.Value.ToString());
+
                 case NullObject nullObject:
                     return new StringObject(nullObject.Inspect());
 
