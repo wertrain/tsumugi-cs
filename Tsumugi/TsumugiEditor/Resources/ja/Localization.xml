@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StringLocalizationTable>
+  <StringItem id="File (_F)" context="" translation="ファイル (_F)" />
+  <StringItem id="Exit (_E)" context="" translation="終了 (_E)" />
+  <StringItem id="Edit (_E)" context="" translation="編集 (_E)" />
+  <StringItem id="Copy (_C)" context="" translation="コピー (_C)" />
+  <StringItem id="Cut (_X)" context="" translation="切り取り (_X)" />
+  <StringItem id="Paste (_V)" context="" translation="貼り付け (_V)" />
+  <StringItem id="Tool (_T)" context="" translation="ツール (_T)" />
+  <StringItem id="Theme (_M)" context="" translation="テーマ (_M)" />
+</StringLocalizationTable>

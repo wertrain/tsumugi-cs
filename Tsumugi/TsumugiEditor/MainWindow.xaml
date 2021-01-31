@@ -1,0 +1,88 @@
+﻿<Window x:Class="TsumugiEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:m="clr-namespace:TsumugiEditor.Localize.Markup" 
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
+        xmlns:s="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:TsumugiEditor"
+        mc:Ignorable="d"
+        Title="TsumugiEditor" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical" Margin="0,0,0,0">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <Menu VerticalAlignment="Top">
+                    <MenuItem Header="{m:Loc File (_F)}">
+                        <MenuItem Header="{m:Loc Exit (_E)}" />
+                    </MenuItem>
+                    <MenuItem Header="{m:Loc Edit (_E)}">
+                        <MenuItem Header="{m:Loc Copy (_C)}" />
+                        <MenuItem Header="{m:Loc Cut (_X)}" />
+                        <MenuItem Header="{m:Loc Paste (_V)}" />
+                    </MenuItem>
+                    <MenuItem Header="{m:Loc Tool (_T)}">
+                        <MenuItem Header="{m:Loc Theme (_M)}">
+                            <MenuItem Header="{m:Loc Exit (_E)}" />
+                        </MenuItem>
+                    </MenuItem>
+                </Menu>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Theme:" Margin="0,0,10,0" VerticalAlignment="Center"/>
+            <ComboBox x:Name="_themeCombo" SelectedIndex="0" Width="200">
+                <ComboBoxItem Content="Generic" />
+                <ComboBoxItem Content="Aero">
+                    <ComboBoxItem.Tag>
+                        <xcad:AeroTheme />
+                    </ComboBoxItem.Tag>
+                </ComboBoxItem>
+                <ComboBoxItem Content="VS2010">
+                    <ComboBoxItem.Tag>
+                        <xcad:VS2010Theme />
+                    </ComboBoxItem.Tag>
+                </ComboBoxItem>
+                <ComboBoxItem Content="Metro">
+                    <ComboBoxItem.Tag>
+                        <xcad:MetroTheme />
+                    </ComboBoxItem.Tag>
+                </ComboBoxItem>
+            </ComboBox>
+            </StackPanel>
+        </StackPanel>
+
+        <xcad:DockingManager x:Name="uxDockingManager" Theme="{Binding ElementName=_themeCombo, Path=SelectedItem.Tag}" AllowMixedOrientation="True" Grid.Row="1">
+            <xcad:LayoutRoot>
+                <xcad:LayoutPanel Orientation="Vertical" >
+                    <xcad:LayoutPanel Orientation="Horizontal">
+                        <xcad:LayoutDocumentPane x:Name="uxDocumentPane">
+                            <!-- ドキュメント  ★ここから-->
+                            <xcad:LayoutDocument Title="Document1" ContentId="Document1">
+                                <avalonEdit:TextEditor
+                                    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                                    Name="textEditor"
+                                    SyntaxHighlighting="C#"
+                                    FontFamily="Consolas"
+                                    FontSize="10pt"
+                                    ShowLineNumbers="True"/>
+                            </xcad:LayoutDocument>
+                            <!-- ドキュメント ★ここまで-->
+                            </xcad:LayoutDocumentPane>
+                        </xcad:LayoutPanel>
+                        <xcad:LayoutAnchorablePane DockHeight="100"  x:Name="uxAnchorablePane2">
+                        <!-- ツールウィンドウ -->
+                        <xcad:LayoutAnchorable Title="ToolWindow2" ContentId="ToolWindow2">
+                                <TextBox/>
+                            </xcad:LayoutAnchorable>
+                        </xcad:LayoutAnchorablePane>
+                    </xcad:LayoutPanel>
+                </xcad:LayoutRoot>
+            </xcad:DockingManager>
+        </Grid>
+</Window>
