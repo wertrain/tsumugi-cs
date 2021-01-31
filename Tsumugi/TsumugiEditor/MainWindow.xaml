@@ -26,6 +26,9 @@
                     <MenuItem Header="{m:Loc Cut (_X)}" />
                     <MenuItem Header="{m:Loc Paste (_V)}" />
                 </MenuItem>
+                <MenuItem Header="{m:Loc Execution (_X)}">
+                    <MenuItem Header="{m:Loc Run (_R)}" />
+                </MenuItem>
                 <MenuItem Header="{m:Loc Tool (_T)}">
                     <MenuItem Header="{m:Loc Theme (_M)}">
                         <MenuItem Header="Generic" IsChecked="True" Click="MenuItemTheme_Click">

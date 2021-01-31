@@ -7,6 +7,8 @@
   <StringItem id="Copy (_C)" context="" translation="コピー (_C)" />
   <StringItem id="Cut (_X)" context="" translation="切り取り (_X)" />
   <StringItem id="Paste (_V)" context="" translation="貼り付け (_V)" />
+  <StringItem id="Execution (_X)" context="" translation="実行 (_X)" />
+  <StringItem id="Run (_R)" context="" translation="開始 (_R)" />
   <StringItem id="Tool (_T)" context="" translation="ツール (_T)" />
   <StringItem id="Theme (_M)" context="" translation="テーマ (_M)" />
 </StringLocalizationTable>
