@@ -1,0 +1,172 @@
+﻿<?xml version="1.0"?>
+<SyntaxDefinition name="Tsumugi" extensions=".tmg" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+    <!-- Tsumugi スクリプトの色定義 -->
+    <Color name="Digits" foreground="DarkBlue" exampleText="3.14" />
+    <Color name="Comment" foreground="Green" exampleText="// comment" />
+    <Color name="String" foreground="Sienna" exampleText="var text = &quot;Hello, World!&quot;;" />
+    <Color name="Character" foreground="Sienna" exampleText="var char = 'a';" />
+    <Color name="Regex" foreground="Sienna" exampleText="/abc/m" />
+    <Color name="TsumugiKeywords" foreground="Blue" exampleText="return myVariable;" />
+    <Color name="TsumugiIntrinsics" foreground="Blue" exampleText="Math.random()" />
+    <Color name="TsumugiLiterals" foreground="Blue" exampleText="return false;" />
+    <Color name="TsumugiGlobalFunctions" foreground="Blue" exampleText="escape(myString);" />
+    <!-- Tsumugi タグの色定義 -->
+    <Color name="TsumugiTagSet" foreground="Gray" exampleText="\[cm\]" />
+    <Color name="TsumugiTags" foreground="DarkBlue" exampleText="\[cm\]" />
+    <Color name="TsumugiTagAttributes" foreground="Red" exampleText="\[var hello=100\]" />
+    <Color name="Assignment" foreground="Blue" exampleText="\[eval exp=hello\]" />
+    <!--<Color name="UnknownTsumugiTag" foreground="Blue" exampleText="\[hello\]" />-->
+    <Color name="UnknownTsumugiTagAttribute" foreground="Blue" exampleText="\[exp hello=100\]" />
+    <RuleSet ignoreCase="false">
+        <Keywords color="TsumugiKeywords">
+            <Word>break</Word>
+            <Word>continue</Word>
+            <Word>delete</Word>
+            <Word>else</Word>
+            <Word>for</Word>
+            <Word>function</Word>
+            <Word>if</Word>
+            <Word>in</Word>
+            <Word>new</Word>
+            <Word>return</Word>
+            <Word>this</Word>
+            <Word>typeof</Word>
+            <Word>var</Word>
+            <Word>let</Word>
+            <Word>void</Word>
+            <Word>while</Word>
+            <Word>with</Word>
+            <Word>abstract</Word>
+            <Word>boolean</Word>
+            <Word>byte</Word>
+            <Word>case</Word>
+            <Word>catch</Word>
+            <Word>char</Word>
+            <Word>class</Word>
+            <Word>const</Word>
+            <Word>debugger</Word>
+            <Word>default</Word>
+            <Word>do</Word>
+            <Word>double</Word>
+            <Word>enum</Word>
+            <Word>export</Word>
+            <Word>extends</Word>
+            <Word>final</Word>
+            <Word>finally</Word>
+            <Word>float</Word>
+            <Word>goto</Word>
+            <Word>implements</Word>
+            <Word>import</Word>
+            <Word>instanceof</Word>
+            <Word>int</Word>
+            <Word>interface</Word>
+            <Word>long</Word>
+            <Word>native</Word>
+            <Word>package</Word>
+            <Word>private</Word>
+            <Word>protected</Word>
+            <Word>public</Word>
+            <Word>short</Word>
+            <Word>static</Word>
+            <Word>super</Word>
+            <Word>switch</Word>
+            <Word>synchronized</Word>
+            <Word>throw</Word>
+            <Word>throws</Word>
+            <Word>transient</Word>
+            <Word>try</Word>
+            <Word>volatile</Word>
+        </Keywords>
+        <Span color="TsumugiTagSet" ruleSet="TsumugiTagSet" multiline="true">
+            <Begin>\[</Begin>
+            <End>\]</End>
+        </Span>
+        <Keywords color="TsumugiIntrinsics">
+            <Word>Array</Word>
+            <Word>Boolean</Word>
+            <Word>Date</Word>
+            <Word>Function</Word>
+            <Word>Global</Word>
+            <Word>Math</Word>
+            <Word>Number</Word>
+            <Word>Object</Word>
+            <Word>RegExp</Word>
+            <Word>String</Word>
+        </Keywords>
+        <Keywords color="TsumugiLiterals">
+            <Word>false</Word>
+            <Word>null</Word>
+            <Word>true</Word>
+            <Word>NaN</Word>
+            <Word>Infinity</Word>
+        </Keywords>
+        <Keywords color="TsumugiGlobalFunctions">
+            <Word>eval</Word>
+            <Word>parseInt</Word>
+            <Word>parseFloat</Word>
+            <Word>escape</Word>
+            <Word>unescape</Word>
+            <Word>isNaN</Word>
+            <Word>isFinite</Word>
+        </Keywords>
+        <Span color="Comment">
+            <Begin>//</Begin>
+        </Span>
+        <Span color="Comment" multiline="true">
+            <Begin>/\*</Begin>
+            <End>\*/</End>
+        </Span>
+        <Span color="TsumugiTags" multiline="false">
+            <Begin>\a.*</Begin>
+            <End>.*\a</End>
+        </Span>
+        <Span color="Regex">
+            <Begin>(?&lt;!([})\]\w]+\s*))/</Begin>
+            <End>/</End>
+        </Span>
+        <Span color="String" multiline="true">
+            <Begin>"</Begin>
+            <End>"</End>
+            <RuleSet>
+                <Span begin="\\" end="." />
+            </RuleSet>
+        </Span>
+        <Span color="Character">
+            <Begin>'</Begin>
+            <End>'</End>
+            <RuleSet>
+                <Span begin="\\" end="." />
+            </RuleSet>
+        </Span>
+        <Rule color="Digits">\b0[xX][0-9a-fA-F]+|(\b\d+(\.[0-9]+)?|\.[0-9]+)([eE][+-]?[0-9]+)?</Rule>
+    </RuleSet>
+   <!-- Tsumugi タグ内のルール -->
+    <RuleSet name="TsumugiTagSet" ignoreCase="false">
+        <Keywords color="Assignment">
+            <Word>=</Word>
+        </Keywords>
+        <Keywords color="TsumugiTags">
+            <Word>l</Word>
+            <Word>r</Word>
+            <Word>cm</Word>
+            <Word>wait</Word>
+            <Word>var</Word>
+            <Word>jump</Word>
+            <Word>if</Word>
+            <Word>else</Word>
+            <Word>elif</Word>
+            <Word>endif</Word>
+            <Word>eval</Word>
+            <Word>embed</Word>
+        </Keywords>
+        <Keywords color="TsumugiTagAttributes">
+            <Word>exp</Word>
+        </Keywords>
+        <Span color="String">
+            <Begin>"</Begin>
+            <End>"</End>
+        </Span>
+        <!--<Rule color="UnknownTsumugiTag">[\d\w_]+(\s*)</Rule>-->
+        <Rule color="UnknownTsumugiTagAttribute">[\d\w_]+(?=(\s*=))</Rule>
+    </RuleSet>
+</SyntaxDefinition>

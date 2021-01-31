@@ -9,55 +9,51 @@
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:TsumugiEditor"
         mc:Ignorable="d"
-        Title="TsumugiEditor" Height="450" Width="800">
+        Title="{m:Loc Tsumugi Writing Place}" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Vertical" Margin="0,0,0,0">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <Menu VerticalAlignment="Top">
-                    <MenuItem Header="{m:Loc File (_F)}">
-                        <MenuItem Header="{m:Loc Exit (_E)}" />
-                    </MenuItem>
-                    <MenuItem Header="{m:Loc Edit (_E)}">
-                        <MenuItem Header="{m:Loc Copy (_C)}" />
-                        <MenuItem Header="{m:Loc Cut (_X)}" />
-                        <MenuItem Header="{m:Loc Paste (_V)}" />
-                    </MenuItem>
-                    <MenuItem Header="{m:Loc Tool (_T)}">
-                        <MenuItem Header="{m:Loc Theme (_M)}">
-                            <MenuItem Header="{m:Loc Exit (_E)}" />
+        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+            <Menu VerticalAlignment="Top">
+                <MenuItem Header="{m:Loc File (_F)}">
+                    <MenuItem Header="{m:Loc Exit (_E)}" />
+                </MenuItem>
+                <MenuItem Header="{m:Loc Edit (_E)}">
+                    <MenuItem Header="{m:Loc Copy (_C)}" />
+                    <MenuItem Header="{m:Loc Cut (_X)}" />
+                    <MenuItem Header="{m:Loc Paste (_V)}" />
+                </MenuItem>
+                <MenuItem Header="{m:Loc Tool (_T)}">
+                    <MenuItem Header="{m:Loc Theme (_M)}">
+                        <MenuItem Header="Generic" IsChecked="True" Click="MenuItemTheme_Click">
+                            <MenuItem.Tag>
+                                <xcad:GenericTheme />
+                            </MenuItem.Tag>
+                        </MenuItem>
+                        <MenuItem Header="Aero" Click="MenuItemTheme_Click">
+                            <MenuItem.Tag>
+                                <xcad:AeroTheme />
+                            </MenuItem.Tag>
+                        </MenuItem>
+                        <MenuItem Header="VS2010" Click="MenuItemTheme_Click">
+                            <MenuItem.Tag>
+                                <xcad:VS2010Theme />
+                            </MenuItem.Tag>
+                        </MenuItem>
+                        <MenuItem Header="Metro" Click="MenuItemTheme_Click">
+                            <MenuItem.Tag>
+                                <xcad:MetroTheme />
+                            </MenuItem.Tag>
                         </MenuItem>
                     </MenuItem>
-                </Menu>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBlock Text="Theme:" Margin="0,0,10,0" VerticalAlignment="Center"/>
-            <ComboBox x:Name="_themeCombo" SelectedIndex="0" Width="200">
-                <ComboBoxItem Content="Generic" />
-                <ComboBoxItem Content="Aero">
-                    <ComboBoxItem.Tag>
-                        <xcad:AeroTheme />
-                    </ComboBoxItem.Tag>
-                </ComboBoxItem>
-                <ComboBoxItem Content="VS2010">
-                    <ComboBoxItem.Tag>
-                        <xcad:VS2010Theme />
-                    </ComboBoxItem.Tag>
-                </ComboBoxItem>
-                <ComboBoxItem Content="Metro">
-                    <ComboBoxItem.Tag>
-                        <xcad:MetroTheme />
-                    </ComboBoxItem.Tag>
-                </ComboBoxItem>
-            </ComboBox>
-            </StackPanel>
+                </MenuItem>
+            </Menu>
         </StackPanel>
 
-        <xcad:DockingManager x:Name="uxDockingManager" Theme="{Binding ElementName=_themeCombo, Path=SelectedItem.Tag}" AllowMixedOrientation="True" Grid.Row="1">
+        <xcad:DockingManager x:Name="_dockingManager" AllowMixedOrientation="True" Grid.Row="1">
             <xcad:LayoutRoot>
                 <xcad:LayoutPanel Orientation="Vertical" >
                     <xcad:LayoutPanel Orientation="Horizontal">
@@ -66,8 +62,8 @@
                             <xcad:LayoutDocument Title="Document1" ContentId="Document1">
                                 <avalonEdit:TextEditor
                                     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-                                    Name="textEditor"
-                                    SyntaxHighlighting="C#"
+                                    Name="_textEditor"
+                                    SyntaxHighlighting="js"
                                     FontFamily="Consolas"
                                     FontSize="10pt"
                                     ShowLineNumbers="True"/>

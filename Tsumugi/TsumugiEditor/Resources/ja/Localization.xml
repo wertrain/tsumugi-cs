@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <StringLocalizationTable>
+  <StringItem id="Tsumugi Writing Place" context="" translation="Tsumugi Writing Place" />
   <StringItem id="File (_F)" context="" translation="ファイル (_F)" />
   <StringItem id="Exit (_E)" context="" translation="終了 (_E)" />
   <StringItem id="Edit (_E)" context="" translation="編集 (_E)" />
