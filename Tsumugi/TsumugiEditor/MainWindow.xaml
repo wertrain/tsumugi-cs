@@ -9,7 +9,7 @@
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:TsumugiEditor"
         mc:Ignorable="d"
-        Title="{m:Loc Tsumugi Writing Place}" Height="450" Width="800">
+        Title="{m:Loc Tsumugi Writing Space}" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -19,6 +19,10 @@
         <StackPanel Orientation="Vertical" Margin="0,0,0,10">
             <Menu VerticalAlignment="Top">
                 <MenuItem Header="{m:Loc File (_F)}">
+                    <MenuItem Header="{m:Loc New (_N)}">
+                        <MenuItem Header="{m:Loc Project (_P)}" />
+                        <MenuItem Header="{m:Loc Script File (_F)}" />
+                    </MenuItem>
                     <MenuItem Header="{m:Loc Exit (_E)}" />
                 </MenuItem>
                 <MenuItem Header="{m:Loc Edit (_E)}">
@@ -62,7 +66,7 @@
                     <xcad:LayoutPanel Orientation="Horizontal">
                         <xcad:LayoutDocumentPane x:Name="uxDocumentPane">
                             <!-- ドキュメント  ★ここから-->
-                            <xcad:LayoutDocument Title="Document1" ContentId="Document1">
+                            <xcad:LayoutDocument Title="{m:Loc New}" ContentId="{m:Loc New}">
                                 <avalonEdit:TextEditor
                                     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
                                     Name="_textEditor"
@@ -75,8 +79,12 @@
                             </xcad:LayoutDocumentPane>
                         </xcad:LayoutPanel>
                         <xcad:LayoutAnchorablePane DockHeight="100"  x:Name="uxAnchorablePane2">
-                        <!-- ツールウィンドウ -->
-                        <xcad:LayoutAnchorable Title="ToolWindow2" ContentId="ToolWindow2">
+                            <!-- 出力ウィンドウ -->
+                            <xcad:LayoutAnchorable Title="{m:Loc Output}" ContentId="{m:Loc Output}">
+                                <TextBox/>
+                            </xcad:LayoutAnchorable>
+                             <!-- ログウィンドウ -->
+                            <xcad:LayoutAnchorable Title="{m:Loc Log}" ContentId="{m:Loc Log}">
                                 <TextBox/>
                             </xcad:LayoutAnchorable>
                         </xcad:LayoutAnchorablePane>
