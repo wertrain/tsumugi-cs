@@ -31,26 +31,26 @@
                     <MenuItem Header="{m:Loc Paste (_V)}" />
                 </MenuItem>
                 <MenuItem Header="{m:Loc Execution (_X)}">
-                    <MenuItem Header="{m:Loc Run (_R)}" />
+                    <MenuItem Header="{m:Loc Run (_R)}" Click="MenuItemExecutionRun_Click" />
                 </MenuItem>
                 <MenuItem Header="{m:Loc Tool (_T)}">
                     <MenuItem Header="{m:Loc Theme (_M)}">
-                        <MenuItem Header="Generic" IsChecked="True" Click="MenuItemTheme_Click">
+                        <MenuItem Header="Generic" IsChecked="True" Click="MenuItemToolTheme_Click">
                             <MenuItem.Tag>
                                 <xcad:GenericTheme />
                             </MenuItem.Tag>
                         </MenuItem>
-                        <MenuItem Header="Aero" Click="MenuItemTheme_Click">
+                        <MenuItem Header="Aero" Click="MenuItemToolTheme_Click">
                             <MenuItem.Tag>
                                 <xcad:AeroTheme />
                             </MenuItem.Tag>
                         </MenuItem>
-                        <MenuItem Header="VS2010" Click="MenuItemTheme_Click">
+                        <MenuItem Header="VS2010" Click="MenuItemToolTheme_Click">
                             <MenuItem.Tag>
                                 <xcad:VS2010Theme />
                             </MenuItem.Tag>
                         </MenuItem>
-                        <MenuItem Header="Metro" Click="MenuItemTheme_Click">
+                        <MenuItem Header="Metro" Click="MenuItemToolTheme_Click">
                             <MenuItem.Tag>
                                 <xcad:MetroTheme />
                             </MenuItem.Tag>
@@ -64,7 +64,7 @@
             <xcad:LayoutRoot>
                 <xcad:LayoutPanel Orientation="Vertical" >
                     <xcad:LayoutPanel Orientation="Horizontal">
-                        <xcad:LayoutDocumentPane x:Name="uxDocumentPane">
+                        <xcad:LayoutDocumentPane x:Name="_documentPane">
                             <!-- ドキュメント  ★ここから-->
                             <xcad:LayoutDocument Title="{m:Loc New}" ContentId="{m:Loc New}">
                                 <avalonEdit:TextEditor
@@ -76,20 +76,20 @@
                                     ShowLineNumbers="True"/>
                             </xcad:LayoutDocument>
                             <!-- ドキュメント ★ここまで-->
-                            </xcad:LayoutDocumentPane>
-                        </xcad:LayoutPanel>
-                        <xcad:LayoutAnchorablePane DockHeight="100"  x:Name="uxAnchorablePane2">
-                            <!-- 出力ウィンドウ -->
-                            <xcad:LayoutAnchorable Title="{m:Loc Output}" ContentId="{m:Loc Output}">
-                                <TextBox/>
-                            </xcad:LayoutAnchorable>
-                             <!-- ログウィンドウ -->
-                            <xcad:LayoutAnchorable Title="{m:Loc Log}" ContentId="{m:Loc Log}">
-                                <TextBox/>
-                            </xcad:LayoutAnchorable>
-                        </xcad:LayoutAnchorablePane>
-                    </xcad:LayoutPanel>
-                </xcad:LayoutRoot>
-            </xcad:DockingManager>
+                        </xcad:LayoutDocumentPane>
+                     </xcad:LayoutPanel>
+                     <xcad:LayoutAnchorablePane DockHeight="100"  x:Name="_anchorablePane">
+                        <!-- 出力ウィンドウ -->
+                        <xcad:LayoutAnchorable Title="{m:Loc Output}" ContentId="{m:Loc Output}">
+                            <TextBox/>
+                        </xcad:LayoutAnchorable>
+                        <!-- ログウィンドウ -->
+                        <xcad:LayoutAnchorable Title="{m:Loc Log}" ContentId="{m:Loc Log}">
+                            <TextBox/>
+                        </xcad:LayoutAnchorable>
+                    </xcad:LayoutAnchorablePane>
+                </xcad:LayoutPanel>
+            </xcad:LayoutRoot>
+        </xcad:DockingManager>
         </Grid>
 </Window>
