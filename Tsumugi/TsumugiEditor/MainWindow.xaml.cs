@@ -62,6 +62,14 @@ namespace TsumugiEditor
         /// <param name="e"></param>
         private void MenuItemExecutionRun_Click(object sender, RoutedEventArgs e)
         {
+            RunScript();
+        }
+
+        /// <summary>
+        /// スクリプトの実行
+        /// </summary>
+        private void RunScript()
+        {
             var document = _documentPane.SelectedContent as Xceed.Wpf.AvalonDock.Layout.LayoutDocument;
             var editor = document.Content as ICSharpCode.AvalonEdit.TextEditor;
 
@@ -85,12 +93,12 @@ namespace TsumugiEditor
 
         public void PrintText(string text)
         {
-            TextBox.Text += ($"{0}", text);
+            TextBox.Text += $"{text}";
         }
 
         public void StartNewLine()
         {
-            TextBox.Text += ($"{0}", System.Environment.NewLine);
+            TextBox.Text += $"{System.Environment.NewLine}";
         }
 
         public void WaitAnyKey()

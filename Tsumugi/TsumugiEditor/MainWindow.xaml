@@ -10,6 +10,9 @@
         xmlns:local="clr-namespace:TsumugiEditor"
         mc:Ignorable="d"
         Title="{m:Loc Tsumugi Writing Space}" Height="450" Width="800">
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding RunScript}" Gesture="Ctrl+R" />
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -31,7 +34,7 @@
                     <MenuItem Header="{m:Loc Paste (_V)}" />
                 </MenuItem>
                 <MenuItem Header="{m:Loc Execution (_X)}">
-                    <MenuItem Header="{m:Loc Run (_R)}" Click="MenuItemExecutionRun_Click" />
+                    <MenuItem Header="{m:Loc Run (_R)}" Click="MenuItemExecutionRun_Click" InputGestureText="Ctrl+R"/>
                 </MenuItem>
                 <MenuItem Header="{m:Loc Tool (_T)}">
                     <MenuItem Header="{m:Loc Theme (_M)}">

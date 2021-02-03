@@ -123,5 +123,11 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\ja\Localization.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tsumugi\Tsumugi.csproj">
+      <Project>{86214d25-7179-4a38-9887-92fb92f76555}</Project>
+      <Name>Tsumugi</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
