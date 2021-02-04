@@ -28,16 +28,7 @@ namespace TsumugiEditor
         {
             InitializeComponent();
 
-            using (var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TsumugiEditor.Resources.Tsumugi.xshd"))
-            {
-                using (var reader = new System.Xml.XmlTextReader(stream))
-                {
-                    _textEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(
-                        reader, ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
-                }
-            }
-            _textEditor.Options.ShowSpaces = true;
-            _textEditor.Options.ShowTabs = true;
+            AddNewScriptLayout();
         }
 
         /// <summary>
@@ -81,6 +72,55 @@ namespace TsumugiEditor
                 interpreter.Execute(editor.Text);
             }
         }
+
+        /// <summary>
+        /// スクリプト用のレイアウトを追加
+        /// </summary>
+        private void AddNewScriptLayout()
+        {
+            var textEditor = new ICSharpCode.AvalonEdit.TextEditor();
+            textEditor.FontFamily = new FontFamily("Consolas");
+            textEditor.FontSize = 10.0;
+            textEditor.ShowLineNumbers = true;
+            textEditor.Options.ShowSpaces = true;
+            textEditor.Options.ShowTabs = true;
+
+            using (var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TsumugiEditor.Resources.Tsumugi.xshd"))
+            {
+                using (var reader = new System.Xml.XmlTextReader(stream))
+                {
+                    textEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader, ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
+                }
+            }
+
+            var document = new Xceed.Wpf.AvalonDock.Layout.LayoutDocument();
+            document.Title = "New".Localize();
+            document.ContentId = "New".Localize();
+            document.Content = textEditor;
+            _documentPane.Children.Add(document);
+        }
+
+        /// <summary>
+        /// アプリケーションの終了
+        /// </summary>
+        private void Shutdown()
+        {
+            Application.Current.Shutdown();
+        }
+
+        /// <summary>
+        /// 新規作成コマンド
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FileNewCommand(object sender, ExecutedRoutedEventArgs e) => AddNewScriptLayout();
+
+        /// <summary>
+        /// 閉じるコマンド
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CloseCommand(object sender, ExecutedRoutedEventArgs e) => Shutdown();
     }
 
     class CommandExecutor : Tsumugi.Text.Executing.ICommandExecutor

@@ -11,8 +11,12 @@
         mc:Ignorable="d"
         Title="{m:Loc Tsumugi Writing Space}" Height="450" Width="800">
     <Window.InputBindings>
-        <KeyBinding Command="{Binding RunScript}" Gesture="Ctrl+R" />
+        <KeyBinding Command="New" Gesture="Ctrl+Shift+N" />
     </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="FileNewCommand" />
+        <CommandBinding Command="Close" Executed="CloseCommand" />
+    </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -24,9 +28,9 @@
                 <MenuItem Header="{m:Loc File (_F)}">
                     <MenuItem Header="{m:Loc New (_N)}">
                         <MenuItem Header="{m:Loc Project (_P)}" />
-                        <MenuItem Header="{m:Loc Script File (_F)}" />
+                        <MenuItem Header="{m:Loc Script File (_F)}" Command="New" InputGestureText="Ctrl+Shift+N"/>
                     </MenuItem>
-                    <MenuItem Header="{m:Loc Exit (_E)}" />
+                    <MenuItem Header="{m:Loc Exit (_X)}" Command="Close"/>
                 </MenuItem>
                 <MenuItem Header="{m:Loc Edit (_E)}">
                     <MenuItem Header="{m:Loc Copy (_C)}" />
@@ -34,7 +38,7 @@
                     <MenuItem Header="{m:Loc Paste (_V)}" />
                 </MenuItem>
                 <MenuItem Header="{m:Loc Execution (_X)}">
-                    <MenuItem Header="{m:Loc Run (_R)}" Click="MenuItemExecutionRun_Click" InputGestureText="Ctrl+R"/>
+                    <MenuItem Header="{m:Loc Run (_R)}" Click="MenuItemExecutionRun_Click" Command="" InputGestureText="Ctrl+R"/>
                 </MenuItem>
                 <MenuItem Header="{m:Loc Tool (_T)}">
                     <MenuItem Header="{m:Loc Theme (_M)}">
@@ -68,17 +72,7 @@
                 <xcad:LayoutPanel Orientation="Vertical" >
                     <xcad:LayoutPanel Orientation="Horizontal">
                         <xcad:LayoutDocumentPane x:Name="_documentPane">
-                            <!-- ドキュメント  ★ここから-->
-                            <xcad:LayoutDocument Title="{m:Loc New}" ContentId="{m:Loc New}">
-                                <avalonEdit:TextEditor
-                                    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-                                    Name="_textEditor"
-                                    SyntaxHighlighting="js"
-                                    FontFamily="Consolas"
-                                    FontSize="10pt"
-                                    ShowLineNumbers="True"/>
-                            </xcad:LayoutDocument>
-                            <!-- ドキュメント ★ここまで-->
+                         <!-- ドキュメント -->
                         </xcad:LayoutDocumentPane>
                      </xcad:LayoutPanel>
                      <xcad:LayoutAnchorablePane DockHeight="100"  x:Name="_anchorablePane">

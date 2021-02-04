@@ -8,7 +8,7 @@
   <StringItem id="New (_N)" context="" translation="新規作成 (_N)" />
   <StringItem id="Project (_P)" context="" translation="プロジェクト (_P)" />
   <StringItem id="Script File (_F)" context="" translation="スクリプトファイル (_F)" />
-  <StringItem id="Exit (_E)" context="" translation="終了 (_E)" />
+  <StringItem id="Exit (_X)" context="" translation="終了 (_X)" />
   <StringItem id="Edit (_E)" context="" translation="編集 (_E)" />
   <StringItem id="Copy (_C)" context="" translation="コピー (_C)" />
   <StringItem id="Cut (_X)" context="" translation="切り取り (_X)" />
