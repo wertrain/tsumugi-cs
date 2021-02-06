@@ -80,7 +80,7 @@ namespace TsumugiEditor
         {
             var textEditor = new ICSharpCode.AvalonEdit.TextEditor();
             textEditor.FontFamily = new FontFamily("Consolas");
-            textEditor.FontSize = 10.0;
+            textEditor.FontSize = 14.0;
             textEditor.ShowLineNumbers = true;
             textEditor.Options.ShowSpaces = true;
             textEditor.Options.ShowTabs = true;
