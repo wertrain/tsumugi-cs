@@ -17,4 +17,14 @@
   <StringItem id="Run (_R)" context="" translation="開始 (_R)" />
   <StringItem id="Tool (_T)" context="" translation="ツール (_T)" />
   <StringItem id="Theme (_M)" context="" translation="テーマ (_M)" />
+
+  <StringItem id="Type" context="" translation="種類" />
+  <StringItem id="Description" context="" translation="説明" />
+  <StringItem id="Project" context="" translation="プロジェクト" />
+  <StringItem id="File" context="" translation="ファイル" />
+  <StringItem id="Line" context="" translation="行" />
+
+  <StringItem id="Error" context="" translation="エラー" />
+  <StringItem id="Warning" context="" translation="警告" />
+  <StringItem id="Information" context="" translation="情報" />  
 </StringLocalizationTable>

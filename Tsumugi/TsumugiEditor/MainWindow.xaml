@@ -8,8 +8,9 @@
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:TsumugiEditor"
+        xmlns:pane="clr-namespace:TsumugiEditor.Views.Panes"
         mc:Ignorable="d"
-        Title="{m:Loc Tsumugi Writing Space}" Height="450" Width="800">
+        Title="{m:Loc Tsumugi Writing Space}" Height="600" Width="800">
     <Window.InputBindings>
         <KeyBinding Command="New" Gesture="Ctrl+Shift+N" />
     </Window.InputBindings>
@@ -75,14 +76,14 @@
                          <!-- ドキュメント -->
                         </xcad:LayoutDocumentPane>
                      </xcad:LayoutPanel>
-                     <xcad:LayoutAnchorablePane DockHeight="100"  x:Name="_anchorablePane">
+                     <xcad:LayoutAnchorablePane DockHeight="150"  x:Name="_anchorablePane">
                         <!-- 出力ウィンドウ -->
                         <xcad:LayoutAnchorable Title="{m:Loc Output}" ContentId="{m:Loc Output}">
                             <TextBox/>
                         </xcad:LayoutAnchorable>
                         <!-- ログウィンドウ -->
                         <xcad:LayoutAnchorable Title="{m:Loc Log}" ContentId="{m:Loc Log}">
-                            <TextBox/>
+                            <pane:LogPane />
                         </xcad:LayoutAnchorable>
                     </xcad:LayoutAnchorablePane>
                 </xcad:LayoutPanel>
