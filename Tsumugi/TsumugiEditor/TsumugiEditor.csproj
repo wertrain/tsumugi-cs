@@ -34,12 +34,16 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Tsumugi.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.AvalonEdit, Version=6.0.1.278, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
       <HintPath>..\packages\AvalonEdit.6.0.1\lib\net45\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -77,6 +81,9 @@
     <Compile Include="Views\Panes\LogPane.xaml.cs">
       <DependentUpon>LogPane.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Panes\PreviewPane.xaml.cs">
+      <DependentUpon>PreviewPane.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -95,6 +102,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\Panes\LogPane.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Panes\PreviewPane.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -140,6 +151,9 @@
     <Resource Include="Resources\Icons\error.png" />
     <Resource Include="Resources\Icons\exclamation.png" />
     <Resource Include="Resources\Icons\information.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Tsumugi.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
