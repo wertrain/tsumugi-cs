@@ -27,8 +27,20 @@ namespace TsumugiEditor
         public MainWindow()
         {
             InitializeComponent();
+        }
 
+        /// <summary>
+        /// ウィンドウロードイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
             AddNewScriptLayout();
+
+            _layoutAnchorablePreview.FloatingLeft = Left + Width;
+            _layoutAnchorablePreview.FloatingTop = Top;
+            _layoutAnchorablePreview.Float();
         }
 
         /// <summary>
@@ -44,6 +56,20 @@ namespace TsumugiEditor
                 sibling.IsChecked = menuItem == sibling;
             }
             _dockingManager.Theme = menuItem.Tag as Xceed.Wpf.AvalonDock.Themes.Theme;
+        }
+
+        /// <summary>
+        /// メニューアイテム「ウィンドウ」以下の子がクリックされた時のイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MenuItemWindow_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            menuItem.IsChecked = !menuItem.IsChecked;
+
+            var layout = menuItem.Tag as Xceed.Wpf.AvalonDock.Layout.LayoutAnchorable;
+            layout.IsVisible = menuItem.IsChecked;
         }
 
         /// <summary>

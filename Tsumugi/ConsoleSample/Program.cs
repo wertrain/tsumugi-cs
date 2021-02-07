@@ -54,7 +54,7 @@ namespace ConsoleSample
             var script = "" +
                 "[var wtime=1000 ltime=1]" + Environment.NewLine +
                 "[if exp=\"wtime==1000 && ltime==1\"]" + Environment.NewLine +
-                    "wtime に 10 を掛けると[embed exp=wtime*10][r]" + Environment.NewLine +
+                    "wtime に 10 を掛けると[embed exp=watimeW][r]" + Environment.NewLine +
                     "wtime は 1000 です[r]" + Environment.NewLine +
                     "[if exp=(ltime==0)]" + Environment.NewLine +
                         "wtime は 1000 です ltime は 0 です[r]" + Environment.NewLine +

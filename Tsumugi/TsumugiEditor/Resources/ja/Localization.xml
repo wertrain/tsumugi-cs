@@ -3,6 +3,7 @@
   <StringItem id="Tsumugi Writing Space" context="" translation="Tsumugi Writing Space" />
   <StringItem id="Output" context="" translation="出力" />
   <StringItem id="Log" context="" translation="ログ" />
+  <StringItem id="Preview" context="" translation="プレビュー" />
   <StringItem id="New" context="" translation="New" />
   <StringItem id="File (_F)" context="" translation="ファイル (_F)" />
   <StringItem id="New (_N)" context="" translation="新規作成 (_N)" />
@@ -17,6 +18,7 @@
   <StringItem id="Run (_R)" context="" translation="開始 (_R)" />
   <StringItem id="Tool (_T)" context="" translation="ツール (_T)" />
   <StringItem id="Theme (_M)" context="" translation="テーマ (_M)" />
+  <StringItem id="Window (_W)" context="" translation="ウィンドウ (_W)" />
 
   <StringItem id="Type" context="" translation="種類" />
   <StringItem id="Description" context="" translation="説明" />

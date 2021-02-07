@@ -161,6 +161,9 @@
         </Keywords>
         <Keywords color="TsumugiTagAttributes">
             <Word>exp</Word>
+            <Word>time</Word>
+            <Word>target</Word>
+            <Word>name</Word>
         </Keywords>
         <Span color="String">
             <Begin>"</Begin>

@@ -10,7 +10,9 @@
         xmlns:local="clr-namespace:TsumugiEditor"
         xmlns:pane="clr-namespace:TsumugiEditor.Views.Panes"
         mc:Ignorable="d"
-        Title="{m:Loc Tsumugi Writing Space}" Height="600" Width="800">
+        Title="{m:Loc Tsumugi Writing Space}" Height="600" Width="800"
+        Icon="pack://application:,,,/Tsumugi.ico"
+        Loaded="Window_Loaded">
     <Window.InputBindings>
         <KeyBinding Command="New" Gesture="Ctrl+Shift+N" />
     </Window.InputBindings>
@@ -65,6 +67,11 @@
                         </MenuItem>
                     </MenuItem>
                 </MenuItem>
+                <MenuItem Header="{m:Loc Window (_W)}">
+                    <MenuItem Header="{m:Loc Output }" IsChecked="{Binding IsVisible, ElementName=_layoutAnchorableOutput, Mode=TwoWay}"  Click="MenuItemWindow_Click" Tag="{Binding ElementName=_layoutAnchorableOutput}" />
+                    <MenuItem Header="{m:Loc Log }"    IsChecked="{Binding IsVisible, ElementName=_layoutAnchorableLog, Mode=TwoWay}"     Click="MenuItemWindow_Click" Tag="{Binding ElementName=_layoutAnchorableLog}" />
+                    <MenuItem Header="{m:Loc Preview}" IsChecked="{Binding IsVisible, ElementName=_layoutAnchorablePreview, Mode=TwoWay}" Click="MenuItemWindow_Click" Tag="{Binding ElementName=_layoutAnchorablePreview}" />
+                </MenuItem>
             </Menu>
         </StackPanel>
 
@@ -78,12 +85,19 @@
                      </xcad:LayoutPanel>
                      <xcad:LayoutAnchorablePane DockHeight="150"  x:Name="_anchorablePane">
                         <!-- 出力ウィンドウ -->
-                        <xcad:LayoutAnchorable Title="{m:Loc Output}" ContentId="{m:Loc Output}">
-                            <TextBox/>
+                        <xcad:LayoutAnchorable  x:Name="_layoutAnchorableOutput" Title="{m:Loc Output}" ContentId="{m:Loc Output}">
+                            <TextBox AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     VerticalContentAlignment="Top"
+                                     Height="100" />
                         </xcad:LayoutAnchorable>
                         <!-- ログウィンドウ -->
-                        <xcad:LayoutAnchorable Title="{m:Loc Log}" ContentId="{m:Loc Log}">
+                        <xcad:LayoutAnchorable x:Name="_layoutAnchorableLog" Title="{m:Loc Log}" ContentId="{m:Loc Log}">
                             <pane:LogPane />
+                        </xcad:LayoutAnchorable>
+                        <!-- プレビューウィンドウ -->
+                        <xcad:LayoutAnchorable x:Name="_layoutAnchorablePreview" Title="{m:Loc Preview}" ContentId="{m:Loc Preview}" FloatingWidth="800" FloatingHeight="600">
+                            <pane:PreviewPane />
                         </xcad:LayoutAnchorable>
                     </xcad:LayoutAnchorablePane>
                 </xcad:LayoutPanel>
