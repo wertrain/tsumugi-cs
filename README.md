@@ -14,7 +14,9 @@ It is a simple scripting language similar to JavaScript.
 
 ### Tsumugi Editor
 
+![Tsumugi Editor](https://raw.githubusercontent.com/wertrain/tsumugi-cs/main/Screenshots/editor.png "Tsumugi Editor")
+
 ## Credit
 
-Icons used in this software are licensed by "http://www.famfamfam.com/lab/icons/silk/"  
+Icons used in this software are licensed by http://www.famfamfam.com/lab/icons/silk/  
 Application Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
