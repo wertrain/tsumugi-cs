@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <StringLocalizationTable>
-  <StringItem id="Tsumugi Writing Space" context="" translation="Tsumugi Writing Space" />
+  <StringItem id="Tsumugi Editor" context="" translation="Tsumugi Editor" />
   <StringItem id="Output" context="" translation="出力" />
   <StringItem id="Log" context="" translation="ログ" />
   <StringItem id="Preview" context="" translation="プレビュー" />

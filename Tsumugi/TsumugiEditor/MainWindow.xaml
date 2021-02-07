@@ -10,7 +10,7 @@
         xmlns:local="clr-namespace:TsumugiEditor"
         xmlns:pane="clr-namespace:TsumugiEditor.Views.Panes"
         mc:Ignorable="d"
-        Title="{m:Loc Tsumugi Writing Space}" Height="600" Width="800"
+        Title="{m:Loc Tsumugi Editor}" Height="600" Width="800"
         Icon="pack://application:,,,/Tsumugi.ico"
         Loaded="Window_Loaded">
     <Window.InputBindings>

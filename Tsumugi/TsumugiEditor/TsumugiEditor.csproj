@@ -142,6 +142,10 @@
     <EmbeddedResource Include="Resources\ja\Localization.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TsumugiRenderer\TsumugiRenderer.csproj">
+      <Project>{f1b93b64-6279-45ec-9faa-1d20ef77134f}</Project>
+      <Name>TsumugiRenderer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Tsumugi\Tsumugi.csproj">
       <Project>{86214d25-7179-4a38-9887-92fb92f76555}</Project>
       <Name>Tsumugi</Name>
