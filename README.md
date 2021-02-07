@@ -12,6 +12,31 @@ This is a scripting engine system designed mainly for creating adventure games. 
 
 It is a simple scripting language similar to JavaScript.
 
+#### Code
+
+```js
+let addX = function(n) { x + n; }
+let x = 100;
+addX(1);
+
+let hello="world"
+hello;
+```
+#### Output
+```
+101
+world
+```
+#### Code
+```js
+let fib = function(n) { if(n == 0) { return 0; } if(n == 1) { return 1;} else { fib(n-1) + fib(n-2) }
+fib(20);
+```
+#### Output
+```
+6765
+```
+
 ### Tsumugi Editor
 
 ![Tsumugi Editor](https://raw.githubusercontent.com/wertrain/tsumugi-cs/main/Screenshots/editor.png "Tsumugi Editor")
