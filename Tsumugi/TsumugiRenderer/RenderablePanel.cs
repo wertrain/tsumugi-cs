@@ -5,34 +5,40 @@ namespace TsumugiRenderer
 {
     public class RenderablePanel : UserControl
     {
-        public SharpDX.Direct3D11.Device Device { get; }
-
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public RenderablePanel()
         {
             Renderer = new D3D11Renderer();
-            Renderer.Initialize(Handle, ClientSize.Width, ClientSize.Height);
+            Renderer.Initialize(Handle, 800, 600);
 
-            SetStyle(ControlStyles.Opaque | ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque, true);
         }
 
-        private D3D11Renderer Renderer { get; set; }
-
-
+        /// <summary>
+        /// 再描画が発生した時のイベント
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnPaint(PaintEventArgs e)
         {
             Renderer.BeginRendering();
             Renderer.EndRendering();
         }
 
+        /// <summary>
+        /// サイズ変更が発生した時のイベント
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnSizeChanged(EventArgs e)
         {
             Renderer.Resize(ClientSize.Width, ClientSize.Height);
             Invalidate(); // 再描画
         }
 
+        /// <summary>
+        /// 破棄処理
+        /// </summary>
         public void Close()
         {
             if (Renderer != null)
@@ -41,5 +47,10 @@ namespace TsumugiRenderer
                 Renderer = null;
             }
         }
+
+        /// <summary>
+        /// レンダラー
+        /// </summary>
+        private D3D11Renderer Renderer { get; set; }
     }
 }

@@ -24,8 +24,6 @@ namespace TsumugiEditor.Views.Panes
         public PreviewPane()
         {
             InitializeComponent();
-
-            _renderable.Invalidate();
         }
     }
 }

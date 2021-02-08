@@ -9,8 +9,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <WindowsFormsHost>
-            <renderer:RenderablePanel x:Name="_renderable"></renderer:RenderablePanel>
+        <WindowsFormsHost x:Name="_windowsFormsHost">
+            <WindowsFormsHost.Child>
+                <renderer:RenderablePanel />
+            </WindowsFormsHost.Child>
         </WindowsFormsHost>
     </Grid>
 </UserControl>

@@ -64,18 +64,14 @@
     <Compile Include="RenderablePanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Renderable.xaml.cs">
-      <DependentUpon>Renderable.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Renderable.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    <EmbeddedResource Include="RenderablePanel.resx">
+      <DependentUpon>RenderablePanel.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

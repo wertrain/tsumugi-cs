@@ -53,18 +53,10 @@ namespace TsumugiRenderer
         #endregion
 
         /// <summary>
-        /// 表示対象ハンドル
-        /// </summary>
-        protected IntPtr DisplayHandle { get; set; }
-
-        /// <summary>
         /// DirectXデバイスの初期化
         /// </summary>
         public void Initialize(IntPtr handle, int width, int height)
         {
-            // 描画ハンドルの設定
-            DisplayHandle = handle;
-
             // スワップチェーン設定
             var desc = new SwapChainDescription()
             {
@@ -76,7 +68,7 @@ namespace TsumugiRenderer
                 // ウィンドウモードの有効・無効
                 IsWindowed = true,
                 // 描画対象ハンドル
-                OutputHandle = DisplayHandle,
+                OutputHandle = handle,
                 // マルチサンプル方法の指定
                 SampleDescription = new SampleDescription(1, 0),
                 // 描画後の表示バッファの扱い方法の指定
@@ -100,9 +92,9 @@ namespace TsumugiRenderer
                 // 生成した変数を返す
                 out _device, out _swapChain);
 
-            // Windowsの不要なイベントを無効にする
-            var factory = _swapChain.GetParent<SharpDX.DXGI.Factory>();
-            factory.MakeWindowAssociation(DisplayHandle, WindowAssociationFlags.IgnoreAll);
+             // Windowsの不要なイベントを無効にする
+             var factory = _swapChain.GetParent<SharpDX.DXGI.Factory>();
+            factory.MakeWindowAssociation(handle, WindowAssociationFlags.IgnoreAll);
 
             // バックバッファーを保持する
             _backBuffer = Texture2D.FromSwapChain<Texture2D>(_swapChain, 0);
@@ -150,12 +142,24 @@ namespace TsumugiRenderer
         public void BeginRendering()
         {
             _RenderTarget2D?.BeginDraw();
-            _RenderTarget2D?.Clear(new SharpDX.Mathematics.Interop.RawColor4(255.0f, 0, 0, 255.0f));
+            _RenderTarget2D?.Clear(new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 255.0f));
+
+            // 線描画：線のみ
+            _RenderTarget2D.DrawLine(
+                new SharpDX.Mathematics.Interop.RawVector2(0.0f, 0.0f), 
+                new SharpDX.Mathematics.Interop.RawVector2(10.0f, 10.0f), _ColorBrush);
+
+            // 四角形描画：線のみ
+            _RenderTarget2D.DrawRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 100.0f, 350.0f, 180.0f), _ColorBrush);
+            // 四角形描画：塗りつぶし
+            _RenderTarget2D.FillRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 300.0f, 350.0f, 380.0f), _ColorBrush);
+
         }
 
         public void EndRendering()
         {
             _RenderTarget2D?.EndDraw();
+            _swapChain.Present(0, PresentFlags.None);
         }
 
         public void Resize(int width, int height)
@@ -167,9 +171,7 @@ namespace TsumugiRenderer
                     Format = Format.R8G8B8A8_UNorm,
                     RefreshRate = new Rational(60, 1),
                     Width = width,
-                    Height = height,
-                    Scaling = DisplayModeScaling.Stretched,
-                    ScanlineOrdering = DisplayModeScanlineOrder.Progressive
+                    Height = height
                 };
                 _swapChain.ResizeTarget(ref description);
             }
