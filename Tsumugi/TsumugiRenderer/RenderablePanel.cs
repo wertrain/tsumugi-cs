@@ -15,7 +15,7 @@ namespace TsumugiRenderer
             Renderer = new D3D11Renderer();
             Renderer.Initialize(Handle, ClientSize.Width, ClientSize.Height);
 
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque, true);
+            SetStyle(ControlStyles.Opaque | ControlStyles.UserPaint, true);
         }
 
         private D3D11Renderer Renderer { get; set; }

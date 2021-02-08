@@ -5,9 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TsumugiEditor.Views.Panes"
              xmlns:renderer="clr-namespace:TsumugiRenderer;assembly=TsumugiRenderer"
+             xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <renderer:Renderable x:Name="_renderable" />
+        <WindowsFormsHost>
+            <renderer:RenderablePanel x:Name="_renderable"></renderer:RenderablePanel>
+        </WindowsFormsHost>
     </Grid>
 </UserControl>

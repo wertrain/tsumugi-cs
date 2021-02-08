@@ -133,7 +133,7 @@ namespace TsumugiRenderer
             _factory = new SharpDX.DirectWrite.Factory();
 
             // ブラシを生成
-            _ColorBrush = new SolidColorBrush(_RenderTarget2D, new SharpDX.Mathematics.Interop.RawColor4(1.0f, 0, 0, 1.0f));
+            _ColorBrush = new SolidColorBrush(_RenderTarget2D, new SharpDX.Mathematics.Interop.RawColor4(255.0f, 0, 0, 255.0f));
 
             // フォントを作成
             _TextFont = new TextFormat(_factory, "MS UI Gothic", 24.0f)
@@ -150,7 +150,7 @@ namespace TsumugiRenderer
         public void BeginRendering()
         {
             _RenderTarget2D?.BeginDraw();
-            _RenderTarget2D?.Clear(new SharpDX.Mathematics.Interop.RawColor4(.3f, .3f, .3f, 1.0f));
+            _RenderTarget2D?.Clear(new SharpDX.Mathematics.Interop.RawColor4(255.0f, 0, 0, 255.0f));
         }
 
         public void EndRendering()
@@ -162,7 +162,16 @@ namespace TsumugiRenderer
         {
             if (_swapChain != null)
             {
-                _swapChain.ResizeBuffers(1, width, height, Format.R8G8B8A8_UNorm, SwapChainFlags.None);
+                var description = new ModeDescription()
+                {
+                    Format = Format.R8G8B8A8_UNorm,
+                    RefreshRate = new Rational(60, 1),
+                    Width = width,
+                    Height = height,
+                    Scaling = DisplayModeScaling.Stretched,
+                    ScanlineOrdering = DisplayModeScanlineOrder.Progressive
+                };
+                _swapChain.ResizeTarget(ref description);
             }
         }
 
