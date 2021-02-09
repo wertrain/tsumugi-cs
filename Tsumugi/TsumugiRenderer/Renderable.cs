@@ -3,14 +3,17 @@ using System.Windows.Forms;
 
 namespace TsumugiRenderer
 {
-    public class RenderablePanel : UserControl
+    /// <summary>
+    /// 描画
+    /// </summary>
+    public class Renderable : UserControl
     {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public RenderablePanel()
+        public Renderable()
         {
-            Renderer = new D3D11Renderer();
+            Renderer = new Renderer();
             Renderer.Initialize(Handle, 800, 600);
 
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque, true);
@@ -33,7 +36,7 @@ namespace TsumugiRenderer
         protected override void OnSizeChanged(EventArgs e)
         {
             Renderer.Resize(ClientSize.Width, ClientSize.Height);
-            Invalidate(); // 再描画
+            Invalidate();
         }
 
         /// <summary>
@@ -51,6 +54,6 @@ namespace TsumugiRenderer
         /// <summary>
         /// レンダラー
         /// </summary>
-        private D3D11Renderer Renderer { get; set; }
+        private Renderer Renderer { get; set; }
     }
 }

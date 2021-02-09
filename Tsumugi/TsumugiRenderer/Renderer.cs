@@ -7,61 +7,28 @@ using System;
 
 namespace TsumugiRenderer
 {
-    class D3D11Renderer : IDisposable
+    /// <summary>
+    /// DirectX 11 を使用したレンダラー
+    /// </summary>
+    class Renderer : IDisposable
     {
-        //--------------------------------------------------------------//
-        //                         DirectX設定                          //
-        //--------------------------------------------------------------//
         /// <summary>
-        /// Direct3Dのデバイス
+        /// デバイス
         /// </summary>
         public SharpDX.Direct3D11.Device Device { get { return _device; } }
-        private SharpDX.Direct3D11.Device _device = null;
 
         /// <summary>
-        /// スワップチェーン
-        /// ※デバイスが描いた画像をウィンドウに表示する機能
+        /// 初期化
         /// </summary>
-        SwapChain _swapChain;
-        Texture2D _backBuffer;
-
-
-
-        #region Direct2D関連
-        /// <summary>
-        /// レンダーターゲット2D
-        /// </summary>
-        public RenderTarget RenderTarget2D { get { return _RenderTarget2D; } }
-        private RenderTarget _RenderTarget2D;
-        /// <summary>
-        /// Direct2Dで描画用のファクトリーオブジェクト
-        /// </summary>
-        private SharpDX.Direct2D1.Factory _factory2D;
-
-        /// <summary>
-        /// DirectWriteで描画用のファクトリーオブジェクト
-        /// </summary>
-        private SharpDX.DirectWrite.Factory _factory;
-        /// <summary>
-        /// 描画ブラシ
-        /// </summary>
-        private SolidColorBrush _ColorBrush;
-        /// <summary>
-        /// Direct3D用フォント
-        /// </summary>
-        public TextFormat _TextFont;
-        #endregion
-
-        /// <summary>
-        /// DirectXデバイスの初期化
-        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         public void Initialize(IntPtr handle, int width, int height)
         {
             // スワップチェーン設定
             var desc = new SwapChainDescription()
             {
-                // バッファ数
-                // ※ダブルバッファリングを行う場合は2を指定
+                // バッファ数（ダブルバッファリングを行う場合は 2 を指定）
                 BufferCount = 1,
                 // 描画情報
                 ModeDescription = new ModeDescription(width, height, new Rational(60, 1), Format.R8G8B8A8_UNorm),
@@ -92,43 +59,42 @@ namespace TsumugiRenderer
                 // 生成した変数を返す
                 out _device, out _swapChain);
 
-             // Windowsの不要なイベントを無効にする
-             var factory = _swapChain.GetParent<SharpDX.DXGI.Factory>();
+            // Windows の不要なイベントを無効にする
+            var factory = _swapChain.GetParent<SharpDX.DXGI.Factory>();
             factory.MakeWindowAssociation(handle, WindowAssociationFlags.IgnoreAll);
 
-            // バックバッファーを保持する
-            _backBuffer = Texture2D.FromSwapChain<Texture2D>(_swapChain, 0);
+            // バックバッファを保持する
+            _backBuffer = SharpDX.Direct3D11.Resource.FromSwapChain<Texture2D>(_swapChain, 0);
 
             // 2D用の初期化を行う
             InitializeDirect2D();
         }
 
-        #region DirectXデバイス基本初期設定
         /// <summary>
-        /// Direct2D 関連の初期化
+        /// 
         /// </summary>
         public void InitializeDirect2D()
         {
             // Direct2Dリソースを作成
-            _factory2D = new SharpDX.Direct2D1.Factory();
+            _direct2DFactory = new SharpDX.Direct2D1.Factory();
             using (var surface = _backBuffer.QueryInterface<Surface>())
             {
-                _RenderTarget2D = new RenderTarget(_factory2D, surface, new RenderTargetProperties(new PixelFormat(Format.Unknown, SharpDX.Direct2D1.AlphaMode.Premultiplied)));
+                _renderTarget2D = new RenderTarget(_direct2DFactory, surface, new RenderTargetProperties(new PixelFormat(Format.Unknown, SharpDX.Direct2D1.AlphaMode.Premultiplied)));
             }
             // 非テキストプリミティブのエッジのレンダリング方法を指定
-            _RenderTarget2D.AntialiasMode = AntialiasMode.PerPrimitive;
+            _renderTarget2D.AntialiasMode = AntialiasMode.PerPrimitive;
             // テキストの描画に使用されるアンチエイリアスモードについて指定
-            _RenderTarget2D.TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode.Cleartype;
+            _renderTarget2D.TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode.Cleartype;
 
 
-            // DirectWriteオブジェクトを生成するために必要なファクトリオブジェクトを生成
-            _factory = new SharpDX.DirectWrite.Factory();
+            // DirectWrite オブジェクトを生成するために必要なファクトリオブジェクトを生成
+            _directWriteFactory = new SharpDX.DirectWrite.Factory();
 
             // ブラシを生成
-            _ColorBrush = new SolidColorBrush(_RenderTarget2D, new SharpDX.Mathematics.Interop.RawColor4(255.0f, 0, 0, 255.0f));
+            _colorBrush = new SolidColorBrush(_renderTarget2D, new SharpDX.Mathematics.Interop.RawColor4(255.0f, 0, 0, 255.0f));
 
             // フォントを作成
-            _TextFont = new TextFormat(_factory, "MS UI Gothic", 24.0f)
+            _textFont = new TextFormat(_directWriteFactory, "MS UI Gothic", 24.0f)
             {
                 // レイアウトに沿った文字の左右配置
                 // ※読み方向軸に沿った段落テキストの相対的な配置を指定します
@@ -139,29 +105,40 @@ namespace TsumugiRenderer
             };
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void BeginRendering()
         {
-            _RenderTarget2D?.BeginDraw();
-            _RenderTarget2D?.Clear(new SharpDX.Mathematics.Interop.RawColor4(0, 0, 0, 255.0f));
+            _renderTarget2D?.BeginDraw();
+            _renderTarget2D?.Clear(new SharpDX.Mathematics.Interop.RawColor4(0, 0, 255.0f, 255.0f));
 
             // 線描画：線のみ
-            _RenderTarget2D.DrawLine(
+            _renderTarget2D.DrawLine(
                 new SharpDX.Mathematics.Interop.RawVector2(0.0f, 0.0f), 
-                new SharpDX.Mathematics.Interop.RawVector2(10.0f, 10.0f), _ColorBrush);
+                new SharpDX.Mathematics.Interop.RawVector2(10.0f, 10.0f), _colorBrush);
 
             // 四角形描画：線のみ
-            _RenderTarget2D.DrawRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 100.0f, 350.0f, 180.0f), _ColorBrush);
+            _renderTarget2D.DrawRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 100.0f, 350.0f, 180.0f), _colorBrush);
             // 四角形描画：塗りつぶし
-            _RenderTarget2D.FillRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 300.0f, 350.0f, 380.0f), _ColorBrush);
+            _renderTarget2D.FillRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 300.0f, 350.0f, 380.0f), _colorBrush);
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void EndRendering()
         {
-            _RenderTarget2D?.EndDraw();
+            _renderTarget2D?.EndDraw();
             _swapChain.Present(0, PresentFlags.None);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         public void Resize(int width, int height)
         {
             if (_swapChain != null)
@@ -177,32 +154,74 @@ namespace TsumugiRenderer
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
-            if (_backBuffer != null)
-            {
-                _backBuffer.Dispose();
-                _backBuffer = null;
-            }
+            Utility.SafeDispose(_textFont);
+            Utility.SafeDispose(_colorBrush);
+            Utility.SafeDispose(_backBuffer);
+            Utility.SafeDispose(_directWriteFactory);
+            Utility.SafeDispose(_direct2DFactory);
+            Utility.SafeDispose(_swapChain);
+            Utility.SafeDispose(_renderTarget2D);
+            Utility.SafeDispose(_device);
+        }
 
-            if (_swapChain != null)
+        /// <summary>
+        /// 
+        /// </summary>
+        private class Utility
+        {
+            public static void SafeDispose(IDisposable disposable)
             {
-                _swapChain.Dispose();
-                _swapChain = null;
-            }
-
-            if (_factory != null)
-            {
-                _factory.Dispose();
-                _factory = null;
-            }
-
-            if (_factory2D != null)
-            {
-                _factory2D.Dispose();
-                _factory2D = null;
+                if (disposable != null)
+                {
+                    disposable.Dispose();
+                    disposable = null;
+                }
             }
         }
-        #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private SharpDX.Direct3D11.Device _device;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private SwapChain _swapChain;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private Texture2D _backBuffer;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private RenderTarget _renderTarget2D;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private SharpDX.Direct2D1.Factory _direct2DFactory;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private SharpDX.DirectWrite.Factory _directWriteFactory;
+
+        /// <summary>
+        ///
+        /// </summary>
+        private SolidColorBrush _colorBrush;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public TextFormat _textFont;
     }
 }
