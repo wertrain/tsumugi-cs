@@ -4,6 +4,7 @@ using SharpDX.Direct3D11;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
 using System;
+using System.Drawing;
 
 namespace TsumugiRenderer
 {
@@ -16,6 +17,22 @@ namespace TsumugiRenderer
         /// デバイス
         /// </summary>
         public SharpDX.Direct3D11.Device Device { get { return _device; } }
+
+        /// <summary>
+        /// クリア色の設定
+        /// </summary>
+        /// <param name="color"></param>
+        public Color ClearColor
+        {
+            get
+            {
+                return Utility.FromRawColor4(_clearColor);
+            }
+            set
+            {
+                _clearColor = Utility.ToRawColor4(value);
+            }
+        }
 
         /// <summary>
         /// 初期化
@@ -66,6 +83,9 @@ namespace TsumugiRenderer
             // バックバッファを保持する
             _backBuffer = SharpDX.Direct3D11.Resource.FromSwapChain<Texture2D>(_swapChain, 0);
 
+            // クリア色の初期設定
+            _clearColor = Utility.ToRawColor4(Color.Blue);
+
             // 2D用の初期化を行う
             InitializeDirect2D();
         }
@@ -111,7 +131,7 @@ namespace TsumugiRenderer
         public void BeginRendering()
         {
             _renderTarget2D?.BeginDraw();
-            _renderTarget2D?.Clear(new SharpDX.Mathematics.Interop.RawColor4(0, 0, 255.0f, 255.0f));
+            _renderTarget2D?.Clear(_clearColor);
 
             // 線描画：線のみ
             _renderTarget2D.DrawLine(
@@ -122,6 +142,16 @@ namespace TsumugiRenderer
             _renderTarget2D.DrawRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 100.0f, 350.0f, 180.0f), _colorBrush);
             // 四角形描画：塗りつぶし
             _renderTarget2D.FillRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 300.0f, 350.0f, 380.0f), _colorBrush);
+
+            // 文字描画位置
+            var pos = new SharpDX.Mathematics.Interop.RawVector2(30.0f, 10.0f);
+            // 文字を描画する領域
+            // ※「改行の目安」や「文字のAlignment」などで使用される
+            float maxWidth = 1000.0f;
+            float maxHeight = 1000.0f;
+
+            // 文字描画
+            _renderTarget2D.DrawText("あなたが", _textFont, new SharpDX.Mathematics.Interop.RawRectangleF(pos.X, pos.Y, pos.X + maxWidth, pos.Y + maxHeight), _colorBrush);
 
         }
 
@@ -159,29 +189,18 @@ namespace TsumugiRenderer
         /// </summary>
         public void Dispose()
         {
-            Utility.SafeDispose(_textFont);
-            Utility.SafeDispose(_colorBrush);
-            Utility.SafeDispose(_backBuffer);
-            Utility.SafeDispose(_directWriteFactory);
-            Utility.SafeDispose(_direct2DFactory);
-            Utility.SafeDispose(_swapChain);
-            Utility.SafeDispose(_renderTarget2D);
-            Utility.SafeDispose(_device);
-        }
+            var context =_device.ImmediateContext;
+            context.ClearState();
+            context.Flush();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private class Utility
-        {
-            public static void SafeDispose(IDisposable disposable)
-            {
-                if (disposable != null)
-                {
-                    disposable.Dispose();
-                    disposable = null;
-                }
-            }
+            _textFont?.Dispose();
+            _colorBrush.Dispose();
+            _backBuffer.Dispose();
+            _directWriteFactory.Dispose();
+            _direct2DFactory.Dispose();
+            _swapChain.Dispose();
+            _renderTarget2D.Dispose();
+            _device.Dispose();
         }
 
         /// <summary>
@@ -198,6 +217,11 @@ namespace TsumugiRenderer
         /// 
         /// </summary>
         private Texture2D _backBuffer;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private SharpDX.Mathematics.Interop.RawColor4 _clearColor;
 
         /// <summary>
         /// 
