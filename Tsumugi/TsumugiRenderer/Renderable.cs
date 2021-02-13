@@ -9,12 +9,19 @@ namespace TsumugiRenderer
     public class Renderable : UserControl
     {
         /// <summary>
+        /// 描画管理
+        /// </summary>
+        public RenderManager RenderManager;
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         public Renderable()
         {
             Renderer = new Renderer();
             Renderer.Initialize(Handle, 800, 600);
+
+            RenderManager = new RenderManager(Renderer);
 
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque, true);
         }
@@ -25,8 +32,7 @@ namespace TsumugiRenderer
         /// <param name="e"></param>
         protected override void OnPaint(PaintEventArgs e)
         {
-            Renderer.BeginRendering();
-            Renderer.EndRendering();
+            RenderManager.Render();
         }
 
         /// <summary>
@@ -35,7 +41,7 @@ namespace TsumugiRenderer
         /// <param name="e"></param>
         protected override void OnSizeChanged(EventArgs e)
         {
-            Renderer.Resize(ClientSize.Width, ClientSize.Height);
+            RenderManager.Resize(ClientSize.Width, ClientSize.Height);
             Invalidate();
         }
 
@@ -44,11 +50,7 @@ namespace TsumugiRenderer
         /// </summary>
         public void Close()
         {
-            if (Renderer != null)
-            {
-                Renderer.Dispose();
-                Renderer = null;
-            }
+            RenderManager.Dispose();
         }
 
         /// <summary>

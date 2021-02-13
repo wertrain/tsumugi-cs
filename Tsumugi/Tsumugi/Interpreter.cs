@@ -215,6 +215,40 @@ namespace Tsumugi
                     case Text.Commanding.Commands.EmbedCommand cmd:
                         Executor.PrintText(Eval(cmd.Expression).Inspect());
                         break;
+
+                    case Text.Commanding.Commands.DefaultFontCommand cmd:
+                        Executor.SetDefaultFont(new Text.Executing.Font
+                        {
+                            Size = cmd.Size,
+                            Face = cmd.Face,
+                            Color = cmd.Color,
+                            RubySize = cmd.RubySize,
+                            RubyOffset = cmd.RubyOffset,
+                            RubyFace = cmd.RubyFace,
+                            Shadow = cmd.Shadow,
+                            ShadowColor = cmd.ShadowColor,
+                            Edge = cmd.Edge,
+                            EdgeColor = cmd.EdgeColor,
+                            Bold = cmd.Bold,
+                        });
+                        break;
+
+                    case Text.Commanding.Commands.FontCommand cmd:
+                        Executor.SetFont(new Text.Executing.Font
+                        {
+                            Size = cmd.Size,
+                            Face = cmd.Face,
+                            Color = cmd.Color,
+                            RubySize = cmd.RubySize,
+                            RubyOffset = cmd.RubyOffset,
+                            RubyFace = cmd.RubyFace,
+                            Shadow = cmd.Shadow,
+                            ShadowColor = cmd.ShadowColor,
+                            Edge = cmd.Edge,
+                            EdgeColor = cmd.EdgeColor,
+                            Bold = cmd.Bold,
+                        });
+                        break;
                 }
             }
 

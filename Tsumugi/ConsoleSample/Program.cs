@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Tsumugi.Text.Executing;
 
 namespace ConsoleSample
 {
@@ -40,6 +41,15 @@ namespace ConsoleSample
                 queue.Each((int index, Tsumugi.Text.Commanding.CommandBase command) => { Console.WriteLine("[{0}] {1}", index, command.GetType().ToString()); });
             }
 
+            public void SetFont(Font font)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void SetDefaultFont(Font font)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         static void Main(string[] args)

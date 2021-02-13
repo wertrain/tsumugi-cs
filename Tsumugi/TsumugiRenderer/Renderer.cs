@@ -11,7 +11,7 @@ namespace TsumugiRenderer
     /// <summary>
     /// DirectX 11 を使用したレンダラー
     /// </summary>
-    class Renderer : IDisposable
+    public class Renderer : IDisposable
     {
         /// <summary>
         /// デバイス
@@ -33,6 +33,26 @@ namespace TsumugiRenderer
                 _clearColor = Utility.ToRawColor4(value);
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public RenderTarget RenderTarget2D { get { return _renderTarget2D; } }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public SharpDX.DirectWrite.Factory DirectWriteFactory { get { return _directWriteFactory; } }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public TextFormat TextFormat { set { _textFont = value; } }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public SolidColorBrush TextColor { set { _colorBrush = value; } }
 
         /// <summary>
         /// 初期化
@@ -247,5 +267,10 @@ namespace TsumugiRenderer
         /// 
         /// </summary>
         public TextFormat _textFont;
+
+        /// <summary>
+        ///
+        /// </summary>
+        private SolidColorBrush _textColor;
     }
 }

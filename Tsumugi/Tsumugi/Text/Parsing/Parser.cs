@@ -80,8 +80,12 @@ namespace Tsumugi.Text.Parsing
 
                 case TokenType.Label:
                     string headline = string.Empty;
+
                     if (NextToken.Type == TokenType.LabelHeadline)
+                    {
                         headline = NextToken.Literal;
+                    }
+
                     return new Commanding.Commands.LabelCommand(CurrentToken.Literal, headline);
 
                 case TokenType.Tag:
@@ -92,84 +96,19 @@ namespace Tsumugi.Text.Parsing
         }
 
         /// <summary>
-        /// 
+        /// タグに関連するコマンドを生成
         /// </summary>
         /// <param name="tag"></param>
         /// <returns></returns>
         public Commanding.CommandBase CreateTagCommand(Tag tag)
         {
-            switch(tag.Name)
+            try
             {
-                case TagName.NewLine:
-                    return new Commanding.Commands.NewLineCommand();
-
-                case TagName.NewPage:
-                    return new Commanding.Commands.NewPageCommand();
-
-                case TagName.WaitKey:
-                    return new Commanding.Commands.WaitKeyCommand();
-
-                case TagName.WaitTime:
-                    {
-                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "time");
-                        if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
-                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "time", TagName.WaitTime));
-                        return new Commanding.Commands.WaitTimeCommand(attr?.Value);
-                    }
-
-                case TagName.DefineVariable:
-                    {
-                        var variables = new List<Commanding.Commands.DefineVariablesCommand.Variable>();
-                        foreach (var attr in tag.Attributes)
-                            variables.Add(new Commanding.Commands.DefineVariablesCommand.Variable() { Name = attr.Name, Value = attr.Value });
-                        return new Commanding.Commands.DefineVariablesCommand(variables);
-                    }
-
-                case TagName.Jump:
-                    {
-                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "target");
-                        if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
-                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "target", TagName.Jump));
-                        return new Commanding.Commands.JumpCommand(attr?.Value);
-                    }
-
-                case TagName.If:
-                    {
-                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
-                        if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
-                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.If));
-                        return new Commanding.Commands.IfCommand(attr?.Value);
-                    }
-
-                case TagName.Else:
-                        return new Commanding.Commands.ElseCommand();
-
-                case TagName.Elif:
-                    {
-                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
-                        if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
-                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.Elif));
-                        return new Commanding.Commands.ElifCommand(attr?.Value);
-                    }
-
-                case TagName.Endif:
-                    return new Commanding.Commands.EndIfCommand();
-
-                case TagName.Eval:
-                    {
-                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
-                        if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
-                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.Eval));
-                        return new Commanding.Commands.EvalCommand(attr?.Value);
-                    }
-
-                case TagName.Embed:
-                    {
-                        var attr = tag.Attributes.FirstOrDefault(s => s.Name == "exp");
-                        if (attr == null || string.IsNullOrWhiteSpace(attr.Value))
-                            Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), "exp", TagName.Embed));
-                        return new Commanding.Commands.EmbedCommand(attr?.Value);
-                    }
+                return TagCommandFactory.CreateTagCommand(tag);
+            }
+            catch (TagCommandFactory.CannotFindAttributeException e)
+            {
+                Error(CurrentToken, string.Format(LocalizationTexts.CannotFindAttributeRequiredTag.Localize(), e.AttributeName, tag.Name));
             }
 
             return null;
@@ -195,7 +134,6 @@ namespace Tsumugi.Text.Parsing
                 switch (CurrentToken.Type)
                 {
                     case TokenType.TagAttributeName:
-
                         var value = string.Empty;
                         if (NextToken.Type == TokenType.TagAttributeValue)
                         {

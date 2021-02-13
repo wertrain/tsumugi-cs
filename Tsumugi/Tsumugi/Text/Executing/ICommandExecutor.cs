@@ -30,5 +30,17 @@
         /// 指定時間の待ち
         /// </summary>
         void WaitTime(int millisec);
+
+        /// <summary>
+        /// フォント設定
+        /// </summary>
+        /// <param name="font"></param>
+        void SetFont(Font font);
+
+        /// <summary>
+        /// デフォルトフォント設定
+        /// </summary>
+        /// <param name="font"></param>
+        void SetDefaultFont(Font font);
     }
 }

@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Tsumugi.Text.Executing;
 using TsumugiEditor.Localize;
 
 namespace TsumugiEditor
@@ -185,6 +186,16 @@ namespace TsumugiEditor
         public void DebugPring(Tsumugi.Text.Commanding.CommandQueue queue)
         {
             queue.Each((int index, Tsumugi.Text.Commanding.CommandBase command) => { Console.WriteLine("[{0}] {1}", index, command.GetType().ToString()); });
+        }
+
+        public void SetFont(Font font)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetDefaultFont(Font font)
+        {
+            throw new NotImplementedException();
         }
 
         private TextBox TextBox { get; set; }
