@@ -21,9 +21,40 @@ namespace TsumugiEditor.Views.Panes
     /// </summary>
     public partial class PreviewPane : UserControl
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool Running { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public PreviewPane()
         {
             InitializeComponent();
+
+            StartPreview();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private async void StartPreview()
+        {
+            Running = true;
+
+            DateTime previousGameTime = DateTime.Now;
+
+            while (Running)
+            {
+                TimeSpan gameTime = DateTime.Now - previousGameTime;
+                previousGameTime = previousGameTime + gameTime;
+
+                _renderablePanel.Update(gameTime.Milliseconds);
+                _renderablePanel.Render();
+
+                await Task.Delay(8);
+            }
         }
     }
 }

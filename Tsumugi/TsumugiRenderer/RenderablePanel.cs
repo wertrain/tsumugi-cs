@@ -6,7 +6,7 @@ namespace TsumugiRenderer
     /// <summary>
     /// 描画
     /// </summary>
-    public class Renderable : UserControl
+    public class RenderablePanel : UserControl
     {
         /// <summary>
         /// 描画管理
@@ -16,14 +16,28 @@ namespace TsumugiRenderer
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public Renderable()
+        public RenderablePanel()
         {
-            Renderer = new Renderer();
-            Renderer.Initialize(Handle, 800, 600);
-
-            RenderManager = new RenderManager(Renderer);
+            RenderManager = new RenderManager(Handle, 800, 600);
 
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque, true);
+        }
+
+        /// <summary>
+        /// 描画
+        /// </summary>
+        public void Render()
+        {
+            RenderManager.Render();
+        }
+
+        /// <summary>
+        /// 更新
+        /// </summary>
+        /// <param name="delta"></param>
+        public void Update(float delta)
+        {
+            RenderManager.Update(delta);
         }
 
         /// <summary>
@@ -52,10 +66,5 @@ namespace TsumugiRenderer
         {
             RenderManager.Dispose();
         }
-
-        /// <summary>
-        /// レンダラー
-        /// </summary>
-        private Renderer Renderer { get; set; }
     }
 }

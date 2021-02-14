@@ -24,14 +24,8 @@ namespace TsumugiRenderer
         /// <param name="color"></param>
         public Color ClearColor
         {
-            get
-            {
-                return Utility.FromRawColor4(_clearColor);
-            }
-            set
-            {
-                _clearColor = Utility.ToRawColor4(value);
-            }
+            get => Utility.FromRawColor4(_clearColor);
+            set => _clearColor = Utility.ToRawColor4(value);
         }
 
         /// <summary>
@@ -47,12 +41,7 @@ namespace TsumugiRenderer
         /// <summary>
         /// 
         /// </summary>
-        public TextFormat TextFormat { set { _textFont = value; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public SolidColorBrush TextColor { set { _colorBrush = value; } }
+        public SharpDX.Direct2D1.Factory Direct2DFactory { get { return _direct2DFactory; } }
 
         /// <summary>
         /// 初期化
@@ -126,23 +115,17 @@ namespace TsumugiRenderer
             // テキストの描画に使用されるアンチエイリアスモードについて指定
             _renderTarget2D.TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode.Cleartype;
 
-
             // DirectWrite オブジェクトを生成するために必要なファクトリオブジェクトを生成
             _directWriteFactory = new SharpDX.DirectWrite.Factory();
+        }
 
-            // ブラシを生成
-            _colorBrush = new SolidColorBrush(_renderTarget2D, new SharpDX.Mathematics.Interop.RawColor4(255.0f, 0, 0, 255.0f));
 
-            // フォントを作成
-            _textFont = new TextFormat(_directWriteFactory, "MS UI Gothic", 24.0f)
-            {
-                // レイアウトに沿った文字の左右配置
-                // ※読み方向軸に沿った段落テキストの相対的な配置を指定します
-                TextAlignment = TextAlignment.Leading,
-                // レイアウトに沿った文字の上下配置
-                // ※相対フロー方向軸に沿った段落テキストの配置を指定します
-                ParagraphAlignment = ParagraphAlignment.Near,
-            };
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Clear2D()
+        {
+            _renderTarget2D?.Clear(_clearColor);
         }
 
         /// <summary>
@@ -152,7 +135,7 @@ namespace TsumugiRenderer
         {
             _renderTarget2D?.BeginDraw();
             _renderTarget2D?.Clear(_clearColor);
-
+            /*
             // 線描画：線のみ
             _renderTarget2D.DrawLine(
                 new SharpDX.Mathematics.Interop.RawVector2(0.0f, 0.0f), 
@@ -172,7 +155,7 @@ namespace TsumugiRenderer
 
             // 文字描画
             _renderTarget2D.DrawText("あなたが", _textFont, new SharpDX.Mathematics.Interop.RawRectangleF(pos.X, pos.Y, pos.X + maxWidth, pos.Y + maxHeight), _colorBrush);
-
+*/
         }
 
         /// <summary>
@@ -214,7 +197,6 @@ namespace TsumugiRenderer
             context.Flush();
 
             _textFont?.Dispose();
-            _colorBrush.Dispose();
             _backBuffer.Dispose();
             _directWriteFactory.Dispose();
             _direct2DFactory.Dispose();
@@ -259,18 +241,8 @@ namespace TsumugiRenderer
         private SharpDX.DirectWrite.Factory _directWriteFactory;
 
         /// <summary>
-        ///
-        /// </summary>
-        private SolidColorBrush _colorBrush;
-
-        /// <summary>
         /// 
         /// </summary>
         public TextFormat _textFont;
-
-        /// <summary>
-        ///
-        /// </summary>
-        private SolidColorBrush _textColor;
     }
 }

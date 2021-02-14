@@ -11,7 +11,7 @@
     <Grid>
         <WindowsFormsHost x:Name="_windowsFormsHost">
             <WindowsFormsHost.Child>
-                <renderer:Renderable />
+                <renderer:RenderablePanel x:Name="_renderablePanel"/>
             </WindowsFormsHost.Child>
         </WindowsFormsHost>
     </Grid>
