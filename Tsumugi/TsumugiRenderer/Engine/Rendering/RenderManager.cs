@@ -42,7 +42,7 @@ namespace TsumugiRenderer
             var layerParameters = new LayerParameters();
             layerParameters.ContentBounds = new SharpDX.Mathematics.Interop.RawRectangleF(0, 0, width, height);
             layerParameters.GeometricMask = new RectangleGeometry(_renderer.Direct2DFactory, new SharpDX.Mathematics.Interop.RawRectangleF(0, 0, width, height));
-            layerParameters.MaskTransform = new SharpDX.Mathematics.Interop.RawMatrix3x2(1, 0.3f, 0, 1, 0, 0);
+            layerParameters.MaskTransform = new SharpDX.Mathematics.Interop.RawMatrix3x2(1, 0.0f, 0, 1, 0, 0);
             layerParameters.OpacityBrush = new SolidColorBrush(_renderer.RenderTarget2D, Utility.ToRawColor4(System.Drawing.Color.White));
             layerParameters.Opacity = 1.0f;
             layerParameters.LayerOptions = LayerOptions.InitializeForCleartype;

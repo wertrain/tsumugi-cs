@@ -178,16 +178,6 @@ namespace TsumugiRenderer.Engine
         private int _textPosition;
 
         /// <summary>
-        /// 行
-        /// </summary>
-        private int _textLine;
-
-        /// <summary>
-        /// 列
-        /// </summary>
-        private int _textColumn;
-
-        /// <summary>
         /// 
         /// </summary>
         private FontSet _defaultFont;
