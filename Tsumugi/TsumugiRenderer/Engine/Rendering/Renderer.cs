@@ -55,7 +55,7 @@ namespace TsumugiRenderer
             var desc = new SwapChainDescription()
             {
                 // バッファ数（ダブルバッファリングを行う場合は 2 を指定）
-                BufferCount = 1,
+                BufferCount = 2,
                 // 描画情報
                 ModeDescription = new ModeDescription(width, height, new Rational(60, 1), Format.R8G8B8A8_UNorm),
                 // ウィンドウモードの有効・無効
@@ -134,7 +134,7 @@ namespace TsumugiRenderer
         public void BeginRendering()
         {
             _renderTarget2D?.BeginDraw();
-            _renderTarget2D?.Clear(_clearColor);
+            //_renderTarget2D?.Clear(_clearColor);
             /*
             // 線描画：線のみ
             _renderTarget2D.DrawLine(
