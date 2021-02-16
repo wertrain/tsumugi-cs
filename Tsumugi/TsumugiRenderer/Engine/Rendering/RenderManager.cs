@@ -79,10 +79,10 @@ namespace TsumugiRenderer
             //_renderer.RenderTarget2D.Transform = new SharpDX.Mathematics.Interop.RawMatrix3x2(1, 0.3f, 0, 1, 0, 0);
             //_renderer.Clear2D();
             // 四角形描画：線のみ
-            var _colorBrush = new SolidColorBrush(_renderer.RenderTarget2D, Utility.ToRawColor4(unchecked((int)0xFF000000)));
-            _renderer.RenderTarget2D.DrawRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 100.0f, 350.0f, 180.0f), _colorBrush);
+            //var _colorBrush = new SolidColorBrush(_renderer.RenderTarget2D, Utility.ToRawColor4(unchecked((int)0xFF000000)));
+            //_renderer.RenderTarget2D.DrawRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 100.0f, 350.0f, 180.0f), _colorBrush);
             // 四角形描画：塗りつぶし
-            _renderer.RenderTarget2D.FillRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 300.0f, 350.0f, 380.0f), _colorBrush);
+            //_renderer.RenderTarget2D.FillRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 300.0f, 350.0f, 380.0f), _colorBrush);
 
             _renderer.RenderTarget2D.PopLayer();
 
