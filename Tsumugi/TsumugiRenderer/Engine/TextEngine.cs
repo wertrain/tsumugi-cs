@@ -117,6 +117,10 @@ namespace TsumugiRenderer.Engine
                 new SharpDX.Mathematics.Interop.RawRectangleF(_marginLeft, _marginTop, Width - _marginLeft, Height - _marginTop), _font.TextColor);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="delta"></param>
         public void Update(float delta)
         {
             _deltaTime = delta;
