@@ -14,6 +14,9 @@ namespace TsumugiRenderer
     /// </summary>
     public class RenderManager
     {
+        /// <summary>
+        /// 描画レイヤー
+        /// </summary>
         private class RenderLayer
         {
             public float X { get; set; }
