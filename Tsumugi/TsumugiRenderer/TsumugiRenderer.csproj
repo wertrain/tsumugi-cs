@@ -63,6 +63,7 @@
     <Compile Include="Engine\Rendering\Renderer.cs" />
     <Compile Include="Engine\Text\ResourceFont\ResourceFontFileEnumerator.cs" />
     <Compile Include="Engine\Text\ResourceFont\ResourceFontFileStream.cs" />
+    <Compile Include="Engine\Text\ResourceFont\FontLoader.cs" />
     <Compile Include="Engine\Text\ResourceFont\ResourceFontLoader.cs" />
     <Compile Include="Engine\Text\TextEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

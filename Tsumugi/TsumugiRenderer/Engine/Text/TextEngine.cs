@@ -87,11 +87,35 @@ namespace TsumugiRenderer.Engine.Text
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="font"></param>
+        /// <param name="face"></param>
+        /// <param name="bold"></param>
+        /// <param name="size"></param>
         /// <returns></returns>
         private TextFormat CreateTextFormat(string face, bool bold, int size)
         {
             return new TextFormat(_renderer.DirectWriteFactory, face, bold ? FontWeight.Bold : FontWeight.Normal, FontStyle.Normal, size)
+            {
+                // レイアウトに沿った文字の左右配置
+                // ※読み方向軸に沿った段落テキストの相対的な配置を指定します
+                TextAlignment = TextAlignment.Leading,
+                // レイアウトに沿った文字の上下配置
+                // ※相対フロー方向軸に沿った段落テキストの配置を指定します
+                ParagraphAlignment = ParagraphAlignment.Near,
+            };
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="face"></param>
+        /// <param name="bold"></param>
+        /// <param name="size"></param>
+        /// <param name="fontCollection"></param>
+        /// <returns></returns>
+        private TextFormat CreateTextFormat(string face, bool bold, int size, FontCollection fontCollection)
+        {
+            return new TextFormat(_renderer.DirectWriteFactory, face, fontCollection, bold ? FontWeight.Bold : FontWeight.Normal, FontStyle.Normal, FontStretch.Normal, size)
             {
                 // レイアウトに沿った文字の左右配置
                 // ※読み方向軸に沿った段落テキストの相対的な配置を指定します
@@ -256,6 +280,11 @@ namespace TsumugiRenderer.Engine.Text
         /// 太字にするか
         /// </summary>
         public bool Bold { get; set; }
+
+        /// <summary>
+        /// フォントコレクション
+        /// </summary>
+        public FontCollection FontCollection { get; set; }
     }
 
     /// <summary>

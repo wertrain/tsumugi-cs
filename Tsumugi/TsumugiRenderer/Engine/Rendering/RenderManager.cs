@@ -50,6 +50,10 @@ namespace TsumugiRenderer
             layerParameters.Opacity = 1.0f;
             layerParameters.LayerOptions = LayerOptions.InitializeForCleartype;
 
+
+            var resourceFontLoader = new Engine.Text.ResourceFont.ResourceFontLoader(_renderer.DirectWriteFactory);
+            var fontCollection = new FontCollection(_renderer.DirectWriteFactory, resourceFontLoader, resourceFontLoader.Key);
+
             Layers.Add(new RenderLayer()
             {
                 Layer = layer,
@@ -62,7 +66,8 @@ namespace TsumugiRenderer
                 Face = @"ShipporiMincho-Medium",
                 Size = 24,
                 Color = unchecked((int)0xFFFF0000),
-                ShadowColor = unchecked((int)0xFF000000)
+                ShadowColor = unchecked((int)0xFF000000),
+                FontCollection = fontCollection
             });
             _textEngine.AppendText("メロスは激怒した。必ず、かの邪智暴虐の王を除かなければならぬと決意した。メロスには政治がわからぬ。メロスは、村の牧人である。笛を吹き、羊と遊んで暮して来た。けれども邪悪に対しては、人一倍に敏感であった。きょう未明メロスは村を出発し、野を越え山越え、十里はなれた此このシラクスの市にやって来た。メロスには父も、母も無い。女房も無い。十六の、内気な妹と二人暮しだ。この妹は、村の或る律気な一牧人を、近々、花婿として迎える事になっていた。結婚式も間近かなのである。");
         }
