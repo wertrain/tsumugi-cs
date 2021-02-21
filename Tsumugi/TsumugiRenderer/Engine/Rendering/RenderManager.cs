@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TsumugiRenderer.Engine;
+using TsumugiRenderer.Engine.Text;
 
 namespace TsumugiRenderer
 {
@@ -57,9 +57,9 @@ namespace TsumugiRenderer
             });
 
             _textEngine = new TextEngine(_renderer, width, height);
-            _textEngine.SetFont(new Engine.Font()
+            _textEngine.SetFont(new Engine.Text.Font()
             {
-                Face = "07ラノベPOP",
+                Face = @"ShipporiMincho-Medium",
                 Size = 24,
                 Color = unchecked((int)0xFFFF0000),
                 ShadowColor = unchecked((int)0xFF000000)

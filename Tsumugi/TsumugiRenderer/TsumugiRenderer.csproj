@@ -61,7 +61,10 @@
   <ItemGroup>
     <Compile Include="Engine\Rendering\RenderManager.cs" />
     <Compile Include="Engine\Rendering\Renderer.cs" />
-    <Compile Include="Engine\TextEngine.cs" />
+    <Compile Include="Engine\Text\ResourceFont\ResourceFontFileEnumerator.cs" />
+    <Compile Include="Engine\Text\ResourceFont\ResourceFontFileStream.cs" />
+    <Compile Include="Engine\Text\ResourceFont\ResourceFontLoader.cs" />
+    <Compile Include="Engine\Text\TextEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderablePanel.cs">
       <SubType>UserControl</SubType>
@@ -71,5 +74,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

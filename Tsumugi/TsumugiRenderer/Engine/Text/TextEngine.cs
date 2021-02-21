@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TsumugiRenderer.Engine
+namespace TsumugiRenderer.Engine.Text
 {
     /// <summary>
     /// テキスト描画エンジン
