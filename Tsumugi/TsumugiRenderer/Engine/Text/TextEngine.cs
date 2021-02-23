@@ -97,8 +97,7 @@ namespace TsumugiRenderer.Engine.Text
             fontSet.TextColor = new SolidColorBrush(_renderer.RenderTarget2D, Utility.ToRawColor4(font.Color));
             fontSet.ShadowTextColor = new SolidColorBrush(_renderer.RenderTarget2D, Utility.ToRawColor4(font.ShadowColor));
             fontSet.EdgeTextColor = new SolidColorBrush(_renderer.RenderTarget2D, Utility.ToRawColor4(font.EdgeColor));
-            fontSet.ShadowOffset = font.ShadowOffset;
-            fontSet.Edge = font.Edge;
+            fontSet.Parameter = font;
 
             return fontSet;
         }
@@ -151,14 +150,20 @@ namespace TsumugiRenderer.Engine.Text
         /// </summary>
         public void Render()
         {
-            float shadowOffset = _font.ShadowOffset;
+            var currentFont = _font;
+
+            float shadowOffset = _font.Parameter.ShadowOffset;
             var allText = RenderText.ToString();
 
             var text = allText.Substring(0, _textPosition);
-            //_renderer.RenderTarget2D.DrawText(text, _font.TextFont,
-            //    new SharpDX.Mathematics.Interop.RawRectangleF(_marginLeft + shadowOffset, _marginTop + shadowOffset, Width - _marginLeft + shadowOffset, Height - _marginTop + shadowOffset), _font.ShadowTextColor);
 
-            if (_font.Edge)
+            if (_font.Parameter.Shadow)
+            {
+                _renderer.RenderTarget2D.DrawText(text, _font.TextFont,
+                    new SharpDX.Mathematics.Interop.RawRectangleF(_marginLeft + shadowOffset, _marginTop + shadowOffset, Width - _marginLeft + shadowOffset, Height - _marginTop + shadowOffset), _font.ShadowTextColor);
+            }
+
+            if (_font.Parameter.Edge)
             {
                 var offset = 1.5f;
                 var left = new float[] { -offset, offset,    0.0f,   0.0f }; 
@@ -169,7 +174,7 @@ namespace TsumugiRenderer.Engine.Text
                     _renderer.RenderTarget2D.DrawText(text,_font.TextFont, new SharpDX.Mathematics.Interop.RawRectangleF(
                             _marginLeft + left[i], _marginTop + top[i],
                             Width - _marginLeft + left[i], Height - _marginTop + top[i]), 
-                            _font.ShadowTextColor);
+                            _font.EdgeTextColor);
                 }
 
             }
@@ -395,14 +400,9 @@ namespace TsumugiRenderer.Engine.Text
         public SolidColorBrush EdgeTextColor { get; set; }
 
         /// <summary>
-        /// 影の位置オフセット
+        /// フォント情報
         /// </summary>
-        public float ShadowOffset { get; set; }
-
-        /// <summary>
-        /// 縁取り
-        /// </summary>
-        public bool Edge { get; set; }
+        public Font Parameter { get; set; }
 
         /// <summary>
         /// 

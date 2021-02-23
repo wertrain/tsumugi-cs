@@ -87,6 +87,8 @@ namespace TsumugiRenderer
                 //Bold = true,
                 Color = unchecked((int)0xFF000000),
                 ShadowColor = unchecked((int)0xFFff3333),
+                Shadow = false,
+                EdgeColor = unchecked((int)0xFFffff33),
                 Edge = true,
                //FontFilePath = @"C:\Users\Owner\Downloads\Shippori_Mincho\ShipporiMincho-Regular.ttf"
             });
