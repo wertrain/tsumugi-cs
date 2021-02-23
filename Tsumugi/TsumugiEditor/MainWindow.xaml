@@ -12,7 +12,8 @@
         mc:Ignorable="d"
         Title="{m:Loc Tsumugi Editor}" Height="600" Width="800"
         Icon="pack://application:,,,/Tsumugi.ico"
-        Loaded="Window_Loaded">
+        Loaded="Window_Loaded"
+        Closed="Window_Closed">
     <Window.InputBindings>
         <KeyBinding Command="New" Gesture="Ctrl+Shift+N" />
     </Window.InputBindings>
@@ -97,7 +98,7 @@
                         </xcad:LayoutAnchorable>
                         <!-- プレビューウィンドウ -->
                         <xcad:LayoutAnchorable x:Name="_layoutAnchorablePreview" Title="{m:Loc Preview}" ContentId="{m:Loc Preview}" FloatingWidth="800" FloatingHeight="600">
-                            <pane:PreviewPane />
+                            <pane:PreviewPane  x:Name="_previewPane"/>
                         </xcad:LayoutAnchorable>
                     </xcad:LayoutAnchorablePane>
                 </xcad:LayoutPanel>

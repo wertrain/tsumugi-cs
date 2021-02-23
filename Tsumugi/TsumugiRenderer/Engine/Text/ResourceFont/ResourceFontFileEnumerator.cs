@@ -39,7 +39,9 @@ namespace TsumugiRenderer.Engine.Text.ResourceFont
             if (moveNext)
             {
                 if (_currentFontFile != null)
+                {
                     _currentFontFile.Dispose();
+                }
 
                 _currentFontFile = new FontFile(_factory, keyStream.PositionPointer, 4, _loader);
                 keyStream.Position += 4;

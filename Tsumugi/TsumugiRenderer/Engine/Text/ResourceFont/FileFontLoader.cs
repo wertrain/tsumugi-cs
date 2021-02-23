@@ -9,9 +9,13 @@ using System.Threading.Tasks;
 
 namespace TsumugiRenderer.Engine.Text.ResourceFont
 {
-    public partial class FontLoader : CallbackBase, FontCollectionLoader, FontFileLoader
+    /// <summary>
+    /// ResourceFont main loader. This classes implements FontCollectionLoader and FontFileLoader.
+    /// It reads all fonts embedded as resource in the current assembly and expose them.
+    /// </summary>
+    public partial class FileFontLoader : CallbackBase, FontCollectionLoader, FontFileLoader
     {
-        private readonly List<FileStream> _fontStreams = new List<FileStream>();
+        private readonly List<ResourceFontFileStream> _fontStreams = new List<ResourceFontFileStream>();
         private readonly List<ResourceFontFileEnumerator> _enumerators = new List<ResourceFontFileEnumerator>();
         private readonly DataStream _keyStream;
         private readonly Factory _factory;
@@ -20,24 +24,40 @@ namespace TsumugiRenderer.Engine.Text.ResourceFont
         /// Initializes a new instance of the <see cref="ResourceFontLoader"/> class.
         /// </summary>
         /// <param name="factory">The factory.</param>
-        public FontLoader(Factory factory, string fileName)
+        public FileFontLoader(Factory factory, string fileName)
         {
             _factory = factory;
-            foreach (var name in typeof(ResourceFontLoader).Assembly.GetManifestResourceNames())
+
+            if (fileName.EndsWith(".ttf"))
             {
-                if (fileName.EndsWith(".ttf"))
+                using (var fileStream = new FileStream(fileName, FileMode.Open))
                 {
-                    using (FileStream stream = new FileStream(fileName, FileMode.Open))
+                    var fontBytes = new byte[fileStream.Length];
+                    int numBytesToRead = (int)fileStream.Length;
+                    int numBytesRead = 0;
+                    while (numBytesToRead > 0)
                     {
-                        _fontStreams.Add(stream);
+                        int n = fileStream.Read(fontBytes, numBytesRead, numBytesToRead);
+
+                        if (n == 0) break;
+
+                        numBytesRead += n;
+                        numBytesToRead -= n;
                     }
+
+                    var stream = new DataStream(fontBytes.Length, true, true);
+                    stream.Write(fontBytes, 0, fontBytes.Length);
+                    stream.Position = 0;
+                    _fontStreams.Add(new ResourceFontFileStream(stream));
                 }
             }
 
             // Build a Key storage that stores the index of the font
             _keyStream = new DataStream(sizeof(int) * _fontStreams.Count, true, true);
             for (int i = 0; i < _fontStreams.Count; i++)
+            {
                 _keyStream.Write((int)i);
+            }
             _keyStream.Position = 0;
 
             // Register the 
@@ -90,6 +110,19 @@ namespace TsumugiRenderer.Engine.Text.ResourceFont
         {
             var index = Utilities.Read<int>(fontFileReferenceKey.Pointer);
             return _fontStreams[index];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public new void Dispose()
+        {
+            foreach (var stream in _fontStreams)
+            {
+                stream.Dispose();
+            }
+
+            base.Dispose();
         }
     }
 }

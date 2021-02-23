@@ -55,6 +55,10 @@ namespace TsumugiEditor.Views.Panes
 
                 await Task.Delay(8);
             }
+
+            _renderablePanel.Close();
+
+            GC.Collect();
         }
     }
 }

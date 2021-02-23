@@ -45,6 +45,16 @@ namespace TsumugiEditor
         }
 
         /// <summary>
+        /// ウィンドウクローズイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            _previewPane.Running = false;
+        }
+
+        /// <summary>
         /// メニューアイテム「テーマ」の子アイテムがクリックされた時のイベント
         /// </summary>
         /// <param name="sender"></param>

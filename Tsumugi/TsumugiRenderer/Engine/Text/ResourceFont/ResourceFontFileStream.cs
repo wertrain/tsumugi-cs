@@ -7,18 +7,18 @@ namespace TsumugiRenderer.Engine.Text.ResourceFont
     /// <summary>
     /// This FontFileStream implem is reading data from a <see cref="DataStream"/>.
     /// </summary>
-    public class ResourceFontFileStream : CallbackBase, FontFileStream
+    public class ResourceFontFileStream : FontFileStream
     {
         private readonly DataStream _stream;
+        private bool disposedValue = false; // To detect redundant calls to Dispose()
+
+        public IDisposable Shadow { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceFontFileStream"/> class.
         /// </summary>
         /// <param name="stream">The stream.</param>
-        public ResourceFontFileStream(DataStream stream)
-        {
-            this._stream = stream;
-        }
+        public ResourceFontFileStream(DataStream stream) => _stream = stream;
 
         /// <summary>
         /// Reads a fragment from a font file.
@@ -31,7 +31,7 @@ namespace TsumugiRenderer.Engine.Text.ResourceFont
         /// Note that ReadFileFragment implementations must check whether the requested font file fragment is within the file bounds. Otherwise, an error should be returned from ReadFileFragment.   {{DirectWrite}} may invoke <see cref="SharpDX.DirectWrite.FontFileStream"/> methods on the same object from multiple threads simultaneously. Therefore, ReadFileFragment implementations that rely on internal mutable state must serialize access to such state across multiple threads. For example, an implementation that uses separate Seek and Read operations to read a file fragment must place the code block containing Seek and Read calls under a lock or a critical section.
         /// </remarks>
         /// <unmanaged>HRESULT IDWriteFontFileStream::ReadFileFragment([Out, Buffer] const void** fragmentStart,[None] __int64 fileOffset,[None] __int64 fragmentSize,[Out] void** fragmentContext)</unmanaged>
-        void FontFileStream.ReadFileFragment(out IntPtr fragmentStart, long fileOffset, long fragmentSize, out IntPtr fragmentContext)
+        public void ReadFileFragment(out IntPtr fragmentStart, long fileOffset, long fragmentSize, out IntPtr fragmentContext)
         {
             lock (this)
             {
@@ -46,7 +46,7 @@ namespace TsumugiRenderer.Engine.Text.ResourceFont
         /// </summary>
         /// <param name="fragmentContext">A reference to the client-defined context of a font fragment returned from {{ReadFileFragment}}.</param>
         /// <unmanaged>void IDWriteFontFileStream::ReleaseFileFragment([None] void* fragmentContext)</unmanaged>
-        void FontFileStream.ReleaseFileFragment(IntPtr fragmentContext)
+        public void ReleaseFileFragment(IntPtr fragmentContext)
         {
             // Nothing to release. No context are used
         }
@@ -59,10 +59,7 @@ namespace TsumugiRenderer.Engine.Text.ResourceFont
         /// Implementing GetFileSize() for asynchronously loaded font files may require downloading the complete file contents. Therefore, this method should be used only for operations that either require a complete font file to be loaded (for example, copying a font file) or that need to make decisions based on the value of the file size (for example, validation against a persisted file size).
         /// </remarks>
         /// <unmanaged>HRESULT IDWriteFontFileStream::GetFileSize([Out] __int64* fileSize)</unmanaged>
-        long FontFileStream.GetFileSize()
-        {
-            return _stream.Length;
-        }
+        public long GetFileSize() => _stream.Length;
 
         /// <summary>
         /// Obtains the last modified time of the file.
@@ -74,9 +71,43 @@ namespace TsumugiRenderer.Engine.Text.ResourceFont
         /// The "last modified time" is used by DirectWrite font selection algorithms to determine whether one font resource is more up to date than another one.
         /// </remarks>
         /// <unmanaged>HRESULT IDWriteFontFileStream::GetLastWriteTime([Out] __int64* lastWriteTime)</unmanaged>
-        long FontFileStream.GetLastWriteTime()
+        public long GetLastWriteTime() => 0;
+
+        public Result QueryInterface(ref Guid guid, out IntPtr comObject)
         {
-            return 0;
+            comObject = IntPtr.Zero;
+            return Result.Ok;
+        }
+
+        public int AddReference() => 0;
+
+        public int Release() => 0;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            var callback = ((ICallbackable)this);
+            if (callback.Shadow != null)
+            {
+                callback.Shadow.Dispose();
+                callback.Shadow = null;
+            }
+
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _stream.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

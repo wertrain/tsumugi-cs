@@ -2,6 +2,7 @@
 using SharpDX.DirectWrite;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace TsumugiRenderer.Engine.Text
     /// <summary>
     /// テキスト描画エンジン
     /// </summary>
-    class TextEngine
+    class TextEngine : IDisposable
     {
         /// <summary>
         /// 
@@ -45,8 +46,10 @@ namespace TsumugiRenderer.Engine.Text
             Height = height;
             CaptionSpeedTime = 1.0f;
             _marginLeft = 30;
-            _marginTop = 30;
+            _marginTop = 20;
             RenderText = new StringBuilder();
+            _fileFontLoaders = new List<ResourceFont.FileFontLoader>();
+            _fontCollections = new List<FontCollection>();
         }
 
         /// <summary>
@@ -76,10 +79,26 @@ namespace TsumugiRenderer.Engine.Text
         {
             var fontSet = new FontSet();
 
-            fontSet.TextFont = CreateTextFormat(font.Face, font.Bold, font.Size);
+            if (File.Exists(font.FontFilePath))
+            {
+                var loader = new ResourceFont.FileFontLoader(_renderer.DirectWriteFactory, font.FontFilePath);
+                var collection = new FontCollection(_renderer.DirectWriteFactory, loader, loader.Key);
+
+                _fileFontLoaders.Add(loader);
+                _fontCollections.Add(collection);
+
+                fontSet.TextFont = CreateTextFormat(font.Face, font.Bold, font.Size, collection);
+            }
+            else
+            {
+                fontSet.TextFont = CreateTextFormat(font.Face, font.Bold, font.Size);
+            }
+
             fontSet.TextColor = new SolidColorBrush(_renderer.RenderTarget2D, Utility.ToRawColor4(font.Color));
             fontSet.ShadowTextColor = new SolidColorBrush(_renderer.RenderTarget2D, Utility.ToRawColor4(font.ShadowColor));
             fontSet.EdgeTextColor = new SolidColorBrush(_renderer.RenderTarget2D, Utility.ToRawColor4(font.EdgeColor));
+            fontSet.ShadowOffset = font.ShadowOffset;
+            fontSet.Edge = font.Edge;
 
             return fontSet;
         }
@@ -115,7 +134,7 @@ namespace TsumugiRenderer.Engine.Text
         /// <returns></returns>
         private TextFormat CreateTextFormat(string face, bool bold, int size, FontCollection fontCollection)
         {
-            return new TextFormat(_renderer.DirectWriteFactory, face, fontCollection, bold ? FontWeight.Bold : FontWeight.Normal, FontStyle.Normal, FontStretch.Normal, size)
+            var format = new TextFormat(_renderer.DirectWriteFactory, face, fontCollection, bold ? FontWeight.Bold : FontWeight.Normal, FontStyle.Normal, FontStretch.Normal, size)
             {
                 // レイアウトに沿った文字の左右配置
                 // ※読み方向軸に沿った段落テキストの相対的な配置を指定します
@@ -124,6 +143,7 @@ namespace TsumugiRenderer.Engine.Text
                 // ※相対フロー方向軸に沿った段落テキストの配置を指定します
                 ParagraphAlignment = ParagraphAlignment.Near,
             };
+            return format;
         }
 
         /// <summary>
@@ -131,12 +151,29 @@ namespace TsumugiRenderer.Engine.Text
         /// </summary>
         public void Render()
         {
-            float shadowOffset = 2.5f;
+            float shadowOffset = _font.ShadowOffset;
             var allText = RenderText.ToString();
 
             var text = allText.Substring(0, _textPosition);
-            _renderer.RenderTarget2D.DrawText(text, _font.TextFont,
-                new SharpDX.Mathematics.Interop.RawRectangleF(_marginLeft + shadowOffset, _marginTop + shadowOffset, Width - _marginLeft + shadowOffset, Height - _marginTop + shadowOffset), _font.ShadowTextColor);
+            //_renderer.RenderTarget2D.DrawText(text, _font.TextFont,
+            //    new SharpDX.Mathematics.Interop.RawRectangleF(_marginLeft + shadowOffset, _marginTop + shadowOffset, Width - _marginLeft + shadowOffset, Height - _marginTop + shadowOffset), _font.ShadowTextColor);
+
+            if (_font.Edge)
+            {
+                var offset = 1.5f;
+                var left = new float[] { -offset, offset,    0.0f,   0.0f }; 
+                var top = new float[]  {    0.0f,   0.0f, -offset, offset };
+
+                for (int i = 0; i < left.Length; ++i)
+                {
+                    _renderer.RenderTarget2D.DrawText(text,_font.TextFont, new SharpDX.Mathematics.Interop.RawRectangleF(
+                            _marginLeft + left[i], _marginTop + top[i],
+                            Width - _marginLeft + left[i], Height - _marginTop + top[i]), 
+                            _font.ShadowTextColor);
+                }
+
+            }
+
             _renderer.RenderTarget2D.DrawText(text, _font.TextFont, 
                 new SharpDX.Mathematics.Interop.RawRectangleF(_marginLeft, _marginTop, Width - _marginLeft, Height - _marginTop), _font.TextColor);
         }
@@ -183,6 +220,28 @@ namespace TsumugiRenderer.Engine.Text
         /// <summary>
         /// 
         /// </summary>
+        public void Dispose()
+        {
+            _defaultFont?.Dispose();
+            _defaultFont = null;
+            _font?.Dispose();
+            _font = null;
+
+            foreach (var collection in _fontCollections)
+            {
+                collection.Dispose();
+            }
+            foreach (var loader in _fileFontLoaders)
+            {
+                loader.Dispose();
+            }
+            _fontCollections.Clear();
+            _fileFontLoaders.Clear();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private float _deltaTime;
 
         /// <summary>
@@ -218,6 +277,16 @@ namespace TsumugiRenderer.Engine.Text
         /// <summary>
         /// 
         /// </summary>
+        private List<ResourceFont.FileFontLoader> _fileFontLoaders;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private List<FontCollection> _fontCollections;
+
+        /// <summary>
+        /// 
+        /// </summary>
         private Renderer _renderer;
     }
 
@@ -249,7 +318,7 @@ namespace TsumugiRenderer.Engine.Text
         /// <summary>
         /// ルビの位置オフセット
         /// </summary>
-        public int RubyOffset { get; set; }
+        public float RubyOffset { get; set; }
 
         /// <summary>
         /// ルビのフォント名
@@ -267,6 +336,11 @@ namespace TsumugiRenderer.Engine.Text
         public int ShadowColor { get; set; }
 
         /// <summary>
+        /// 影の位置オフセット
+        /// </summary>
+        public float ShadowOffset { get; set; }
+
+        /// <summary>
         /// 縁取りするか
         /// </summary>
         public bool Edge { get; set; }
@@ -282,9 +356,17 @@ namespace TsumugiRenderer.Engine.Text
         public bool Bold { get; set; }
 
         /// <summary>
-        /// フォントコレクション
+        /// フォントをファイルから読み込む場合のファイル名
         /// </summary>
-        public FontCollection FontCollection { get; set; }
+        public string FontFilePath { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Font()
+        {
+            ShadowOffset = 1.5f;
+        }
     }
 
     /// <summary>
@@ -311,5 +393,30 @@ namespace TsumugiRenderer.Engine.Text
         ///
         /// </summary>
         public SolidColorBrush EdgeTextColor { get; set; }
+
+        /// <summary>
+        /// 影の位置オフセット
+        /// </summary>
+        public float ShadowOffset { get; set; }
+
+        /// <summary>
+        /// 縁取り
+        /// </summary>
+        public bool Edge { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Dispose()
+        {
+            TextFont?.Dispose();
+            TextFont = null;
+            TextColor?.Dispose();
+            TextColor = null;
+            ShadowTextColor?.Dispose();
+            ShadowTextColor = null;
+            EdgeTextColor?.Dispose();
+            EdgeTextColor = null;
+        }
     }
 }

@@ -51,6 +51,8 @@ namespace TsumugiRenderer
         /// <param name="height"></param>
         public void Initialize(IntPtr handle, int width, int height)
         {
+            SharpDX.Configuration.EnableObjectTracking = true;
+
             // スワップチェーン設定
             var desc = new SwapChainDescription()
             {
@@ -197,12 +199,21 @@ namespace TsumugiRenderer
             context.Flush();
 
             _textFont?.Dispose();
-            _backBuffer.Dispose();
-            _directWriteFactory.Dispose();
-            _direct2DFactory.Dispose();
-            _swapChain.Dispose();
-            _renderTarget2D.Dispose();
-            _device.Dispose();
+            _textFont = null;
+            _backBuffer?.Dispose();
+            _backBuffer = null;
+            _directWriteFactory?.Dispose();
+            _directWriteFactory = null;
+            _direct2DFactory?.Dispose();
+            _direct2DFactory = null;
+            _swapChain?.Dispose();
+            _swapChain = null;
+            _renderTarget2D?.Dispose();
+            _renderTarget2D = null;
+            _device?.Dispose();
+            _device = null;
+
+            SharpDX.Diagnostics.ObjectTracker.ReportActiveObjects();
         }
 
         /// <summary>
