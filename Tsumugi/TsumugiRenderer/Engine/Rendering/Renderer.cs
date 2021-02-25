@@ -136,28 +136,6 @@ namespace TsumugiRenderer
         public void BeginRendering()
         {
             _renderTarget2D?.BeginDraw();
-            //_renderTarget2D?.Clear(_clearColor);
-            /*
-            // 線描画：線のみ
-            _renderTarget2D.DrawLine(
-                new SharpDX.Mathematics.Interop.RawVector2(0.0f, 0.0f), 
-                new SharpDX.Mathematics.Interop.RawVector2(10.0f, 10.0f), _colorBrush);
-
-            // 四角形描画：線のみ
-            _renderTarget2D.DrawRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 100.0f, 350.0f, 180.0f), _colorBrush);
-            // 四角形描画：塗りつぶし
-            _renderTarget2D.FillRectangle(new SharpDX.Mathematics.Interop.RawRectangleF(250.0f, 300.0f, 350.0f, 380.0f), _colorBrush);
-
-            // 文字描画位置
-            var pos = new SharpDX.Mathematics.Interop.RawVector2(30.0f, 10.0f);
-            // 文字を描画する領域
-            // ※「改行の目安」や「文字のAlignment」などで使用される
-            float maxWidth = 1000.0f;
-            float maxHeight = 1000.0f;
-
-            // 文字描画
-            _renderTarget2D.DrawText("あなたが", _textFont, new SharpDX.Mathematics.Interop.RawRectangleF(pos.X, pos.Y, pos.X + maxWidth, pos.Y + maxHeight), _colorBrush);
-*/
         }
 
         /// <summary>
@@ -198,8 +176,6 @@ namespace TsumugiRenderer
             context.ClearState();
             context.Flush();
 
-            _textFont?.Dispose();
-            _textFont = null;
             _backBuffer?.Dispose();
             _backBuffer = null;
             _directWriteFactory?.Dispose();
@@ -250,10 +226,5 @@ namespace TsumugiRenderer
         /// 
         /// </summary>
         private SharpDX.DirectWrite.Factory _directWriteFactory;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public TextFormat _textFont;
     }
 }
