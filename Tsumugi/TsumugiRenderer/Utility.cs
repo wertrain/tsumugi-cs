@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace TsumugiRenderer
 {
     /// <summary>
-    /// 
+    /// ユーティリティ
     /// </summary>
     class Utility
     {
         /// <summary>
-        /// 
+        /// RawColor4 に変換
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
@@ -23,7 +23,7 @@ namespace TsumugiRenderer
         }
 
         /// <summary>
-        /// 
+        /// RawColor4 に変換
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
@@ -33,7 +33,7 @@ namespace TsumugiRenderer
         }
 
         /// <summary>
-        /// 
+        /// 色に変換
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
