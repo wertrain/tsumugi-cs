@@ -88,8 +88,10 @@ namespace TsumugiRenderer
                 out _device, out _swapChain);
 
             // Windows の不要なイベントを無効にする
-            var factory = _swapChain.GetParent<SharpDX.DXGI.Factory>();
-            factory.MakeWindowAssociation(handle, WindowAssociationFlags.IgnoreAll);
+            using (var factory = _swapChain.GetParent<SharpDX.DXGI.Factory>())
+            {
+                factory.MakeWindowAssociation(handle, WindowAssociationFlags.IgnoreAll);
+            }
 
             // バックバッファを保持する
             _backBuffer = SharpDX.Direct3D11.Resource.FromSwapChain<Texture2D>(_swapChain, 0);
