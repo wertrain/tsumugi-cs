@@ -59,17 +59,17 @@ namespace TsumugiRenderer
         /// <param name="renderer"></param>
         public RenderManager(IntPtr handle, int width, int height)
         {
-            _renderer = new Renderer();
-            _renderer.Initialize(handle, width, height);
-            _renderer.ClearColor = System.Drawing.Color.WhiteSmoke;
+            Renderer = new Renderer();
+            Renderer.Initialize(handle, width, height);
+            Renderer.ClearColor = System.Drawing.Color.WhiteSmoke;
 
             Layers = new List<RenderLayer>();
-            var layer = new Layer(_renderer.RenderTarget2D);
+            var layer = new Layer(Renderer.RenderTarget2D);
             var layerParameters = new LayerParameters();
             layerParameters.ContentBounds = new SharpDX.Mathematics.Interop.RawRectangleF(0, 0, width, height);
-            layerParameters.GeometricMask = new RectangleGeometry(_renderer.Direct2DFactory, new SharpDX.Mathematics.Interop.RawRectangleF(0, 0, width, height));
+            layerParameters.GeometricMask = new RectangleGeometry(Renderer.Direct2DFactory, new SharpDX.Mathematics.Interop.RawRectangleF(0, 0, width, height));
             layerParameters.MaskTransform = new SharpDX.Mathematics.Interop.RawMatrix3x2(1, 0.0f, 0, 1, 0, 0);
-            layerParameters.OpacityBrush = new SolidColorBrush(_renderer.RenderTarget2D, Utility.ToRawColor4(System.Drawing.Color.White));
+            layerParameters.OpacityBrush = new SolidColorBrush(Renderer.RenderTarget2D, Utility.ToRawColor4(System.Drawing.Color.White));
             layerParameters.Opacity = 1.0f;
             layerParameters.LayerOptions = LayerOptions.InitializeForCleartype;
            
@@ -78,32 +78,32 @@ namespace TsumugiRenderer
                 Layer = layer,
                 LayerParameters = layerParameters
             });
-
-            _textEngine = new TextEngine(_renderer, width, height);
-            _textEngine.SetFont(new Engine.Text.Font()
-            {
-                Face = @"ラノベポップ",
-                Size = 34,
-                //Bold = true,
-                Color = unchecked((int)0xFF000000),
-                ShadowColor = unchecked((int)0xFFff3333),
-                Shadow = false,
-                EdgeColor = unchecked((int)0xFFffff33),
-                Edge = true,
-               //FontFilePath = @"C:\Users\Owner\Downloads\Shippori_Mincho\ShipporiMincho-Regular.ttf"
-            });
-            _textEngine.AppendText("メロスは激怒した。必ず、かの邪智暴虐の王を除かなければならぬと決意した。メロスには政治がわからぬ。メロスは、村の牧人である。笛を吹き、羊と遊んで暮して来た。けれども邪悪に対しては、人一倍に敏感であった。きょう未明メロスは村を出発し、野を越え山越え、十里はなれた此のシラクスの市にやって来た。メロスには父も、母も無い。女房も無い。十六の、内気な妹と二人暮しだ。この妹は、村の或る律気な一牧人を、近々、花婿として迎える事になっていた。結婚式も間近かなのである。");
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void BeginRendering() => Renderer.BeginRendering();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Clear() => Renderer.Clear2D();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void EndRendering() => Renderer.EndRendering();
 
         /// <summary>
         /// 
         /// </summary>
         public void Render()
         {
-            _renderer.BeginRendering();
-            _renderer.Clear2D();
-            _renderer.RenderTarget2D.Transform = new SharpDX.Mathematics.Interop.RawMatrix3x2(1, 0, 0, 1, 0, 0);
-            _textEngine.Render();
+            Renderer.BeginRendering();
+            Renderer.Clear2D();
+            Renderer.RenderTarget2D.Transform = new SharpDX.Mathematics.Interop.RawMatrix3x2(1, 0, 0, 1, 0, 0);
+            //_textEngine.Render();
 
             //var param = Layers[0].LayerParameters;
             //_renderer.RenderTarget2D.PushLayer(ref param, Layers[0].Layer);
@@ -117,16 +117,7 @@ namespace TsumugiRenderer
 
             // _renderer.RenderTarget2D.PopLayer();
 
-            _renderer.EndRendering();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="delta"></param>
-        public void Update(float delta)
-        {
-            _textEngine.Update(delta);
+            Renderer.EndRendering();
         }
 
         /// <summary>
@@ -136,7 +127,7 @@ namespace TsumugiRenderer
         /// <param name="height"></param>
         public void Resize(int width, int height)
         {
-            _renderer.Resize(width, height);
+            Renderer.Resize(width, height);
         }
 
         /// <summary>
@@ -144,21 +135,13 @@ namespace TsumugiRenderer
         /// </summary>
         public void Dispose()
         {
-            _textEngine?.Dispose();
-            _textEngine = null;
-
-            _renderer?.Dispose();
-            _renderer = null;
+            Renderer?.Dispose();
+            Renderer = null;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private Renderer _renderer;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private TextEngine _textEngine;
+        public Renderer Renderer { get; private set; }
     }
 }

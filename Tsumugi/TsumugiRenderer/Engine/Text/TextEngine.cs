@@ -12,7 +12,7 @@ namespace TsumugiRenderer.Engine.Text
     /// <summary>
     /// テキスト描画エンジン
     /// </summary>
-    class TextEngine : IDisposable
+    public class TextEngine : IDisposable
     {
         /// <summary>
         /// 

@@ -160,7 +160,7 @@ namespace TsumugiEditor
         private void CloseCommand(object sender, ExecutedRoutedEventArgs e) => Shutdown();
     }
 
-    class CommandExecutor : Tsumugi.Text.Executing.ICommandExecutor
+    class CommandExecutor : ICommandExecutor
     {
         public CommandExecutor(TextBox textbox)
         {

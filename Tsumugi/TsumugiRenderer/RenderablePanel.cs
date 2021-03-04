@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using TsumugiRenderer.Engine.Text;
 
 namespace TsumugiRenderer
 {
@@ -14,11 +15,30 @@ namespace TsumugiRenderer
         public RenderManager RenderManager;
 
         /// <summary>
+        /// テキスト描画エンジン
+        /// </summary>
+        public TextEngine TextEngine;
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         public RenderablePanel()
         {
             RenderManager = new RenderManager(Handle, 800, 600);
+
+            TextEngine = new TextEngine(RenderManager.Renderer, 800, 600);
+
+            TextEngine.SetFont(new Engine.Text.Font()
+            {
+                Face = @"ラノベポップ",
+                Size = 34,
+                Bold = false,
+                Color = unchecked((int)0xFF000000),
+                ShadowColor = unchecked((int)0xFFff3333),
+                Shadow = false,
+                EdgeColor = unchecked((int)0xFFffff33),
+                Edge = true,
+            });
 
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque, true);
         }
@@ -28,7 +48,10 @@ namespace TsumugiRenderer
         /// </summary>
         public void Render()
         {
-            RenderManager.Render();
+            RenderManager.BeginRendering();
+            RenderManager.Clear();
+            TextEngine.Render();
+            RenderManager.EndRendering();
         }
 
         /// <summary>
@@ -37,7 +60,7 @@ namespace TsumugiRenderer
         /// <param name="delta"></param>
         public void Update(float delta)
         {
-            RenderManager.Update(delta);
+            TextEngine.Update(delta);
         }
 
         /// <summary>
@@ -46,7 +69,7 @@ namespace TsumugiRenderer
         /// <param name="e"></param>
         protected override void OnPaint(PaintEventArgs e)
         {
-            RenderManager.Render();
+            Render();
         }
 
         /// <summary>
@@ -64,7 +87,10 @@ namespace TsumugiRenderer
         /// </summary>
         public void Close()
         {
-            RenderManager.Dispose();
+            TextEngine?.Dispose();
+            TextEngine = null;
+            RenderManager?.Dispose();
+            RenderManager = null;
         }
     }
 }
