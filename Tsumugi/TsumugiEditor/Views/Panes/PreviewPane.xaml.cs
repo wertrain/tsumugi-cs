@@ -29,6 +29,11 @@ namespace TsumugiEditor.Views.Panes
         /// <summary>
         /// 
         /// </summary>
+        public TsumugiRenderer.RenderablePanel RenderablePanel { get { return _renderablePanel; } }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public PreviewPane()
         {
             InitializeComponent();

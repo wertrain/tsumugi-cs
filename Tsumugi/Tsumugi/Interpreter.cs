@@ -11,7 +11,12 @@ namespace Tsumugi
         /// <summary>
         /// コマンド実行クラス
         /// </summary>
-        public Text.Executing.ICommandExecutor Executor { get; set; }
+        public Text.Executing.ICommandExecutor Executor { set { Executors.Add(value); } }
+
+        /// <summary>
+        /// コマンド実行クラス
+        /// </summary>
+        public List<Text.Executing.ICommandExecutor> Executors { get; set; }
 
         /// <summary>
         /// 警告表示イベント
@@ -46,6 +51,7 @@ namespace Tsumugi
             Enviroment = new Script.Evaluating.Enviroment();
             Evaluator = new Script.Evaluating.Evaluator();
             Logger = new Log.Logger();
+            Executors = new List<Text.Executing.ICommandExecutor>();
             ConditionalSeekStack = new Stack<ConditionalSeekParameter>();
         }
 
@@ -96,159 +102,162 @@ namespace Tsumugi
             {
                 if (ConditionalCommandSeek(queue, command)) continue;
 
-                switch (command)
+                foreach (var executor in Executors)
                 {
-                    case Text.Commanding.Commands.PrintTextCommand cmd:
-                        Executor.PrintText(cmd.Text);
-                        break;
+                    switch (command)
+                    {
+                        case Text.Commanding.Commands.PrintTextCommand cmd:
+                            executor.PrintText(cmd.Text);
+                            break;
 
-                    case Text.Commanding.Commands.NewLineCommand cmd:
-                        Executor.StartNewLine();
-                        break;
+                        case Text.Commanding.Commands.NewLineCommand cmd:
+                            executor.StartNewLine();
+                            break;
 
-                    case Text.Commanding.Commands.WaitKeyCommand cmd:
-                        Executor.WaitAnyKey();
-                        break;
+                        case Text.Commanding.Commands.WaitKeyCommand cmd:
+                            executor.WaitAnyKey();
+                            break;
 
-                    case Text.Commanding.Commands.NewPageCommand cmd:
-                        Executor.StartNewPage();
-                        break;
+                        case Text.Commanding.Commands.NewPageCommand cmd:
+                            executor.StartNewPage();
+                            break;
 
-                    case Text.Commanding.Commands.DefineVariablesCommand cmd:
-                        DefineVariables(cmd);
-                        break;
+                        case Text.Commanding.Commands.DefineVariablesCommand cmd:
+                            DefineVariables(cmd);
+                            break;
 
-                    case Text.Commanding.Commands.WaitTimeCommand cmd:
-                        if (ResolveVariableReferences<int>(cmd.Time))
-                        {
-                            Executor.WaitTime(cmd.Time.GetValueOrDefault());
-                        }
-                        break;
-
-                    case Text.Commanding.Commands.JumpCommand cmd:
-                        var labels = queue.FindCommands<Text.Commanding.Commands.LabelCommand>();
-                        var label = labels.Find(c => c.Name == cmd.Target);
-                        queue.Seek(label);
-                        break;
-
-                    case Text.Commanding.Commands.IfCommand cmd:
-                        if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(cmd.Expression)))
-                        {
-                            var endIfCommand = cmd.RelatedCommands[cmd.RelatedCommands.Count - 1];
-                            ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.RelatedCommands, endIfCommand));
-                        }
-                        else
-                        {
-                            for (int index = 0; index < cmd.RelatedCommands.Count; ++index)
+                        case Text.Commanding.Commands.WaitTimeCommand cmd:
+                            if (ResolveVariableReferences<int>(cmd.Time))
                             {
-                                var next = cmd.RelatedCommands[index];
+                                executor.WaitTime(cmd.Time.GetValueOrDefault());
+                            }
+                            break;
+
+                        case Text.Commanding.Commands.JumpCommand cmd:
+                            var labels = queue.FindCommands<Text.Commanding.Commands.LabelCommand>();
+                            var label = labels.Find(c => c.Name == cmd.Target);
+                            queue.Seek(label);
+                            break;
+
+                        case Text.Commanding.Commands.IfCommand cmd:
+                            if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(cmd.Expression)))
+                            {
+                                var endIfCommand = cmd.RelatedCommands[cmd.RelatedCommands.Count - 1];
+                                ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.RelatedCommands, endIfCommand));
+                            }
+                            else
+                            {
+                                for (int index = 0; index < cmd.RelatedCommands.Count; ++index)
+                                {
+                                    var next = cmd.RelatedCommands[index];
+                                    switch (next)
+                                    {
+                                        case Text.Commanding.Commands.ElifCommand elifCmd:
+                                            if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(elifCmd.Expression)))
+                                            {
+                                                var endIfCommand = cmd.RelatedCommands[cmd.RelatedCommands.Count - 1];
+                                                ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.RelatedCommands, endIfCommand));
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                continue;
+                                            }
+
+                                        case Text.Commanding.Commands.ElseCommand elseCmd:
+                                            {
+                                                var endIfCommand = cmd.RelatedCommands[cmd.RelatedCommands.Count - 1];
+                                                ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.RelatedCommands, endIfCommand));
+                                            }
+                                            break;
+                                    }
+
+                                    if (queue.Seek(next))
+                                    {
+                                        queue.Dequeue();
+                                    }
+                                    break;
+                                }
+                            }
+                            break;
+
+                        case Text.Commanding.Commands.ElifCommand cmd:
+                            if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(cmd.Expression)))
+                            {
+                                var siblings = cmd.IfCommand.RelatedCommands;
+                                var endIfCommand = siblings[siblings.Count - 1];
+                                ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.IfCommand.RelatedCommands, endIfCommand));
+                            }
+                            else
+                            {
+                                var siblings = cmd.IfCommand.RelatedCommands;
+                                var next = siblings[siblings.IndexOf(cmd) + 1];
                                 switch (next)
                                 {
                                     case Text.Commanding.Commands.ElifCommand elifCmd:
                                         if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(elifCmd.Expression)))
                                         {
-                                            var endIfCommand = cmd.RelatedCommands[cmd.RelatedCommands.Count - 1];
-                                            ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.RelatedCommands, endIfCommand));
-                                            break;
+                                            var endIfCommand = siblings[siblings.Count - 1];
+                                            ConditionalSeekStack.Push(new ConditionalSeekParameter(siblings, endIfCommand));
                                         }
-                                        else
-                                        {
-                                            continue;
-                                        }
+                                        break;
 
                                     case Text.Commanding.Commands.ElseCommand elseCmd:
                                         {
-                                            var endIfCommand = cmd.RelatedCommands[cmd.RelatedCommands.Count - 1];
-                                            ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.RelatedCommands, endIfCommand));
+                                            var endIfCommand = siblings[siblings.Count - 1];
+                                            ConditionalSeekStack.Push(new ConditionalSeekParameter(siblings, endIfCommand));
                                         }
                                         break;
                                 }
-
-                                if (queue.Seek(next))
-                                {
-                                    queue.Dequeue();
-                                }
-                                break;
+                                queue.Seek(next);
                             }
-                        }
-                        break;
+                            break;
 
-                    case Text.Commanding.Commands.ElifCommand cmd:
-                        if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(cmd.Expression)))
-                        {
-                            var siblings = cmd.IfCommand.RelatedCommands;
-                            var endIfCommand = siblings[siblings.Count - 1];
-                            ConditionalSeekStack.Push(new ConditionalSeekParameter(cmd.IfCommand.RelatedCommands, endIfCommand));
-                        }
-                        else
-                        {
-                            var siblings = cmd.IfCommand.RelatedCommands;
-                            var next = siblings[siblings.IndexOf(cmd) + 1];
-                            switch (next)
+                        case Text.Commanding.Commands.EndIfCommand cmd:
+                            break;
+
+                        case Text.Commanding.Commands.EvalCommand cmd:
+                            Eval(cmd.Expression);
+                            break;
+
+                        case Text.Commanding.Commands.EmbedCommand cmd:
+                            executor.PrintText(Eval(cmd.Expression).Inspect());
+                            break;
+
+                        case Text.Commanding.Commands.DefaultFontCommand cmd:
+                            executor.SetDefaultFont(new Text.Executing.Font
                             {
-                                case Text.Commanding.Commands.ElifCommand elifCmd:
-                                    if (Text.Commanding.Commands.IfCommandUtility.IsTrue(Eval(elifCmd.Expression)))
-                                    {
-                                        var endIfCommand = siblings[siblings.Count - 1];
-                                        ConditionalSeekStack.Push(new ConditionalSeekParameter(siblings, endIfCommand));
-                                    }
-                                    break;
+                                Size = cmd.Size,
+                                Face = cmd.Face,
+                                Color = cmd.Color,
+                                RubySize = cmd.RubySize,
+                                RubyOffset = cmd.RubyOffset,
+                                RubyFace = cmd.RubyFace,
+                                Shadow = cmd.Shadow,
+                                ShadowColor = cmd.ShadowColor,
+                                Edge = cmd.Edge,
+                                EdgeColor = cmd.EdgeColor,
+                                Bold = cmd.Bold,
+                            });
+                            break;
 
-                                case Text.Commanding.Commands.ElseCommand elseCmd:
-                                    {
-                                        var endIfCommand = siblings[siblings.Count - 1];
-                                        ConditionalSeekStack.Push(new ConditionalSeekParameter(siblings, endIfCommand));
-                                    }
-                                    break;
-                            }
-                            queue.Seek(next);
-                        }
-                        break;
-
-                    case Text.Commanding.Commands.EndIfCommand cmd:
-                        break;
-
-                    case Text.Commanding.Commands.EvalCommand cmd:
-                        Eval(cmd.Expression);
-                        break;
-
-                    case Text.Commanding.Commands.EmbedCommand cmd:
-                        Executor.PrintText(Eval(cmd.Expression).Inspect());
-                        break;
-
-                    case Text.Commanding.Commands.DefaultFontCommand cmd:
-                        Executor.SetDefaultFont(new Text.Executing.Font
-                        {
-                            Size = cmd.Size,
-                            Face = cmd.Face,
-                            Color = cmd.Color,
-                            RubySize = cmd.RubySize,
-                            RubyOffset = cmd.RubyOffset,
-                            RubyFace = cmd.RubyFace,
-                            Shadow = cmd.Shadow,
-                            ShadowColor = cmd.ShadowColor,
-                            Edge = cmd.Edge,
-                            EdgeColor = cmd.EdgeColor,
-                            Bold = cmd.Bold,
-                        });
-                        break;
-
-                    case Text.Commanding.Commands.FontCommand cmd:
-                        Executor.SetFont(new Text.Executing.Font
-                        {
-                            Size = cmd.Size,
-                            Face = cmd.Face,
-                            Color = cmd.Color,
-                            RubySize = cmd.RubySize,
-                            RubyOffset = cmd.RubyOffset,
-                            RubyFace = cmd.RubyFace,
-                            Shadow = cmd.Shadow,
-                            ShadowColor = cmd.ShadowColor,
-                            Edge = cmd.Edge,
-                            EdgeColor = cmd.EdgeColor,
-                            Bold = cmd.Bold,
-                        });
-                        break;
+                        case Text.Commanding.Commands.FontCommand cmd:
+                            executor.SetFont(new Text.Executing.Font
+                            {
+                                Size = cmd.Size,
+                                Face = cmd.Face,
+                                Color = cmd.Color,
+                                RubySize = cmd.RubySize,
+                                RubyOffset = cmd.RubyOffset,
+                                RubyFace = cmd.RubyFace,
+                                Shadow = cmd.Shadow,
+                                ShadowColor = cmd.ShadowColor,
+                                Edge = cmd.Edge,
+                                EdgeColor = cmd.EdgeColor,
+                                Bold = cmd.Bold,
+                            });
+                            break;
+                    }
                 }
             }
 

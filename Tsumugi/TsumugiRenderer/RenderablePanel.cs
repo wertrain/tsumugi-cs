@@ -30,7 +30,7 @@ namespace TsumugiRenderer
 
             TextEngine.SetFont(new Engine.Text.Font()
             {
-                Face = @"ラノベポップ",
+                Face = @"Yu Gothic UI",
                 Size = 34,
                 Bold = false,
                 Color = unchecked((int)0xFF000000),

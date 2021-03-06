@@ -101,13 +101,21 @@ namespace TsumugiEditor
             var document = _documentPane.SelectedContent as Xceed.Wpf.AvalonDock.Layout.LayoutDocument;
             var editor = document.Content as ICSharpCode.AvalonEdit.TextEditor;
 
+            var interpreter = new Tsumugi.Interpreter();
+
             var outputPane = _anchorablePane.Children.ToList().Find(child => child.ContentId == "Output".Localize());
             if (outputPane != null)
             {
-                var interpreter = new Tsumugi.Interpreter();
                 interpreter.Executor = new CommandExecutor(outputPane.Content as TextBox);
-                interpreter.Execute(editor.Text);
             }
+
+            var renderablePanel = _previewPane.RenderablePanel;
+            if (renderablePanel != null)
+            {
+                interpreter.Executor = new TsumugiRenderer.RenderableExecutor(renderablePanel);
+            }
+
+            interpreter.Execute(editor.Text);
         }
 
         /// <summary>
