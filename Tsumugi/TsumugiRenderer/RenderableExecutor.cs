@@ -24,17 +24,38 @@ namespace TsumugiRenderer
 
         public void PrintText(string text)
         {
+            TextEngine.ClearText();
             TextEngine.AppendText(text);
         }
 
         public void SetDefaultFont(Tsumugi.Text.Executing.Font font)
         {
-            throw new NotImplementedException();
+            TextEngine.SetDefaultFont(new Engine.Text.Font()
+            {
+                Face = font.Face,
+                Size = font.Size,
+                Bold = font.Bold,
+                Color = unchecked((int)font.Color),
+                ShadowColor = unchecked((int)font.ShadowColor),
+                Shadow = font.Shadow,
+                EdgeColor = unchecked((int)font.EdgeColor),
+                Edge = font.Edge
+            });
         }
 
         public void SetFont(Tsumugi.Text.Executing.Font font)
         {
-            throw new NotImplementedException();
+            TextEngine.SetFont(new Engine.Text.Font()
+            {
+                Face = font.Face,
+                Size = font.Size,
+                Bold = font.Bold,
+                Color = unchecked((int)font.Color),
+                ShadowColor = unchecked((int)font.ShadowColor),
+                Shadow = font.Shadow,
+                EdgeColor = unchecked((int)font.EdgeColor),
+                Edge = font.Edge
+            });
         }
 
         public void StartNewLine()
