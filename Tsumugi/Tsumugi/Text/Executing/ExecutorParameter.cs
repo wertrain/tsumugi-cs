@@ -63,5 +63,10 @@ namespace Tsumugi.Text.Executing
         /// 太字にするか
         /// </summary>
         public bool Bold { get; set; }
+
+        /// <summary>
+        /// 外部フォントファイル名
+        /// </summary>
+        public string FontFilePath { get; set; }
     }
 }

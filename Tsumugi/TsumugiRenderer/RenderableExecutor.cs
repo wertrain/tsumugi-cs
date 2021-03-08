@@ -39,7 +39,8 @@ namespace TsumugiRenderer
                 ShadowColor = unchecked((int)font.ShadowColor),
                 Shadow = font.Shadow,
                 EdgeColor = unchecked((int)font.EdgeColor),
-                Edge = font.Edge
+                Edge = font.Edge,
+                FontFilePath = font.FontFilePath
             });
         }
 
@@ -54,7 +55,8 @@ namespace TsumugiRenderer
                 ShadowColor = unchecked((int)font.ShadowColor),
                 Shadow = font.Shadow,
                 EdgeColor = unchecked((int)font.EdgeColor),
-                Edge = font.Edge
+                Edge = font.Edge,
+                FontFilePath = font.FontFilePath
             });
         }
 
