@@ -20,11 +20,11 @@ namespace TsumugiRenderer
         public RenderableExecutor(RenderablePanel renderablePanel)
         {
             RenderablePanel = renderablePanel;
+            TextEngine.ClearText();
         }
 
         public void PrintText(string text)
         {
-            TextEngine.ClearText();
             TextEngine.AppendText(text);
         }
 
@@ -62,12 +62,12 @@ namespace TsumugiRenderer
 
         public void StartNewLine()
         {
-            throw new NotImplementedException();
+            TextEngine.AppendText(System.Environment.NewLine);
         }
 
         public void StartNewPage()
         {
-            throw new NotImplementedException();
+            TextEngine.ClearText();
         }
 
         public void WaitAnyKey()

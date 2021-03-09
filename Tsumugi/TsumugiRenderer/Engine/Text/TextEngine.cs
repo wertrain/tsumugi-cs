@@ -152,18 +152,18 @@ namespace TsumugiRenderer.Engine.Text
         {
             var currentFont = _font;
 
-            float shadowOffset = _font.Parameter.ShadowOffset;
+            float shadowOffset = currentFont.Parameter.ShadowOffset;
             var allText = RenderText.ToString();
 
             var text = allText.Substring(0, _textPosition);
 
-            if (_font.Parameter.Shadow)
+            if (currentFont.Parameter.Shadow)
             {
-                _renderer.RenderTarget2D.DrawText(text, _font.TextFont,
+                _renderer.RenderTarget2D.DrawText(text, currentFont.TextFont,
                     new SharpDX.Mathematics.Interop.RawRectangleF(_marginLeft + shadowOffset, _marginTop + shadowOffset, Width - _marginLeft + shadowOffset, Height - _marginTop + shadowOffset), _font.ShadowTextColor);
             }
 
-            if (_font.Parameter.Edge)
+            if (currentFont.Parameter.Edge)
             {
                 var offset = 1.5f;
                 var left = new float[] { -offset, offset,    0.0f,   0.0f }; 
@@ -171,10 +171,10 @@ namespace TsumugiRenderer.Engine.Text
 
                 for (int i = 0; i < left.Length; ++i)
                 {
-                    _renderer.RenderTarget2D.DrawText(text,_font.TextFont, new SharpDX.Mathematics.Interop.RawRectangleF(
+                    _renderer.RenderTarget2D.DrawText(text, currentFont.TextFont, new SharpDX.Mathematics.Interop.RawRectangleF(
                             _marginLeft + left[i], _marginTop + top[i],
-                            Width - _marginLeft + left[i], Height - _marginTop + top[i]), 
-                            _font.EdgeTextColor);
+                            Width - _marginLeft + left[i], Height - _marginTop + top[i]),
+                            currentFont.EdgeTextColor);
                 }
 
             }
