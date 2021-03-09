@@ -77,7 +77,7 @@ namespace TsumugiRenderer
 
         public void WaitTime(int millisec)
         {
-            throw new NotImplementedException();
+            RenderablePanel.WaitTime = millisec * 1.0f;
         }
 
         /// <summary>

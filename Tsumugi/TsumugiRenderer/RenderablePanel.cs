@@ -20,6 +20,11 @@ namespace TsumugiRenderer
         public TextEngine TextEngine;
 
         /// <summary>
+        /// 
+        /// </summary>
+        public float WaitTime { get; set; }
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         public RenderablePanel()
@@ -33,10 +38,10 @@ namespace TsumugiRenderer
                 Face = @"Yu Gothic UI",
                 Size = 34,
                 Bold = false,
-                Color = unchecked((int)0xFF000000),
+                Color = unchecked((int)0xFFFFFFFF),
                 ShadowColor = unchecked((int)0xFFff3333),
                 Shadow = false,
-                EdgeColor = unchecked((int)0xFFffff33),
+                EdgeColor = unchecked((int)0xFF000000),
                 Edge = true,
             });
 
@@ -60,6 +65,14 @@ namespace TsumugiRenderer
         /// <param name="delta"></param>
         public void Update(float delta)
         {
+            if (WaitTime > 0)
+            {
+                if ((WaitTime -= delta) < 0)
+                {
+                    WaitTime = 0;
+                }
+                return;
+            }
             TextEngine.Update(delta);
         }
 
