@@ -149,6 +149,10 @@ namespace Tsumugi.Text.Parsing
                     {
                         var attr = GetAttribute("time", tag);
 
+                        if (int.TryParse(attr?.Value, out var time))
+                        {
+                            return new Commanding.Commands.WaitTimeCommand(time);
+                        }
                         return new Commanding.Commands.WaitTimeCommand(attr?.Value);
                     }
 

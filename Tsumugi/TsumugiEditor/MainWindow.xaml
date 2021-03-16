@@ -104,5 +104,5 @@
                 </xcad:LayoutPanel>
             </xcad:LayoutRoot>
         </xcad:DockingManager>
-        </Grid>
+    </Grid>
 </Window>
