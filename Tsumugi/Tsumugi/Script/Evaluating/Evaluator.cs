@@ -20,7 +20,7 @@ namespace Tsumugi.Script.Evaluating
         /// <param name="node">評価するノード</param>
         /// <param name="enviroment">環境</param>
         /// <returns>評価結果オブジェクト</returns>
-        public IObject Eval(INode node, Enviroment enviroment)
+        public IObject Eval(INode node, Environment enviroment)
         {
             switch (node)
             {
@@ -87,7 +87,7 @@ namespace Tsumugi.Script.Evaluating
         /// <param name="statements"></param>
         /// <param name="enviroment">環境</param>
         /// <returns></returns>
-        public IObject EvalRootProgram(List<IStatement> statements, Enviroment enviroment)
+        public IObject EvalRootProgram(List<IStatement> statements, Environment enviroment)
         {
             IObject result = null;
             foreach (var statement in statements)
@@ -113,7 +113,7 @@ namespace Tsumugi.Script.Evaluating
         /// <param name="blockStatement">評価するブロック文</param>
         /// <param name="enviroment">環境</param>
         /// <returns>評価後のオブジェクト</returns>
-        public IObject EvalBlockStatement(BlockStatement blockStatement, Enviroment enviroment)
+        public IObject EvalBlockStatement(BlockStatement blockStatement, Environment enviroment)
         {
             IObject result = null;
             foreach (var statement in blockStatement.Statements)
@@ -131,7 +131,7 @@ namespace Tsumugi.Script.Evaluating
         /// <param name="statements"></param>
         /// <param name="enviroment">環境</param>
         /// <returns></returns>
-        public IObject EvalStatements(List<IStatement> statements, Enviroment enviroment)
+        public IObject EvalStatements(List<IStatement> statements, Environment enviroment)
         {
             IObject result = null;
             foreach (var statement in statements)
@@ -153,7 +153,7 @@ namespace Tsumugi.Script.Evaluating
         /// <param name="identifier">評価する識別子</param>
         /// <param name="enviroment">環境</param>
         /// <returns>評価オブジェクト</returns>
-        public IObject EvalIdentifier(Identifier identifier, Enviroment enviroment)
+        public IObject EvalIdentifier(Identifier identifier, Environment enviroment)
         {
             var (value, ok) = enviroment.Get(identifier.Value);
             if (ok) return value;
@@ -170,7 +170,7 @@ namespace Tsumugi.Script.Evaluating
         /// <param name="expression"></param>
         /// <param name="enviroment"></param>
         /// <returns></returns>
-        public IObject EvalAssignExpression(AssignExpression expression, Enviroment enviroment)
+        public IObject EvalAssignExpression(AssignExpression expression, Environment enviroment)
         {
             var identifier = expression.Identifier;
             var (value, ok) = enviroment.Get(identifier.Value);
@@ -406,7 +406,7 @@ namespace Tsumugi.Script.Evaluating
         /// <param name="ifExpression">評価する If 式</param>
         /// <param name="enviroment">環境</param>
         /// <returns>評価後のオブジェクト</returns>
-        public IObject EvalIfExpression(IfExpression ifExpression, Enviroment enviroment)
+        public IObject EvalIfExpression(IfExpression ifExpression, Environment enviroment)
         {
             var condition = Eval(ifExpression.Condition, enviroment);
             if (IsError(condition)) return condition;
@@ -430,7 +430,7 @@ namespace Tsumugi.Script.Evaluating
         /// <param name="arguments"></param>
         /// <param name="enviroment"></param>
         /// <returns></returns>
-        public List<IObject> EvalExpressions(List<IExpression> arguments, Enviroment enviroment)
+        public List<IObject> EvalExpressions(List<IExpression> arguments, Environment enviroment)
         {
             var result = new List<IObject>();
 
@@ -473,9 +473,9 @@ namespace Tsumugi.Script.Evaluating
         /// <param name="fn"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public Enviroment ExtendEnviroment(FunctionObject fn, List<IObject> args)
+        public Environment ExtendEnviroment(FunctionObject fn, List<IObject> args)
         {
-            var enviroment = Enviroment.CreateNewEnclosedEnviroment(fn.Enviroment);
+            var enviroment = Environment.CreateNewEnclosedEnviroment(fn.Enviroment);
 
             for (int i = 0; i < fn.Parameters.Count; i++)
             {

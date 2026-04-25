@@ -31,7 +31,7 @@ namespace Tsumugi
         /// <summary>
         /// 実行環境
         /// </summary>
-        private Script.Evaluating.Enviroment Enviroment { get; set; }
+        private Script.Evaluating.Environment Enviroment { get; set; }
 
         /// <summary>
         /// 評価器
@@ -48,7 +48,7 @@ namespace Tsumugi
         /// </summary>
         public Interpreter()
         {
-            Enviroment = new Script.Evaluating.Enviroment();
+            Enviroment = new Script.Evaluating.Environment();
             Evaluator = new Script.Evaluating.Evaluator();
             Logger = new Log.Logger();
             Executors = new List<Text.Executing.ICommandExecutor>();

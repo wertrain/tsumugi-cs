@@ -6,7 +6,7 @@ namespace Tsumugi.Script.Evaluating
     /// <summary>
     /// 環境
     /// </summary>
-    public class Enviroment
+    public class Environment
     {
         /// <summary>
         /// 変数テーブル
@@ -16,16 +16,16 @@ namespace Tsumugi.Script.Evaluating
         /// <summary>
         /// 外部環境
         /// </summary>
-        public Enviroment Outer { get; set; }
+        public Environment Outer { get; set; }
 
         /// <summary>
         /// 外部環境を作成
         /// </summary>
         /// <param name="outer"></param>
         /// <returns></returns>
-        public static Enviroment CreateNewEnclosedEnviroment(Enviroment outer)
+        public static Environment CreateNewEnclosedEnviroment(Environment outer)
         {
-            var enviroment = new Enviroment();
+            var enviroment = new Environment();
             enviroment.Outer = outer;
             return enviroment;
         }

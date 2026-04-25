@@ -24,7 +24,7 @@ namespace Tsumugi.Script.Objects
         /// <summary>
         /// 環境
         /// </summary>
-        public Evaluating.Enviroment Enviroment { get; set; }
+        public Evaluating.Environment Enviroment { get; set; }
 
         /// <summary>
         /// オブジェクトのタイプ

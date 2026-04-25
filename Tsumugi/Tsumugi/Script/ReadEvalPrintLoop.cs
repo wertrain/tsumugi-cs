@@ -10,7 +10,7 @@ namespace Tsumugi.Script
         {
             Console.WriteLine("Hello Tsumugi Script!");
 
-            var enviroment = new Evaluating.Enviroment();
+            var enviroment = new Evaluating.Environment();
 
             while (true)
             {

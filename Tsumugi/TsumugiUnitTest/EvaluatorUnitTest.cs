@@ -86,7 +86,7 @@ namespace TsumugiUnitTest
             var parser = new Parser(lexer);
             var root = parser.ParseProgram();
             var evaluator = new Evaluator();
-            var enviroment = new Enviroment();
+            var enviroment = new Environment();
             return evaluator.Eval(root, enviroment);
         }
 
